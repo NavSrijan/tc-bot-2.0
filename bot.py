@@ -16,7 +16,8 @@ people_dict = {}
 ##########
 # Cogs to load
 cogs = ['revive_chat',
-'welcome'
+'welcome',
+'loops',
 ]
 
 async def load_cogs(bot, cogs):

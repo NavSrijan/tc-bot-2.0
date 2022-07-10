@@ -31,5 +31,13 @@ class Welcome(commands.Cog):
     async def hello(self, ctx):
         await ctx.send(f"Hello! {ctx.message.content[5:]}")
 
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        print(error)
+
+    @commands.command(name="yo")
+    async def yo(self, ctx):
+        await ctx.reply("yoyo")
+
 async def setup(bot):
     await bot.add_cog(Welcome(bot))
