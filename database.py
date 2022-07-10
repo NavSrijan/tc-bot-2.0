@@ -4,7 +4,7 @@ import psycopg2.extras
 import datetime
 import pdb
 
-DATABASE_URL = os.environ["DATABASE_URL"]
+DATABASE_URL = os.environ["DATABASE_URL2"]
 revivesAvailable = os.environ["revives_available"]
 
 """
