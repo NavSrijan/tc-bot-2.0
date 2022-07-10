@@ -50,7 +50,7 @@ async def on_message(message: discord.Message):
     if message.author == bot.user:
         return
     
-    print(message.content)
+    #print(message.content)
     message.content = message.content.lower()
 
     def process_messages(message):
@@ -62,7 +62,7 @@ async def on_message(message: discord.Message):
     if process_messages(message) == True:
         try:
             number_of_words = len(message.content.split(" "))
-            print(number_of_words)
+            #print(number_of_words)
             kk = people_dict[message.author.id]
             people_dict[message.author.id] = kk+number_of_words
         except:
