@@ -51,6 +51,7 @@ async def on_message(message: discord.Message):
         return
     
     print(message.content)
+    message.content = message.content.lower()
 
     def process_messages(message):
         to_not_count = ["owo", "pls"]
