@@ -104,18 +104,25 @@ class Database():
         cursor = self.connect()
         cursor.execute(sql,(0, ))
         self.closeConnection()
-    def get_messages_lb(self):
+    def get_messages_lb(self, num=0, to_send=True):
         cursor = self.connect()
         cursor.execute("SELECT id, messages_count FROM {} ORDER BY messages_count DESC;".format(self.tableName))
         allUsers = cursor.fetchall()
         self.closeConnection()
 
-        finalMsg = ''''''
-        chunk = "<@{}> --- {}\n"
+        if to_send==True:
+            finalMsg = ''''''
+            chunk = "<@{}> --- {}\n"
 
-        for i in allUsers:
-            finalMsg+= chunk.format(i[0], i[1])
-        return finalMsg
+            if num==0:
+                for i in allUsers[:10]:
+                    finalMsg+= chunk.format(i[0], i[1])
+            else:    
+                for i in allUsers[:num]:
+                    finalMsg+= chunk.format(i[0], i[1])
+                return finalMsg
+        else:
+            return allUsers
         
 def apppendMember(person):
     db = Database(DATABASE_URL, "members")

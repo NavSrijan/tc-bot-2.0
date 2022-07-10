@@ -1,16 +1,14 @@
 import discord
 import asyncio
-from discord.ext import commands
+from discord.ext import commands, tasks
 from functions import updateMessagesCount
 import os
 import time
-import pdb
 
 
 ##########
 # Variables
 ##
-numberOfMessages = 0
 people_dict = {}
 ##
 ##########
@@ -31,10 +29,19 @@ intents.members = True
 intents.message_content = True
 bot = commands.Bot(command_prefix="", intents=intents)
 
+@tasks.loop(minutes=5)
+async def push_to_db():
+    global people_dict
+    if len(people_dict)>1:
+        print("updating messages")
+        updateMessagesCount(people_dict)
+        people_dict = {}
 
 @bot.event
 async def on_ready():
     print('We have logged in as {0.user}'.format(bot))
+    await load_cogs(bot, cogs)
+    await push_to_db.start()
 
 @bot.event
 async def on_message(message: discord.Message):
@@ -52,17 +59,13 @@ async def on_message(message: discord.Message):
                 return False
         return True
     if process_messages(message) == True:
-        numberOfMessages+=1
         try:
+            number_of_words = len(message.content.split(" "))
+            print(number_of_words)
             kk = people_dict[message.author.id]
-            people_dict[message.author.id] = kk+1
+            people_dict[message.author.id] = kk+number_of_words
         except:
             people_dict[message.author.id] = 1
-    if numberOfMessages > 3:
-        print("updating messages")
-        updateMessagesCount(people_dict)
-        people_dict = {}
-        numberOfMessages = 0
 
     try:
         await bot.process_commands(message)
@@ -72,7 +75,6 @@ async def on_message(message: discord.Message):
 
 async def main():
     async with bot:
-        await load_cogs(bot, cogs)
         await bot.start(os.environ["token"])
 
 asyncio.run(main())

@@ -85,7 +85,14 @@ class Revive(commands.Cog):
     @commands.command(name="lb")
     async def yoyo(self, ctx):
         db = Database(DATABASE_URL, "members")
-        await ctx.channel.send(db.get_messages_lb())
+        await ctx.channel.send(db.get_messages_lb(num=10))
+
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.CommandNotFound):
+            pass
+        else:
+            ctx.message.reply(error)
 
 async def setup(bot):
     await bot.add_cog(Revive(bot))

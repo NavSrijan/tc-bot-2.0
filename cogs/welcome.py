@@ -33,7 +33,10 @@ class Welcome(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        print(error)
+        if isinstance(error, commands.CommandNotFound):
+            pass
+        else:
+            ctx.message.reply(error)
 
     @commands.command(name="yo")
     async def yo(self, ctx):
