@@ -55,7 +55,7 @@ async def on_message(message: discord.Message):
     def process_messages(message):
         to_not_count = ["owo", "pls"]
         for i in to_not_count:
-            if message.content.startswith(i):
+            if message.content.lower().startswith(i):
                 return False
         return True
     if process_messages(message) == True:
