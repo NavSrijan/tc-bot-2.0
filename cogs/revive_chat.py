@@ -92,7 +92,8 @@ class Revive(commands.Cog):
         if isinstance(error, commands.CommandNotFound):
             pass
         else:
-            ctx.message.reply(error)
+            #await ctx.message.reply(error)
+            print(error)
 
 async def setup(bot):
     await bot.add_cog(Revive(bot))
