@@ -84,7 +84,12 @@ class Database():
                     i[4] == int(user_dict[i[0]])
                 else:
                     i[4] = int(i[4]) + user_dict[i[0]]
+                user_dict.pop(i[0])
                 users_to_update.append(i)
+        for i in user_dict:
+            p1 = Person(i[0])
+            db.addMember(p1)
+            users_to_update.append(i)
 
         #(302253506947973130, 11),
         #(833548613632131126, 3)
