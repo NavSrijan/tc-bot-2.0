@@ -31,7 +31,7 @@ class Welcome(commands.Cog):
         tc_emoji = "<a:tc_excited:995961225525608500>"
         #unk = "<a:tc_excited:995961992173072445>"
 
-        message = await self.bot.wait_for('message', check = check, timeout = 60.0)
+        message = await self.bot.wait_for('message', check = check, timeout = 300)
         await message.add_reaction(tc_emoji)
     
     @commands.command(name="hello")
