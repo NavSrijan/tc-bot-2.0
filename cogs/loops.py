@@ -14,7 +14,8 @@ class Loops(commands.Cog):
         if isinstance(error, commands.CommandNotFound):
             pass
         else:
-            ctx.message.reply(error)
+            #ctx.message.reply(error)
+            print(error)
 
     @commands.has_permissions(kick_members=True)
     @commands.command(name="reset")

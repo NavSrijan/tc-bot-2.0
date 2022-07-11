@@ -35,7 +35,7 @@ class Database():
         WHERE id=%s;
         """.format(self.tableName)
         cursor = self.connect()
-        cursor.execute(sql,(person.revives, person.last_used, person.id))
+        cursor.execute(sql,(person.revives_available, person.last_used, person.id))
         self.closeConnection()
 
     def addMember(self,person):
@@ -64,8 +64,8 @@ class Database():
         temp = cursor.fetchall()
         self.closeConnection()
         p1 = temp[0]
-        person.last_used = p1[-1]
-        person.revives = p1[1]
+        person.last_used = p1[2]
+        person.revives_available = p1[1]
         return(person)
     def viewAllUsers(self):
         cursor = self.connect()

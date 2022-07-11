@@ -36,7 +36,8 @@ class Welcome(commands.Cog):
         if isinstance(error, commands.CommandNotFound):
             pass
         else:
-            ctx.message.reply(error)
+            #ctx.message.reply(error)
+            print(error)
 
     @commands.command(name="yo")
     async def yo(self, ctx):

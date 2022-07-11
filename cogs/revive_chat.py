@@ -3,18 +3,18 @@ from discord import AllowedMentions
 from database import Database, DATABASE_URL
 from functions import utc_to_ist, load, save
 import datetime
-
+import pdb
 
 import os
 
 class Person():
-    def __init__(self, author, revives_available,  idd=0):
+    def __init__(self, author, idd=0):
         if idd==0:
             self.id = author.id
         else:
             self.id = idd
-        self.revives_available = revives_available
-        self.last_used = None
+        self.revives_available = int(os.environ["revives_available"])
+        self.last_used = datetime.datetime.now()
         self.revives_used = 0
 
 class Revive(commands.Cog):
@@ -29,9 +29,10 @@ class Revive(commands.Cog):
     async def revive(self, ctx):
         if ctx.message.content == "revive chat" and ctx.channel.id == int(os.environ["revive_channel"]):
             db = Database(DATABASE_URL, "members")
-            p1 = Person(ctx.message.author, self.revives_available)
+            p1 = Person(ctx.message.author)
             msg_time = utc_to_ist(ctx.message.created_at)
             
+
             try:
                 dateLast = load("date_last.pkl")
             except:
@@ -56,10 +57,10 @@ class Revive(commands.Cog):
                 self.last_used = utc_to_ist(datetime.datetime.utcnow())
 
             if (msg_time - self.last_used).seconds > self.revive_delay or self.last_used == None:
-                if p1.revives!=0:
+                if p1.revives_available!=0:
                     await ctx.channel.send(f"<@&{self.revive_role}> Trying to revive the chat. ||By <@{ctx.author.id}>||")
                     save(msg_time, "last_revive_time.pkl")
-                    p1.revives-=1
+                    p1.revives_available-=1
                     db.updateMember(p1)
                 else:
                     await ctx.reply("You have used all your revives today.")
@@ -86,6 +87,27 @@ class Revive(commands.Cog):
     async def yoyo(self, ctx):
         db = Database(DATABASE_URL, "members")
         await ctx.channel.send(db.get_messages_lb(num=10))
+
+    @commands.has_permissions(kick_members=True)
+    @commands.command(name="show_revives")
+    async def show_revives(self, ctx):
+        db = Database(DATABASE_URL, "members")
+        p1 = Person(ctx.message.author)
+
+        allowed_mentions=AllowedMentions(
+        users=False,         # Whether to ping individual user @mentions
+        everyone=False,      # Whether to ping @everyone or @here mentions
+        roles=False,         # Whether to ping role @mentions
+        replied_user=False,  # Whether to ping on replies to messages
+        )
+
+        finalMsg = """"""
+        chunk = "<@{}>: {}, {}"
+        all = db.viewAllUsers()
+
+        for i in all:
+            finalMsg+=chunk.format(i[0], i[1], i[3])+"\n"
+        await ctx.message.reply(finalMsg, allowed_mentions=allowed_mentions)
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
