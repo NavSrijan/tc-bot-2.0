@@ -53,6 +53,14 @@ async def on_message(message: discord.Message):
     #print(message.content)
     message.content = message.content.lower()
 
+    r_words =  message.content.lower().split(" ")
+    for i in r_words:
+        if i in ["tc", "teenage", "community", "teenage", "teenagecommunity"]:
+            tc_emoji = "<a:tc_excited:995961225525608500>"
+            #unk = "<a:tc_excited:995961992173072445>"
+            await message.add_reaction(tc_emoji)
+            break
+
     def process_messages(message):
         to_not_count = ["owo", "pls"]
         for i in to_not_count:
