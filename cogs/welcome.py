@@ -1,5 +1,6 @@
 from discord.ext import commands
 import os
+import pdb
 
 class Welcome(commands.Cog):
     def __init__(self, bot):
@@ -9,6 +10,9 @@ class Welcome(commands.Cog):
     async def on_member_join(self, member):
         channel = self.bot.get_channel(int(os.environ['welcome_channel']))
         self_roles_channel = int(os.environ['self_roles_channel'])
+
+        arrow1 = "<a:animatearrow:976181084578517032>"
+        arrow2 = "<a:arrowrigh23t:976181875083198464>"
 
         welcomeMessage = f"""
 ╭━─━─━─━─  ≪✠≫  ─━─━─━─━╮
@@ -24,8 +28,13 @@ class Welcome(commands.Cog):
         def check(message):
             return message.author == member
         
-        message = await self.bot.wait_for(event = 'message', check = check, timeout = 60.0)
-        await message.reply(message.content)
+        pdb.set_trace()
+
+        tc_emoji = "<a:tc_excited:995961225525608500>"
+        #unk = "<a:tc_excited:995961992173072445>"
+
+        message = await self.bot.wait_for('message', check = check, timeout = 60.0)
+        await message.add_reaction(tc_emoji)
     
     @commands.command(name="hello")
     async def hello(self, ctx):
