@@ -28,8 +28,6 @@ class Welcome(commands.Cog):
         def check(message):
             return message.author == member
         
-        pdb.set_trace()
-
         tc_emoji = "<a:tc_excited:995961225525608500>"
         #unk = "<a:tc_excited:995961992173072445>"
 
