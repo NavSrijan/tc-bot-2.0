@@ -1,7 +1,7 @@
 import discord
 import asyncio
 from discord.ext import commands, tasks
-from functions import updateMessagesCount
+from database import DB_messages, DATABASE_URL
 import os
 import time
 
@@ -15,7 +15,8 @@ people_dict = {}
 # Cogs to load
 cogs = ['revive_chat',
 'welcome',
-'loops',
+#'loops',
+
 ]
 
 async def load_cogs(bot, cogs):
@@ -28,14 +29,15 @@ intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 bot = commands.Bot(command_prefix="", intents=intents)
+db_2 = DB_messages(DATABASE_URL, "message_bank")
 
-@tasks.loop(minutes=5)
-async def push_to_db():
-    global people_dict
-    if len(people_dict)>1:
-        print("updating messages")
-        updateMessagesCount(people_dict)
-        people_dict = {}
+#@tasks.loop(minutes=5)
+#async def push_to_db():
+#    global people_dict
+#    if len(people_dict)>1:
+#        print("updating messages")
+#        updateMessagesCount(people_dict)
+#        people_dict = {}
 
 @bot.event
 async def on_ready():
@@ -53,6 +55,7 @@ async def on_message(message: discord.Message):
     #print(message.content)
     message.content = message.content.lower()
 
+    ## Reacting to user's first message.
     r_words =  message.content.lower().split(" ")
     for i in r_words:
         if i in ["tc", "teenage", "community", "teenage", "teenagecommunity"]:
@@ -70,11 +73,9 @@ async def on_message(message: discord.Message):
     if process_messages(message) == True:
         try:
             number_of_words = len(message.content.split(" "))
-            #print(number_of_words)
-            kk = people_dict[message.author.id]
-            people_dict[message.author.id] = kk+number_of_words
+            db_2.update_message(message.author.id, number_of_words)
         except:
-            people_dict[message.author.id] = 1
+            pass
 
     try:
         await bot.process_commands(message)

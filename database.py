@@ -3,6 +3,7 @@ import psycopg2
 import psycopg2.extras
 import datetime
 import pdb
+from functions import utc_to_ist
 
 DATABASE_URL = os.environ["DATABASE_URL2"]
 revivesAvailable = os.environ["revives_available"]
@@ -73,42 +74,6 @@ class Database():
         temp = cursor.fetchall()
         self.closeConnection()
         return(temp)
-    
-    def updateNumberOfMessages(self, user_dict):
-        allUsers = self.viewAllUsers()
-        users_to_update = []
-        
-        for i in allUsers:
-            if i[0] in user_dict:
-                if i[4] == None:
-                    i[4] == int(user_dict[i[0]])
-                else:
-                    i[4] = int(i[4]) + user_dict[i[0]]
-                user_dict.pop(i[0])
-                users_to_update.append(i)
-        for i in user_dict:
-            p1 = Person(i[0])
-            db.addMember(p1)
-            users_to_update.append(i)
-
-        #(302253506947973130, 11),
-        #(833548613632131126, 3)
-
-        sql = """UPDATE {}
-        SET messages_count=%s
-        WHERE id=%s;
-        """.format(self.tableName)
-        cursor = self.connect()
-        for i in users_to_update:
-            cursor.execute(sql,(i[4], i[0]))
-        self.closeConnection()
-    def resetMessagesCount(self):
-        sql = """UPDATE {}
-        SET messages_count=%s;
-        """.format(self.tableName)
-        cursor = self.connect()
-        cursor.execute(sql,(0, ))
-        self.closeConnection()
     def get_messages_lb(self, num=0, to_send=True):
         cursor = self.connect()
         cursor.execute("SELECT id, messages_count FROM {} ORDER BY messages_count DESC;".format(self.tableName))
@@ -128,10 +93,54 @@ class Database():
                 return finalMsg
         else:
             return allUsers
-        
+class DB_messages():
+    def __init__(self,DATABASE_URL,tableName):
+        self.DATABASE_URL = DATABASE_URL
+        self.tableName = tableName
+
+        self.messages_total_count = 0
+        self.update_after_count = 20
+
+    def connect(self):
+        self.conn = psycopg2.connect(self.DATABASE_URL)
+        self.cursor = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        return self.cursor
+    def closeConnection(self):
+        self.conn.commit()
+        self.conn.close()
+
+    def insert_new_entry(self, idd, date, count):
+        sql = """INSERT INTO {} (id, date, count) VALUES (%s, %s, %s);""".format(self.tableName)
+        self.cursor.execute(sql, (idd, date, count))
+        self.conn.commit()
+
+    def update_message(self, idd, count):
+        cursor = self.connect()
+        sql = """UPDATE {}
+        SET count = count + %s
+        WHERE id=%s and date=%s;
+        """.format(self.tableName)        
+        date = utc_to_ist(datetime.datetime.utcnow()).date()
+
+        if self.cursor.closed == True:
+            cursor = self.connect() 
+
+        cursor.execute(sql, (count, idd, date))
+
+        if cursor.statusmessage=="UPDATE 1":
+            self.conn.commit()
+            self.messages_total_count+=1
+        else:
+            self.insert_new_entry(idd, date, count)
+            self.messages_total_count+=1
+
+        if self.messages_total_count > self.update_after_count:
+            self.messages_total_count = 0
+
+
 def apppendMember(person):
     db = Database(DATABASE_URL, "members")
-    db.addMember(person)
+    db.addMember(person)        
 
 #class Person():
 #    def __init__(self):
@@ -140,7 +149,8 @@ def apppendMember(person):
 #        self.last_used = datetime.datetime.now()
 #person = Person()
 
-#db = Database(DATABASE_URL, "members")
+#db = DB_messages(DATABASE_URL, "message_bank")
+#db.update_messages()
 #print(db.fetchUser(person))
 #db.addMember(person)
 #x = (db.fetchUser(person))
