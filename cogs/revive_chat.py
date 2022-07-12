@@ -83,12 +83,6 @@ class Revive(commands.Cog):
             await ctx.message.channel.send(f"<@&{self.revive_role}> Trying to revive the chat. ||By <@{ctx.author.id}>||", allowed_mentions=allowed_mentions)
 
     @commands.has_permissions(kick_members=True)
-    @commands.command(name="lb")
-    async def yoyo(self, ctx):
-        db = Database(DATABASE_URL, "members")
-        await ctx.channel.send(db.get_messages_lb(num=10))
-
-    @commands.has_permissions(kick_members=True)
     @commands.command(name="show_revives")
     async def show_revives(self, ctx):
         db = Database(DATABASE_URL, "members")

@@ -4,6 +4,7 @@ from discord.ext import commands, tasks
 from database import DB_messages, DATABASE_URL
 import os
 import time
+import pdb
 
 
 ##########
@@ -15,7 +16,7 @@ people_dict = {}
 # Cogs to load
 cogs = ['revive_chat',
 'welcome',
-#'loops',
+'counting',
 
 ]
 
@@ -48,8 +49,8 @@ async def on_ready():
 @bot.event
 async def on_message(message: discord.Message):
     global numberOfMessages, people_dict
-    
-    if message.author == bot.user:
+
+    if message.author == bot.user or message.author.bot == True:
         return
     
     #print(message.content)

@@ -101,6 +101,8 @@ class DB_messages():
         self.messages_total_count = 0
         self.update_after_count = 20
 
+        self.cursor = self.connect()
+
     def connect(self):
         self.conn = psycopg2.connect(self.DATABASE_URL)
         self.cursor = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
@@ -108,6 +110,30 @@ class DB_messages():
     def closeConnection(self):
         self.conn.commit()
         self.conn.close()
+
+    def get_data(self, date=utc_to_ist(datetime.datetime.utcnow()).date(), to_send=True, num=10):
+        sql = f"SELECT id, count FROM {self.tableName} WHERE date=%s ORDER BY count DESC;"
+        if self.cursor.closed == True:
+            cursor = self.connect()
+        else:
+            cursor = self.cursor
+        cursor.execute(sql, (date, ))
+        allUsers = cursor.fetchall()
+
+        if to_send==True:
+            finalMsg = ''''''
+            chunk = "<@{}> --- {:<4}\n"
+            #"{:<18} {:<10} {:<4}"
+
+            if num==0:
+                for i in allUsers[:10]:
+                    finalMsg+= chunk.format(i[0], i[1])
+            else:    
+                for i in allUsers[:num]:
+                    finalMsg+= chunk.format(i[0], i[1])
+                return finalMsg
+        else:
+            return allUsers
 
     def insert_new_entry(self, idd, date, count):
         sql = """INSERT INTO {} (id, date, count) VALUES (%s, %s, %s);""".format(self.tableName)
