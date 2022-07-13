@@ -32,7 +32,7 @@ class Counting(commands.Cog):
     
     @commands.has_permissions(kick_members=True)
     @commands.command(name="lb_week")
-    async def yoyo(self, ctx):
+    async def yoyoyo(self, ctx):
         db = DB_messages(DATABASE_URL, "message_bank")
         
         allowed_mentions=AllowedMentions(
