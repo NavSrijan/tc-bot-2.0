@@ -135,6 +135,32 @@ class DB_messages():
         else:
             return allUsers
 
+    def get_week_data(self, to_send=True, num=10):
+        # SELECT id, sum(count) FROM message_bank WHERE date BETWEEN (current_date - 3) and current_date GROUP BY id;
+        # SELECT id, sum(count) FROM message_bank WHERE date BETWEEN (current_date - CAST(EXTRACT(DOW FROM current_date) AS int)) and current_date GROUP BY id,count ORDER BY count DESC;
+        sql = f"SELECT id, sum(count) FROM message_bank WHERE date BETWEEN (current_date - CAST(EXTRACT(DOW FROM current_date) AS int)) and current_date GROUP BY id,count ORDER BY count DESC;"
+        if self.cursor.closed == True:
+            cursor = self.connect()
+        else:
+            cursor = self.cursor
+        cursor.execute(sql)
+        allUsers = cursor.fetchall()
+
+        if to_send==True:
+            finalMsg = ''''''
+            chunk = "<@{}> --- {:<4}\n"
+            #"{:<18} {:<10} {:<4}"
+
+            if num==0:
+                for i in allUsers[:10]:
+                    finalMsg+= chunk.format(i[0], i[1])
+            else:    
+                for i in allUsers[:num]:
+                    finalMsg+= chunk.format(i[0], i[1])
+                return finalMsg
+        else:
+            return allUsers
+
     def insert_new_entry(self, idd, date, count):
         sql = """INSERT INTO {} (id, date, count) VALUES (%s, %s, %s);""".format(self.tableName)
         self.cursor.execute(sql, (idd, date, count))
