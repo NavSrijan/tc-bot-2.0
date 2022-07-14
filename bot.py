@@ -17,6 +17,7 @@ people_dict = {}
 cogs = ['revive_chat',
 'welcome',
 'counting',
+'news',
 
 ]
 
