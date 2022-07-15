@@ -26,8 +26,8 @@ class Revive(commands.Cog):
         self.revive_role = int(os.environ['revive_role'])
 
     @commands.command(name="revive")
-    async def revive(self, ctx):
-        if ctx.message.content == "revive chat" and ctx.channel.id == int(os.environ["revive_channel"]):
+    async def revive(self, ctx, *args):
+        if args[0]=="chat" and ctx.channel.id == int(os.environ["revive_channel"]):
             db = Database(DATABASE_URL, "members")
             p1 = Person(ctx.message.author)
             msg_time = utc_to_ist(ctx.message.created_at)
