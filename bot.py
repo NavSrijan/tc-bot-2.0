@@ -18,6 +18,7 @@ cogs = ['revive_chat',
 'welcome',
 'counting',
 'news',
+'embed_generator',
 
 ]
 
