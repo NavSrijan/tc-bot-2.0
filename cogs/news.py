@@ -3,6 +3,7 @@ import discord
 import os
 import requests
 from newsapi import NewsApiClient
+import requests
 import ast
 import time
 
@@ -35,6 +36,10 @@ def getNews(query):
     my.set_image(url=nws['urlToImage'])
     my.set_author(name=nws['source']['name'])
     return my
+def getMeaning(word):
+    response = requests.get(f"http://api.urbandictionary.com/v0/define?term={word}")
+    res = response.json()['list']
+    return res
 
 class News(commands.Cog):
     def __init__(self, bot):
@@ -58,6 +63,21 @@ class News(commands.Cog):
     async def fact(self, ctx):
         fact = getFact()
         toSend = f"```{fact}```"
+        await ctx.message.reply(toSend)
+
+    @commands.command(name="what")
+    async def meaning(self, ctx, *args):
+        word = " ".join(args)
+        res = getMeaning(word)
+        toSend = "Data from Urban Dictionary"
+        j = 1
+        for i in res:
+            defn = i['definition']
+            if len(defn)<=600:
+                toSend+=f"```{j}. {defn}```\n"
+                j+=1
+            if j==4:
+                break
         await ctx.message.reply(toSend)
 
     @commands.Cog.listener()
