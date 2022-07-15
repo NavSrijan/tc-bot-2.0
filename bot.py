@@ -26,20 +26,12 @@ async def load_cogs(bot, cogs):
         await bot.load_extension('cogs.' + extension)
         print(f"Loaded {extension}")
 
-
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
-bot = commands.Bot(command_prefix="", intents=intents)
+prefix = "$"
+bot = commands.Bot(command_prefix=prefix, intents=intents)
 db_2 = DB_messages(DATABASE_URL, "message_bank")
-
-#@tasks.loop(minutes=5)
-#async def push_to_db():
-#    global people_dict
-#    if len(people_dict)>1:
-#        print("updating messages")
-#        updateMessagesCount(people_dict)
-#        people_dict = {}
 
 @bot.event
 async def on_ready():
