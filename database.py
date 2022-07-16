@@ -111,7 +111,9 @@ class DB_messages():
         self.conn.commit()
         self.conn.close()
 
-    def get_data(self, date=utc_to_ist(datetime.datetime.utcnow()).date(), to_send=True, num=10):
+    def get_data(self, date=None, to_send=True, num=10):
+        if date==None:
+            utc_to_ist(datetime.datetime.utcnow()).date()
         sql = f"SELECT id, count FROM {self.tableName} WHERE date=%s ORDER BY count DESC;"
         if self.cursor.closed == True:
             cursor = self.connect()
