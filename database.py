@@ -113,7 +113,7 @@ class DB_messages():
 
     def get_data(self, date=None, to_send=True, num=10):
         if date==None:
-            utc_to_ist(datetime.datetime.utcnow()).date()
+            date = utc_to_ist(datetime.datetime.utcnow()).date()
         sql = f"SELECT id, count FROM {self.tableName} WHERE date=%s ORDER BY count DESC;"
         if self.cursor.closed == True:
             cursor = self.connect()
