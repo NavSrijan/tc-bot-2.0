@@ -61,6 +61,10 @@ async def on_message(message: discord.Message):
         if i in ["bkl", "bsdk", "chutiya", "chutiye", "❤️ de", "❤️de", "❤️ day", "❤️day", "bhadwe", "bhadwa", "bhadwi", "lodu", "gandu", "gaandu", "lawde", "lavde", "laude"]:
             await message.reply("Gaali na de!")
             break
+        if i in ["buyy", "buy"]:
+            await message.reply("JNL")
+            await message.delete()
+            break
 
     def process_messages(message):
         to_not_count = ["owo", "pls"]
