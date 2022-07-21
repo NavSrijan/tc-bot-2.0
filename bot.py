@@ -19,6 +19,7 @@ cogs = ['revive_chat',
 'counting',
 'news',
 'embed_generator',
+'geography'
 
 ]
 
@@ -58,9 +59,9 @@ async def on_message(message: discord.Message):
             #unk = "<a:tc_excited:995961992173072445>"
             await message.add_reaction(tc_emoji)
             break
-        if i in ["bkl", "bsdk", "chutiya", "chutiye", "❤️ de", "❤️de", "❤️ day", "❤️day", "bhadwe", "bhadwa", "bhadwi", "lodu", "gandu", "gaandu", "lawde", "lavde", "laude"]:
-            await message.reply("Gaali na de!")
-            break
+        #if i in ["bkl", "bsdk", "chutiya", "chutiye", "❤️ de", "❤️de", "❤️ day", "❤️day", "bhadwe", "bhadwa", "bhadwi", "lodu", "gandu", "gaandu", "lawde", "lavde", "laude"]:
+        #    await message.reply("Gaali na de!")
+        #    break
 
     def process_messages(message):
         to_not_count = ["owo", "pls"]
