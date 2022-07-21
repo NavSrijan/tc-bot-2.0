@@ -52,7 +52,10 @@ class Geography(commands.Cog):
                 self.lives -=1
                 await channel.send(points_and_lives.format(self.points, self.lives))
                 continue
+        self.points = 0
+        self.lives = 3
         await channel.send(f"You lost! Total Points: {self.points}")
+        
             
 
     @commands.Cog.listener()
