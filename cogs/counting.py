@@ -1,5 +1,5 @@
 from discord.ext import commands
-from discord import AllowedMentions
+from discord import AllowedMentions, Embed
 from database import DB_messages, DATABASE_URL
 import os
 import pdb
@@ -33,7 +33,7 @@ class Counting(commands.Cog):
     
     @commands.has_permissions(kick_members=True)
     @commands.command(name="lb_week")
-    async def yoyoyo(self, ctx):
+    async def lb_week(self, ctx, *args):
         db = DB_messages(DATABASE_URL, "message_bank")
         
         allowed_mentions=AllowedMentions(
@@ -44,7 +44,28 @@ class Counting(commands.Cog):
             )
 
         #await ctx.channel.send(db.get_week_data(), allowed_mentions=allowed_mentions)
-        await ctx.channel.send(db.get_week_data())
+        try:
+            nums = int(args[0])
+            await ctx.channel.send(db.get_week_data(num=nums))
+        except:
+            await ctx.channel.send(db.get_week_data())
+    
+    @commands.has_permissions(kick_members=True)
+    @commands.command(name="lb_week_embed")
+    async def lb_week_embed(self, ctx):
+        db = DB_messages(DATABASE_URL, "message_bank")
+
+        all_users = db.get_week_data(to_send=False)
+
+        j = 1
+        desc = ""
+        chunk = "{}: <@{}>\nPoints: `{}`\n"
+        for i in all_users[:10]:
+            desc += chunk.format(j, i[0], i[1]) + "\n"
+            j+=1
+
+        emb = Embed(title="Leaderboard", description=desc)
+        await ctx.channel.send(embed=emb)
 
 async def setup(bot):
     await bot.add_cog(Counting(bot))
