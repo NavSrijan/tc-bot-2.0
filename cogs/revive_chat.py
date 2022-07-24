@@ -3,6 +3,7 @@ from discord import AllowedMentions
 from database import Database, DATABASE_URL
 from functions import utc_to_ist, load, save
 import datetime
+import random
 import pdb
 
 import os
@@ -24,6 +25,8 @@ class Revive(commands.Cog):
         self.revive_delay = int(os.environ['revive_delay'])
         self.revives_available = int(os.environ['revives_available'])
         self.revive_role = int(os.environ['revive_role'])
+        self.topics = load("topics.pkl")
+        self.alreadyDone = []
 
     @commands.command(name="revive")
     async def revive(self, ctx, *args):
@@ -32,6 +35,14 @@ class Revive(commands.Cog):
             p1 = Person(ctx.message.author)
             msg_time = utc_to_ist(ctx.message.created_at)
             
+            if len(self.topics)!=0:
+                topic = random.choice(self.topics)
+                self.alreadyDone.append(self.topics.pop(self.topics.index(topic)))
+            else:
+                self.topics = self.alreadyDone
+                self.alreadyDone = []
+                topic = random.choice(self.topics)
+                self.alreadyDone.append(self.topics.pop(self.topics.index(topic)))
 
             try:
                 dateLast = load("date_last.pkl")
@@ -58,7 +69,7 @@ class Revive(commands.Cog):
 
             if (msg_time - self.last_used).seconds > self.revive_delay or self.last_used == None:
                 if p1.revives_available!=0:
-                    await ctx.channel.send(f"<@&{self.revive_role}> Trying to revive the chat. ||By <@{ctx.author.id}>||")
+                    await ctx.channel.send(f"<@&{self.revive_role}> Trying to revive the chat. ||By <@{ctx.author.id}>||\n`{topic}`")
                     save(msg_time, "last_revive_time.pkl")
                     p1.revives_available-=1
                     db.updateMember(p1)
@@ -70,6 +81,17 @@ class Revive(commands.Cog):
                 m, s = divmod(timeLeft, 60)
                 await ctx.reply(f"The chat can be revived again in {m}m, {s}s.")
         
+    @commands.command(name="topic")
+    async def topic(self, ctx):
+        if len(self.topics)!=0:
+            topic = random.choice(self.topics)
+            self.alreadyDone.append(self.topics.pop(self.topics.index(topic)))
+        else:
+            self.topics = self.alreadyDone
+            self.alreadyDone = []
+            topic = random.choice(self.topics)
+            self.alreadyDone.append(self.topics.pop(self.topics.index(topic)))
+        await ctx.message.channel.send(f"`{topic}`")
 
     @commands.command(name="fake")
     async def fake_revive(self, ctx):
