@@ -6,6 +6,8 @@ import os
 import pdb
 
 class Embedder(commands.Cog):
+    """Hehe, you can't use these."""
+    
     def __init__(self, bot):
         self.bot = bot
 
@@ -84,6 +86,28 @@ Hey guys, we are planning to host a movie night today at {ttime} !!
             await ctx.message.channel.send("Still developing this....")
         else:
             await ctx.message.channel.send(":hehe:")
+
+    @commands.has_permissions(kick_members=True)
+    @commands.command(name="load")
+    async def load_cog(self, ctx, *args):
+        """Load cog"""
+        extension = args[0]
+        try:
+            await self.bot.load_extension('cogs.' + extension)
+            await ctx.reply(f"{extension} has been loaded.")
+        except:
+            await ctx.reply(f"{extension} is already loaded.")
+
+    @commands.has_permissions(kick_members=True)
+    @commands.command(name="unload")
+    async def unload_cog(self, ctx, *args):
+        """Unload cog"""
+        extension = args[0]
+        try:
+            await self.bot.unload_extension('cogs.' + extension)
+            await ctx.reply(f"{extension} has been unloaded.")
+        except:
+            await ctx.reply(f"{extension} is already unloaded.")
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):

@@ -5,6 +5,8 @@ import os
 import pdb
 
 class Counting(commands.Cog):
+    """Hehe, you can't use these."""
+    
     def __init__(self, bot):
         self.bot = bot
     

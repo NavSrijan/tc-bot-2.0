@@ -19,7 +19,8 @@ cogs = ['revive_chat',
 'counting',
 'news',
 'embed_generator',
-'geography'
+'geography',
+'help'
 
 ]
 
@@ -39,7 +40,6 @@ db_2 = DB_messages(DATABASE_URL, "message_bank")
 async def on_ready():
     print('We have logged in as {0.user}'.format(bot))
     await load_cogs(bot, cogs)
-    await push_to_db.start()
 
 @bot.event
 async def on_message(message: discord.Message):
@@ -81,7 +81,7 @@ async def on_message(message: discord.Message):
     except Exception as e:
         print(e)
 
-
+bot.remove_command('help')
 async def main():
     async with bot:
         await bot.start(os.environ["token"])

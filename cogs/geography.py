@@ -4,6 +4,8 @@ import asyncio
 import os
 
 class Geography(commands.Cog):
+    ###Geography related games"""
+    
     def __init__(self, bot):
         self.bot = bot
         self.countries = self.load_countries()
