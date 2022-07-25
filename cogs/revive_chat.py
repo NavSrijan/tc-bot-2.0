@@ -19,6 +19,7 @@ class Person():
         self.revives_used = 0
 
 class Revive(commands.Cog):
+    """Contains chat revive commands"""
     def __init__(self, bot):
         self.bot = bot
         self.last_used = None

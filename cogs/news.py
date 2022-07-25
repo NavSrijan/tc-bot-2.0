@@ -42,6 +42,8 @@ def getMeaning(word):
     return res
 
 class News(commands.Cog):
+    """Random Apis"""
+    
     def __init__(self, bot):
         self.bot = bot
 
