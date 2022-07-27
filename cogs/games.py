@@ -88,7 +88,7 @@ class Geography(commands.Cog):
             except:
                 return False
 
-        file = open("/home/thewhistler/thewhistlerScripts/pi.pi", "r")
+        file = open("pi.pi", "r")
         digits = file.readline()
         digits.strip(" ")
         
