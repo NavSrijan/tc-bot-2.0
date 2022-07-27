@@ -3,6 +3,7 @@ import os
 import pdb
 
 class Welcome(commands.Cog):
+    """Basic hello commands"""
     def __init__(self, bot):
         self.bot = bot
 
@@ -49,6 +50,7 @@ class Welcome(commands.Cog):
     @commands.command(name="yo")
     async def yo(self, ctx):
         await ctx.reply("yoyo")
+
 
 async def setup(bot):
     await bot.add_cog(Welcome(bot))

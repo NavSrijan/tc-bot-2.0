@@ -19,7 +19,7 @@ cogs = ['revive_chat',
 'counting',
 'news',
 'embed_generator',
-'geography',
+'games',
 'help'
 
 ]
