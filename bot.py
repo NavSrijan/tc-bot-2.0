@@ -10,7 +10,7 @@ import pdb
 ##########
 # Variables
 ##
-people_dict = {}
+
 ##
 ##########
 # Cogs to load
@@ -43,7 +43,6 @@ async def on_ready():
 
 @bot.event
 async def on_message(message: discord.Message):
-    global numberOfMessages, people_dict
 
     if message.author == bot.user or message.author.bot == True:
         return
@@ -51,7 +50,6 @@ async def on_message(message: discord.Message):
     #print(message.content)
     message.content = message.content.lower()
 
-    ## Reacting to user's first message.
     r_words =  message.content.lower().split(" ")
     for i in r_words:
         if i in ["tc", "teenage", "community", "teenage", "teenagecommunity"]:
@@ -62,6 +60,23 @@ async def on_message(message: discord.Message):
         #if i in ["bkl", "bsdk", "chutiya", "chutiye", "❤️ de", "❤️de", "❤️ day", "❤️day", "bhadwe", "bhadwa", "bhadwi", "lodu", "gandu", "gaandu", "lawde", "lavde", "laude"]:
         #    await message.reply("Gaali na de!")
         #    break
+
+    channels_with_image_access = [895221352267677697, 983791675874877500, 895221241412198410, 983787831476490291, 895014066853117983]
+    roles_allowed_to_send_images = [960932026549174272, 998303854925975734, 893950378431877131, 970902786638250034, 839010251868078101, 975456077623746590, 977217186928160828]
+    if message.channel.id not in channels_with_image_access:
+        to_pass = True
+        for k in message.author.roles:
+            if k.id in roles_allowed_to_send_images:
+                to_pass = False
+                break
+        if to_pass==True:
+            for i in ["https://cdn.discordapp.com/attachments", "https://imgur.com", "https://i.imgur.com", "https://images-ext-1.discordapp.net/external"]:
+                if i in message.content:
+                    #await message.author.send(f"You aren't allowed to send link in <#{os.environ['revive_channel']}>.")
+                    await message.author.send(f"You aren't allowed to send link in <#{957263189320540170}>.")
+                    await message.delete()
+                
+
 
     def process_messages(message):
         to_not_count = ["owo", "pls"]
