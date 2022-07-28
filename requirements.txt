@@ -9,6 +9,7 @@ discord.py @ git+https://github.com/Rapptz/discord.py@a8a6bf4f6c9d6cb71a23bf2079
 idna==3.3
 multidict==6.0.2
 newsapi-python==0.2.6
+Pillow==9.2.0
 psycopg2==2.9.3
 python-dateutil==2.8.2
 requests==2.28.0
