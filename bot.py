@@ -18,7 +18,7 @@ cogs = ['revive_chat',
 'welcome',
 'counting',
 'news',
-'embed_generator',
+'mod',
 'games',
 'help',
 'image_fun'
@@ -34,7 +34,8 @@ intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 prefix = "$"
-bot = commands.Bot(command_prefix=prefix, intents=intents)
+activity = discord.Activity(type=discord.ActivityType.listening, name="$help")
+bot = commands.Bot(command_prefix=prefix, intents=intents, status=discord.Status.do_not_disturb, activity=activity)
 db_2 = DB_messages(DATABASE_URL, "message_bank")
 
 @bot.event

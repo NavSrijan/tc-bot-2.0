@@ -5,7 +5,7 @@ import datetime
 import os
 import pdb
 
-class Embedder(commands.Cog):
+class Mod(commands.Cog):
     """Hehe, you can't use these."""
     
     def __init__(self, bot):
@@ -118,4 +118,4 @@ Hey guys, we are planning to host a movie night today at {ttime} !!
             print(error)
 
 async def setup(bot):
-    await bot.add_cog(Embedder(bot))
+    await bot.add_cog(Mod(bot))
