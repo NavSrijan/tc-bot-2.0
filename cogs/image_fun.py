@@ -9,13 +9,6 @@ from io import BytesIO
 
 def icon(image_object, image_size):
     
-    # takes the seller name and a number for the image size and returns a round icon of their headshot
-    # size depends on if they're a seller or manager
-    # and there's different file types so the function looks for the right one using a loop
-    
-    # grabs the image using path_to_headshots
-    # our file names are based on the name of the seller, and we pull the image by joining strings together
-    
     #for i in ["assets/pfp1.png","assets/pfp2.png","assets/pfp3.png"]:
     #im = Image.open(image_path).convert('RGBA')
     im = image_object
@@ -33,7 +26,6 @@ def icon(image_object, image_size):
     im = im.crop((left,top,right,bottom))
     
     # resize icon depending on image_size
-    # we can also rotate the image by adding a rotation column in the sales_data table
     im = im.resize((image_size,image_size), Image.ANTIALIAS)
     #im = im.rotate(0)
     
