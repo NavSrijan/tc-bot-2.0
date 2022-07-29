@@ -104,7 +104,7 @@ class ImageFun(commands.Cog):
         iconsd = []
         for i in top_2:
             url = ctx.message.guild.get_member(int(i[0])).avatar.url
-            im = Image.open(requests.get(url, stream=True).raw)
+            im = Image.open(requests.get(url, stream=True).raw).convert('RGBA')
             dw = icon(im, im_radius)
             iconsd.append(dw)
 
