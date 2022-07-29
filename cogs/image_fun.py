@@ -5,7 +5,6 @@ from PIL import Image, ImageFont, ImageDraw
 import os
 import requests
 from io import BytesIO
-import ipdb
 
 
 def icon(image_object, image_size):
