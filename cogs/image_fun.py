@@ -24,7 +24,7 @@ class ImageFun(commands.Cog):
         name = "\n"+name.center(len(text), " ")
         text+=name
         title_text = ImageFont.truetype('assets/B612Mono-Bold.ttf', 70)
-        ImageDraw.Draw(base).text((250, 550), ' Best of Luck\n @TheWhistler', 'rgb(255,69,0)', font=title_text, spacing=10)
+        ImageDraw.Draw(base).text((250, 550), text, 'rgb(255,69,0)', font=title_text, spacing=10)
         
         with BytesIO() as image_binary:
             base.save(image_binary, 'PNG')
