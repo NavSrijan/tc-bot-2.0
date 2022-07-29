@@ -76,11 +76,12 @@ class ImageFun(commands.Cog):
         db = DB_messages(DATABASE_URL, "message_bank")
         lb = db.get_week_data(to_send=False)
 
-        j = 0
+        items_to_pop = []
         for i in lb:
             if i[0] in [908309845634089001, 674289303374790666, 302253506947973130, 775964252783640586, 681918482681823255]:
-                lb.pop(j)
-            j+=1
+                items_to_pop.append(i)
+        for i in items_to_pop:
+            lb.remove(i)
 
         top_2 = lb[0:2]
         top_10 = lb[0:10]
