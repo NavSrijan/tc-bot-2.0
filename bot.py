@@ -72,7 +72,7 @@ async def on_message(message: discord.Message):
                 to_pass = False
                 break
         if to_pass==True:
-            for i in ["https://media.discordapp.net/attachments","https://cdn.discordapp.com/attachments", "https://imgur.com", "https://i.imgur.com", "https://images-ext-1.discordapp.net/external"]:
+            for i in ["https://media.discordapp.net/attachments","https://cdn.discordapp.com/attachments", "https://imgur.com", "https://i.imgur.com", "https://images-ext-1.discordapp.net/external", "https://www.reddit.com/"]:
                 if i in message.content:
                     #await message.author.send(f"You aren't allowed to send link in <#{os.environ['revive_channel']}>.")
                     await message.author.send(f"You aren't allowed to send link in <#{957263189320540170}>.")

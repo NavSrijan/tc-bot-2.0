@@ -3,7 +3,6 @@ import discord
 from functions import utc_to_ist
 import datetime
 import os
-import pdb
 
 class Mod(commands.Cog):
     """Hehe, you can't use these."""
@@ -12,8 +11,24 @@ class Mod(commands.Cog):
         self.bot = bot
 
     @commands.has_permissions(kick_members=True)
+    @commands.command(name="kick")
+    async def kick(self, ctx):
+        """Kick a member"""
+        if ctx.message.mentions:
+            member = ctx.message.mentions[0]
+        else:
+            await ctx.reply("Mention someone.")
+            return
+        name = member.name
+        await member.kick()
+        await ctx.channel.send("https://tenor.com/view/bad-mom-grandma-baby-kicking-i-love-children-gif-23173847")
+        await ctx.channel.send(f"{name} has been kicked.")
+
+
+    @commands.has_permissions(kick_members=True)
     @commands.command(name="embed")
     async def create_embed(self, ctx):
+        """Generate an embed to send."""
         await ctx.reply("Starting embed creation.")
 
         member = ctx.message.author
