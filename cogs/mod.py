@@ -4,6 +4,7 @@ from functions import utc_to_ist
 import datetime
 from helpers import basic_embed
 import os
+import asyncio
 
 class Mod(commands.Cog):
     """Hehe, you can't use these."""
@@ -164,7 +165,12 @@ Hey guys, we are planning to host a movie night today at {ttime} !!
         members = ctx.guild.members
         try:
             for i in members:
-                await i.add_roles(role)
+                try:
+                    await i.add_roles(role)
+                    print(i.name)
+                    await asyncio.sleep(1)
+                except Exception as e:
+                    print(e)
         except:
             await ctx.channel.send("Permission missing.")
         await ctx.channel.send("Done!")
@@ -194,6 +200,7 @@ Hey guys, we are planning to host a movie night today at {ttime} !!
         try:
             for i in members:
                 await i.remove_roles(role)
+                await asyncio.sleep(1)
         except:
             await ctx.channel.send("Permission missing.")
         await ctx.channel.send("Done!")
