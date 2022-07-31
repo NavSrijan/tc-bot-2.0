@@ -141,6 +141,64 @@ Hey guys, we are planning to host a movie night today at {ttime} !!
             await ctx.reply(f"{extension} is already loaded.")
 
     @commands.has_permissions(kick_members=True)
+    @commands.command(name="mass_role")
+    async def mass_role(self, ctx, *args):
+        """Adds a role to every user in the server."""
+        await ctx.reply("Send the role id to add to everyone.")
+        def check(message):
+            return message.author == ctx.author and message.channel == ctx.channel
+
+        msg = await self.bot.wait_for("message", check=check, timeout=60)
+        try:
+            role_id = int(msg.content)
+            role = msg.guild.get_role(role_id)
+        except:
+            await ctx.channel.send("Not a valid role id.")
+            return
+        await msg.reply("Are you sure? This will give everyone in this server this role. y/n")
+        msg = await self.bot.wait_for("message", check=check, timeout=60)
+        if msg.content.lower() != "y":
+            await msg.reply("Okay! Aborting.")
+            return
+
+        members = ctx.guild.members
+        try:
+            for i in members:
+                await i.add_roles(role)
+        except:
+            await ctx.channel.send("Permission missing.")
+        await ctx.channel.send("Done!")
+
+    @commands.has_permissions(kick_members=True)
+    @commands.command(name="mass_derole")
+    async def mass_derole(self, ctx, *args):
+        """Adds a role to every user in the server."""
+        await ctx.reply("Send the role id to remove from everyone.")
+        def check(message):
+            return message.author == ctx.author and message.channel == ctx.channel
+
+        msg = await self.bot.wait_for("message", check=check, timeout=60)
+        try:
+            role_id = int(msg.content)
+            role = msg.guild.get_role(role_id)
+        except:
+            await ctx.channel.send("Not a valid role id.")
+            return
+        await msg.reply("Are you sure? This will remove this role from everyone in this server. y/n")
+        msg = await self.bot.wait_for("message", check=check, timeout=60)
+        if msg.content.lower() != "y":
+            await msg.reply("Okay! Aborting.")
+            return
+
+        members = ctx.guild.members
+        try:
+            for i in members:
+                await i.remove_roles(role)
+        except:
+            await ctx.channel.send("Permission missing.")
+        await ctx.channel.send("Done!")
+
+    @commands.has_permissions(kick_members=True)
     @commands.command(name="unload")
     async def unload_cog(self, ctx, *args):
         """Unload cog"""

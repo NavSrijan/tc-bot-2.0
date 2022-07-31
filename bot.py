@@ -14,7 +14,7 @@ import pdb
 ##
 ##########
 # Cogs to load
-cogs = ['revive_chat',
+cogs = ['chat_cmd',
 'welcome',
 'counting',
 'news',
