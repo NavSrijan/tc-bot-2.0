@@ -168,7 +168,7 @@ Hey guys, we are planning to host a movie night today at {ttime} !!
                 try:
                     await i.add_roles(role)
                     print(i.name)
-                    await asyncio.sleep(0.1)
+                    await asyncio.sleep(0.5)
                 except Exception as e:
                     print(e)
         except:
