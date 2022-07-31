@@ -48,6 +48,36 @@ class ImageFun(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+    @commands.command(name="travel")
+    async def travel_ticket(self, ctx, *args):
+        if len(args)<3:
+            await ctx.reply("Send in the following format:\n`$travel \"{Passengers name}\" From To`")
+        else:
+            name = args[0]
+            from_place = args[1]
+            to_place = args[2]
+
+        font_to_use = "assets/fonts/B612Mono-Bold.ttf"
+        base_image = Image.open(f'assets/images/travel_ticket/base.png').convert('RGBA')
+        base = Image.new('RGBA', base_image.size)
+        base.paste(base_image)
+        if len(name)>20:
+            font_size = 15
+        else:
+            font_size = 20
+        title_text = ImageFont.truetype(font_to_use, font_size)
+
+        ImageDraw.Draw(base).text((120, 240), to_place, 'rgb(0,0,0)', font=title_text, spacing=10)
+        ImageDraw.Draw(base).text((390, 240), from_place, 'rgb(0,0,0)', font=title_text, spacing=10)
+        ImageDraw.Draw(base).text((120, 305), name, 'rgb(0,0,0)', font=title_text, spacing=10)
+
+        with BytesIO() as image_binary:
+            base.save(image_binary, 'PNG')
+            image_binary.seek(0)
+            file=discord.File(fp=image_binary, filename='modiji.png')
+            await ctx.send(file=file)
+
+
     @commands.command(name="wish")
     async def modiji(self, ctx):
         font_to_use = "assets/fonts/B612Mono-Bold.ttf"
