@@ -50,7 +50,7 @@ class ImageFun(commands.Cog):
 
     @commands.command(name="wish")
     async def modiji(self, ctx):
-        font_to_use = "/images/lb_image/B612Mono-Bold.ttf"
+        font_to_use = "assets/fonts/B612Mono-Bold.ttf"
         choices = ["modi1.jpg", "elon1.jpg", "mike1.jpg", "bean1.jpg", "vin1.jpeg"]
         choice = random.choice(choices)
         base_image = Image.open(f'assets/images/wish/{choice}')
@@ -80,7 +80,7 @@ class ImageFun(commands.Cog):
     @commands.has_permissions(kick_members=True)
     @commands.command(name="lb_image")
     async def lb_image(self, ctx, *args):
-        font_to_use = "/images/lb_image/B612Mono-Bold.ttf"
+        font_to_use = "assets/fonts/B612Mono-Bold.ttf"
         db = Database_message_bank(DATABASE_URL, "message_bank")
     
         try:
