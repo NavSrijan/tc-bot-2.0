@@ -78,9 +78,14 @@ class ImageFun(commands.Cog):
     
     @commands.has_permissions(kick_members=True)
     @commands.command(name="lb_image")
-    async def lb_image(self, ctx):
+    async def lb_image(self, ctx, *args):
         db = DB_messages(DATABASE_URL, "message_bank")
-        lb = db.get_week_data(to_send=False)
+    
+        try:
+            date_to_subtract = int(args[0])
+            lb = db.get_week_data(to_send=False, date_to_subtract=date_to_subtract)
+        except:
+            lb = db.get_week_data(to_send=False)
 
         items_to_pop = []
         for i in lb:

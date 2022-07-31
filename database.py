@@ -137,10 +137,10 @@ class DB_messages():
         else:
             return allUsers
 
-    def get_week_data(self, to_send=True, num=10):
+    def get_week_data(self, to_send=True, num=10, date_to_subtract=0):
         # SELECT id, sum(count) FROM message_bank WHERE date BETWEEN (current_date - 3) and current_date GROUP BY id;
         # SELECT id, sum(count) FROM message_bank WHERE date BETWEEN (current_date - CAST(EXTRACT(DOW FROM current_date) AS int)) and current_date GROUP BY id,count ORDER BY count DESC;
-        sql = f"SELECT id, sum(count) FROM message_bank WHERE date BETWEEN (current_date - CAST(EXTRACT(DOW FROM current_date) AS int)) and current_date GROUP BY id ORDER BY SUM(count) DESC;"
+        sql = f"SELECT id, sum(count) FROM message_bank WHERE date BETWEEN (current_date-{date_to_subtract} - CAST(EXTRACT(DOW FROM current_date-{date_to_subtract}) AS int)) and current_date GROUP BY id ORDER BY SUM(count) DESC;"
         if self.cursor.closed == True:
             cursor = self.connect()
         else:
