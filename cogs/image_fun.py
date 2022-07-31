@@ -228,6 +228,7 @@ class ImageFun(commands.Cog):
 
         def check(message):
             return message.author == ctx.author and message.channel == ctx.channel
+        await ctx.channel.send("Send the channel id to send the image to.")
         msg = await self.bot.wait_for("message", check=check, timeout=60)
         try:
             chnl = int(msg.content)
