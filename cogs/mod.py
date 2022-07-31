@@ -19,6 +19,18 @@ class Mod(commands.Cog):
         await ctx.reply(embed=emb)
 
     @commands.has_permissions(kick_members=True)
+    @commands.command(name="lock")
+    async def lock_channel(self, ctx):
+        await ctx.channel.set_permissions(ctx.message.guild.default_role, read_messages=True, send_messages=False)
+        await ctx.channel.send("The channel has been locked.")
+    
+    @commands.has_permissions(kick_members=True)
+    @commands.command(name="unlock")
+    async def unlock_channel(self, ctx):
+        await ctx.channel.set_permissions(ctx.message.guild.default_role, read_messages=True, send_messages=True)
+        await ctx.channel.send("The channel has been unlocked.")
+
+    @commands.has_permissions(kick_members=True)
     @commands.command(name="kick")
     async def kick(self, ctx):
         """Kick a member"""
