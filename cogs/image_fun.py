@@ -1,8 +1,10 @@
 from discord.ext import commands
 import discord
 from database import DB_messages, DATABASE_URL
+from helpers import *
 from PIL import Image, ImageFont, ImageDraw
 import os
+import random
 import requests
 from io import BytesIO
 
@@ -48,7 +50,9 @@ class ImageFun(commands.Cog):
 
     @commands.command(name="wish")
     async def modiji(self, ctx):
-        base_image = Image.open('assets/modi1.jpg')
+        choices = ["modi1.jpg", "elon1.jpg", "mike1.jpg", "bean1.jpg", "vin1.jpeg"]
+        choice = random.choice(choices)
+        base_image = Image.open(f'assets/wish/{choice}')
         base_image = base_image.resize((1080, 720) ,Image.ANTIALIAS)
         base = Image.new('RGB', base_image.size)
         base.paste(base_image)
@@ -61,13 +65,15 @@ class ImageFun(commands.Cog):
         name = "\n"+name.center(len(text), " ")
         text+=name
         title_text = ImageFont.truetype('assets/B612Mono-Bold.ttf', 70)
-        ImageDraw.Draw(base).text((0, 550), text, 'rgb(255,69,0)', font=title_text, spacing=10)
+        ImageDraw.Draw(base).text((0, 550), text, 'rgb(255,255,255)', font=title_text, spacing=10)
         
         with BytesIO() as image_binary:
             base.save(image_binary, 'PNG')
             image_binary.seek(0)
-            await ctx.channel.send(file=discord.File(fp=image_binary, filename='modiji.png'))
+            file=discord.File(fp=image_binary, filename='modiji.png')
 
+        emb = basic_embed(color=discord.Color.orange() , title=f"{ctx.author.name} wishes {name}", image_url="attachment://modiji.png")
+        await ctx.send(file=file, embed=emb)
 
     
     @commands.has_permissions(kick_members=True)
@@ -215,10 +221,20 @@ class ImageFun(commands.Cog):
 
             ImageDraw.Draw(base).text((rx, ry), text, 'rgb(255,255,255)', font=title_text, spacing=10)
 
+        def check(message):
+            return message.author == ctx.author and message.channel == ctx.channel
+        msg = await self.bot.wait_for("message", check=check, timeout=60)
+        try:
+            chnl = int(msg.content)
+            chnl = self.bot.get_channel(chnl)
+        except:
+            await msg.reply("Not a valid channel id")
+            return
+
         with BytesIO() as image_binary:
             base.save(image_binary, 'PNG')
             image_binary.seek(0)
-            await ctx.channel.send(file=discord.File(fp=image_binary, filename='lb_image.png'))
+            await chnl.send("<@&839005140891205684>",file=discord.File(fp=image_binary, filename='lb_image.png'))
 
         #base.show()
 

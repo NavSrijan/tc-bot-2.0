@@ -2,6 +2,7 @@ from discord.ext import commands
 import discord
 from functions import utc_to_ist
 import datetime
+from helpers import basic_embed
 import os
 
 class Mod(commands.Cog):
@@ -9,6 +10,12 @@ class Mod(commands.Cog):
     
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.has_permissions(kick_members=True)
+    @commands.command(name="t")
+    async def test(self, ctx):
+        emb = basic_embed(desc="hi", color=discord.Color.red(), image_url="https://tenor.com/view/wow-very-dangerous-wow-berry-dangerous-very-dangerous-ayub-kha98-tiktoker-gif-23393447")
+        await ctx.reply(embed=emb)
 
     @commands.has_permissions(kick_members=True)
     @commands.command(name="kick")
@@ -20,9 +27,29 @@ class Mod(commands.Cog):
             await ctx.reply("Mention someone.")
             return
         name = member.name
-        await member.kick()
-        await ctx.channel.send("https://tenor.com/view/bad-mom-grandma-baby-kicking-i-love-children-gif-23173847")
-        await ctx.channel.send(f"{name} has been kicked.")
+        try:
+            await member.kick()
+            await ctx.channel.send("https://tenor.com/view/bad-mom-grandma-baby-kicking-i-love-children-gif-23173847")
+            await ctx.channel.send(f"{name} has been kicked.")
+        except:
+            await ctx.reply("Sorry but, I don't have the permissions.")
+
+    @commands.has_permissions(kick_members=True)
+    @commands.command(name="ban")
+    async def ban(self, ctx):
+        """Kick a member"""
+        if ctx.message.mentions:
+            member = ctx.message.mentions[0]
+        else:
+            await ctx.reply("Mention someone.")
+            return
+        name = member.name
+        try:
+            await member.ban()
+            await ctx.channel.send("https://tenor.com/view/bad-mom-grandma-baby-kicking-i-love-children-gif-23173847")
+            await ctx.channel.send(f"{name} has been banned.")
+        except:
+            await ctx.reply("Sorry but, I don't have the permissions.")
 
 
     @commands.has_permissions(kick_members=True)
