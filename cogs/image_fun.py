@@ -50,12 +50,15 @@ class ImageFun(commands.Cog):
 
     @commands.command(name="travel")
     async def travel_ticket(self, ctx, *args):
+        """Generate a airline ticket for your next travel destination.
+        syntax example: $travel "Nick Jonas" Delhi Karachi
+        """
         if len(args)<3:
             await ctx.reply("Send in the following format:\n`$travel \"{Passengers name}\" From To`")
         else:
             name = args[0]
-            from_place = args[1]
-            to_place = args[2]
+            to_place = args[1]
+            from_place = args[2]
 
         font_to_use = "assets/fonts/B612Mono-Bold.ttf"
         base_image = Image.open(f'assets/images/travel_ticket/base.png').convert('RGBA')
@@ -80,6 +83,10 @@ class ImageFun(commands.Cog):
 
     @commands.command(name="wish")
     async def modiji(self, ctx):
+        """
+        Wish someone a best of luck!
+        syntax: $wish {mention}
+        """
         font_to_use = "assets/fonts/B612Mono-Bold.ttf"
         choices = ["modi1.jpg", "elon1.jpg", "mike1.jpg", "bean1.jpg", "vin1.jpeg"]
         choice = random.choice(choices)
@@ -110,6 +117,10 @@ class ImageFun(commands.Cog):
     @commands.has_permissions(kick_members=True)
     @commands.command(name="lb_image")
     async def lb_image(self, ctx, *args):
+        """
+        Generates weekly lb image
+        syntax: $lb_image <days_to_subtract>
+        """
         font_to_use = "assets/fonts/B612Mono-Bold.ttf"
         db = Database_message_bank(DATABASE_URL, "message_bank")
     

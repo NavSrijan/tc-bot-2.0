@@ -31,6 +31,7 @@ class Revive(commands.Cog):
 
     @commands.command(name="revive")
     async def revive(self, ctx, *args):
+        """Revive the chat!"""
         if args[0]=="chat" and ctx.channel.id == int(os.environ["revive_channel"]):
             db = Database_members(DATABASE_URL, "members")
             p1 = Person(ctx.message.author)
@@ -84,6 +85,7 @@ class Revive(commands.Cog):
         
     @commands.command(name="topic")
     async def topic(self, ctx):
+        """Sends a random topic to discuss upon."""
         if len(self.topics)!=0:
             topic = random.choice(self.topics)
             self.alreadyDone.append(self.topics.pop(self.topics.index(topic)))
@@ -96,6 +98,7 @@ class Revive(commands.Cog):
 
     @commands.command(name="fake")
     async def fake_revive(self, ctx):
+        """Revive the chat but it's fake!"""
         if ctx.message.content == "fake revive":
             allowed_mentions=AllowedMentions(
             users=False,         # Whether to ping individual user @mentions
@@ -108,6 +111,7 @@ class Revive(commands.Cog):
     @commands.has_permissions(kick_members=True)
     @commands.command(name="show_revives")
     async def show_revives(self, ctx):
+        """Shows the number of revives each person has left."""
         db = Database_members(DATABASE_URL, "members")
         p1 = Person(ctx.message.author)
 

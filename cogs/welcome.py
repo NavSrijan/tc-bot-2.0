@@ -9,6 +9,9 @@ class Welcome(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
+        """
+        Welcomes the new user who joins.
+        """
         channel = self.bot.get_channel(int(os.environ['welcome_channel']))
         self_roles_channel = int(os.environ['self_roles_channel'])
 
@@ -37,6 +40,7 @@ class Welcome(commands.Cog):
     
     @commands.command(name="hello")
     async def hello(self, ctx):
+        """Say hello to the bot!"""
         await ctx.send(f"Hello! {ctx.message.content[5:]}")
 
     @commands.Cog.listener()
@@ -49,6 +53,7 @@ class Welcome(commands.Cog):
 
     @commands.command(name="yo")
     async def yo(self, ctx):
+        """What help do you need for this?"""
         await ctx.reply("yoyo")
 
 

@@ -21,6 +21,7 @@ class Counting(commands.Cog):
     @commands.has_permissions(kick_members=True)
     @commands.command(name="lb")
     async def yoyo(self, ctx):
+        """Get the lb for the day"""
         db = Database_message_bank(DATABASE_URL, "message_bank")
         
         allowed_mentions=AllowedMentions(
@@ -36,6 +37,7 @@ class Counting(commands.Cog):
     @commands.has_permissions(kick_members=True)
     @commands.command(name="lb_week")
     async def lb_week(self, ctx, *args):
+        """Get the lb for the week."""
         db = Database_message_bank(DATABASE_URL, "message_bank")
         
         allowed_mentions=AllowedMentions(
@@ -55,6 +57,7 @@ class Counting(commands.Cog):
     @commands.has_permissions(kick_members=True)
     @commands.command(name="lb_week_embed")
     async def lb_week_embed(self, ctx):
+        """Get an embed with the weekly lb"""
         db = Database_message_bank(DATABASE_URL, "message_bank")
 
         all_users = db.get_week_data(to_send=False)

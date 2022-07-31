@@ -21,12 +21,18 @@ class Mod(commands.Cog):
     @commands.has_permissions(kick_members=True)
     @commands.command(name="lock")
     async def lock_channel(self, ctx):
+        """
+        Locks the channel
+        """
         await ctx.channel.set_permissions(ctx.message.guild.default_role, read_messages=True, send_messages=False)
         await ctx.channel.send("The channel has been locked.")
     
     @commands.has_permissions(kick_members=True)
     @commands.command(name="unlock")
     async def unlock_channel(self, ctx):
+        """
+        Unlocks the channel
+        """
         await ctx.channel.set_permissions(ctx.message.guild.default_role, read_messages=True, send_messages=True)
         await ctx.channel.send("The channel has been unlocked.")
 
@@ -47,10 +53,10 @@ class Mod(commands.Cog):
         except:
             await ctx.reply("Sorry but, I don't have the permissions.")
 
-    @commands.has_permissions(kick_members=True)
+    @commands.has_permissions(ban_members=True)
     @commands.command(name="ban")
     async def ban(self, ctx):
-        """Kick a member"""
+        """Ban a member"""
         if ctx.message.mentions:
             member = ctx.message.mentions[0]
         else:

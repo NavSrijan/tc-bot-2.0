@@ -49,6 +49,10 @@ class News(commands.Cog):
 
     @commands.command(name="news")
     async def news(self, ctx, *args):
+        """
+        Get a news article.
+        syntax: $news topic
+        """
         try:
             query = " ".join(args)
         except:
@@ -63,12 +67,19 @@ class News(commands.Cog):
 
     @commands.command(name="fact")
     async def fact(self, ctx):
+        """
+        Get a random fact.
+        """
         fact = getFact()
         toSend = f"```{fact}```"
         await ctx.message.reply(toSend)
 
     @commands.command(name="what")
     async def meaning(self, ctx, *args):
+        """
+        Querys Urban dictionary to get the meaning of the word.
+        syntax: $what {word}
+        """
         word = " ".join(args)
         res = getMeaning(word)
         toSend = "Data from Urban Dictionary"

@@ -23,6 +23,7 @@ class Geography(commands.Cog):
 
     @commands.command(name="geo")
     async def country_capital(self, ctx):
+        """Play a game to guess the capitals of countries!"""
         await ctx.reply("Starting the game!\nYou'll have ```60 secs``` for each question.")
         channel = ctx.channel
 
@@ -62,6 +63,7 @@ class Geography(commands.Cog):
         
     @commands.command(name='pi')
     async def pi(self, ctx):
+        """How many digits of pi do you know?"""
         x = 0
         exp = "3."
         score = 0
@@ -115,7 +117,6 @@ class Geography(commands.Cog):
                 await channel.send("Timeout! Try again!")
                 await channel.send("SCORE: {}".format(score-2))
                 break
-
 
 
     @commands.Cog.listener()
