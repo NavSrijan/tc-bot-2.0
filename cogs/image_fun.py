@@ -1,6 +1,6 @@
 from discord.ext import commands
 import discord
-from database import DB_messages, DATABASE_URL
+from database import Database_message_bank, DATABASE_URL
 from helpers import *
 from PIL import Image, ImageFont, ImageDraw
 import os
@@ -50,9 +50,10 @@ class ImageFun(commands.Cog):
 
     @commands.command(name="wish")
     async def modiji(self, ctx):
+        font_to_use = "/images/lb_image/B612Mono-Bold.ttf"
         choices = ["modi1.jpg", "elon1.jpg", "mike1.jpg", "bean1.jpg", "vin1.jpeg"]
         choice = random.choice(choices)
-        base_image = Image.open(f'assets/wish/{choice}')
+        base_image = Image.open(f'assets/images/wish/{choice}')
         base_image = base_image.resize((1080, 720) ,Image.ANTIALIAS)
         base = Image.new('RGB', base_image.size)
         base.paste(base_image)
@@ -64,7 +65,7 @@ class ImageFun(commands.Cog):
             return
         name = "\n"+name.center(len(text), " ")
         text+=name
-        title_text = ImageFont.truetype('assets/B612Mono-Bold.ttf', 70)
+        title_text = ImageFont.truetype(font_to_use, 70)
         ImageDraw.Draw(base).text((0, 550), text, 'rgb(255,255,255)', font=title_text, spacing=10)
         
         with BytesIO() as image_binary:
@@ -79,7 +80,8 @@ class ImageFun(commands.Cog):
     @commands.has_permissions(kick_members=True)
     @commands.command(name="lb_image")
     async def lb_image(self, ctx, *args):
-        db = DB_messages(DATABASE_URL, "message_bank")
+        font_to_use = "/images/lb_image/B612Mono-Bold.ttf"
+        db = Database_message_bank(DATABASE_URL, "message_bank")
     
         try:
             date_to_subtract = int(args[0])
@@ -99,15 +101,15 @@ class ImageFun(commands.Cog):
 
         im_radius = 200
 
-        background_image = Image.open('assets/bg.png')
+        background_image = Image.open('assets/images/lb_image/bg.png')
         background_image = background_image.resize((720, 1080) ,Image.ANTIALIAS)
         base = Image.new('RGB', background_image.size)
         base.paste(background_image)
 
-        title_text = ImageFont.truetype('assets/B612Mono-Bold.ttf', 70)
+        title_text = ImageFont.truetype(font_to_use, 70)
         ImageDraw.Draw(base).text((280, 20), ' TEENAGE\nCOMMUNITY', 'rgb(255,255,255)', font=title_text, spacing=10)
 
-        tc = Image.open("assets/tc_f.png").convert('RGBA')
+        tc = Image.open("assets/images/lb_image/tc_f.png").convert('RGBA')
         tc = tc.resize((im_radius-40, im_radius-40), Image.ANTIALIAS)
         base.paste(tc, (80, 20), tc)
 
@@ -119,12 +121,12 @@ class ImageFun(commands.Cog):
             dw = icon(im, im_radius)
             iconsd.append(dw)
 
-        decorator_icon = Image.open("assets/f1.png").convert('RGBA')
+        decorator_icon = Image.open("assets/images/lb_image/f1.png").convert('RGBA')
         decorator_icon = decorator_icon.resize((im_radius-40, im_radius-40), Image.ANTIALIAS)
 
         s1_y = 65
         s1_x = int(s1_y*2.7)
-        s1 = Image.open("assets/s1.png").convert('RGBA')
+        s1 = Image.open("assets/images/lb_image/s1.png").convert('RGBA')
         s1 = s1.resize((s1_x, s1_y), Image.ANTIALIAS)
 
 
@@ -163,7 +165,7 @@ class ImageFun(commands.Cog):
             base.paste(s1, (s1_xx, s1_yy), s1)
             
             font_size = 100
-            title_text = ImageFont.truetype('assets/B612Mono-Bold.ttf', font_size)
+            title_text = ImageFont.truetype(font_to_use, font_size)
             # Processing long names
             if len(names[kk])>12:
                 nm = names[kk].split(" ")
@@ -179,18 +181,18 @@ class ImageFun(commands.Cog):
             while True:
                 a,b,c,d = title_text.getbbox(names[kk])
                 font_size-=1
-                title_text = ImageFont.truetype('assets/B612Mono-Bold.ttf', font_size)
+                title_text = ImageFont.truetype(font_to_use, font_size)
                 if c<s1_x and d<s1_y:
                     break
             if len(names[kk])<=5:
                 font_size-=10
-            title_text = ImageFont.truetype('assets/B612Mono-Bold.ttf', font_size-5)
+            title_text = ImageFont.truetype(font_to_use, font_size-5)
             a,b,c,d = title_text.getbbox(names[kk])
             tx = s1_xx + ((s1_x-c)/2)
             ty = s1_yy + ((s1_y-d)/2)
             if len(names[kk])>=12:
                 font_size+=15
-                title_text = ImageFont.truetype('assets/B612Mono-Bold.ttf', font_size-5)
+                title_text = ImageFont.truetype(font_to_use, font_size-5)
                 a,b,c,d = title_text.getbbox(names[kk])
                 tx = s1_xx + ((s1_x-c)/2)+70
                 ty = s1_yy + ((s1_y-d)/2)-17
@@ -203,7 +205,7 @@ class ImageFun(commands.Cog):
 
         k = 0
         font_size = 35
-        title_text = ImageFont.truetype('assets/B612Mono-Bold.ttf', font_size-5)
+        title_text = ImageFont.truetype(font_to_use, font_size-5)
         #Finding largest entry
         largest = ""
         for i in runner_up_list:

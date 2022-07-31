@@ -1,7 +1,7 @@
 import discord
 import asyncio
 from discord.ext import commands, tasks
-from database import DB_messages, DATABASE_URL
+from database import Database_message_bank, DATABASE_URL
 import os
 import time
 import pdb
@@ -36,7 +36,7 @@ intents.message_content = True
 prefix = "$"
 activity = discord.Activity(type=discord.ActivityType.listening, name="$help")
 bot = commands.Bot(command_prefix=prefix, intents=intents, status=discord.Status.do_not_disturb, activity=activity)
-db_2 = DB_messages(DATABASE_URL, "message_bank")
+db_2 = Database_message_bank(DATABASE_URL, "message_bank")
 
 @bot.event
 async def on_ready():

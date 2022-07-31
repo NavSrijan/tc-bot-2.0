@@ -28,7 +28,8 @@ class Database():
     def closeConnection(self):
         self.conn.commit()
         self.conn.close()
-    
+
+class Database_members(Database):
     def updateMember(self, person):
         sql = """UPDATE {}
         SET revives=%s,
@@ -38,7 +39,6 @@ class Database():
         cursor = self.connect()
         cursor.execute(sql,(person.revives_available, person.last_used, person.id))
         self.closeConnection()
-
     def addMember(self,person):
         try:
             cursor = self.connect()
@@ -93,7 +93,7 @@ class Database():
                 return finalMsg
         else:
             return allUsers
-class DB_messages():
+class Database_message_bank():
     def __init__(self,DATABASE_URL,tableName):
         self.DATABASE_URL = DATABASE_URL
         self.tableName = tableName
@@ -190,23 +190,3 @@ class DB_messages():
 
         if self.messages_total_count > self.update_after_count:
             self.messages_total_count = 0
-
-
-def apppendMember(person):
-    db = Database(DATABASE_URL, "members")
-    db.addMember(person)        
-
-#class Person():
-#    def __init__(self):
-#        self.id = 10 #302253506947973130
-#        self.revives = 100
-#        self.last_used = datetime.datetime.now()
-#person = Person()
-
-#db = DB_messages(DATABASE_URL, "message_bank")
-#db.update_messages()
-#print(db.fetchUser(person))
-#db.addMember(person)
-#x = (db.fetchUser(person))
-#input(">")
-#db.resetRevives()

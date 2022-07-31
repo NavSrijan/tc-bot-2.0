@@ -1,6 +1,6 @@
 from discord.ext import commands, tasks
 from discord import AllowedMentions
-from database import Database, DATABASE_URL
+from database import Database_members, DATABASE_URL
 from functions import utc_to_ist, load, save
 import datetime
 import random
@@ -26,13 +26,13 @@ class Revive(commands.Cog):
         self.revive_delay = int(os.environ['revive_delay'])
         self.revives_available = int(os.environ['revives_available'])
         self.revive_role = int(os.environ['revive_role'])
-        self.topics = load("topics.pkl")
+        self.topics = load("assets/random_data/topics.pkl")
         self.alreadyDone = []
 
     @commands.command(name="revive")
     async def revive(self, ctx, *args):
         if args[0]=="chat" and ctx.channel.id == int(os.environ["revive_channel"]):
-            db = Database(DATABASE_URL, "members")
+            db = Database_members(DATABASE_URL, "members")
             p1 = Person(ctx.message.author)
             msg_time = utc_to_ist(ctx.message.created_at)
             
@@ -46,15 +46,15 @@ class Revive(commands.Cog):
                 self.alreadyDone.append(self.topics.pop(self.topics.index(topic)))
 
             try:
-                dateLast = load("date_last.pkl")
+                dateLast = load("variables/date_last.pkl")
             except:
                 dateLast = datetime.datetime.today().date()
                 db.resetRevives()
-                save(dateLast, "date_last.pkl")
+                save(dateLast, "variables/date_last.pkl")
             if dateLast<datetime.datetime.today().date():
                 dateLast=datetime.datetime.today().date()
                 db.resetRevives()
-                save(dateLast, "date_last.pkl")
+                save(dateLast, "variables/date_last.pkl")
 
             #Loading or saving the user
             try:
@@ -63,7 +63,7 @@ class Revive(commands.Cog):
                 db.addMember(p1)
 
             try:
-                self.last_used = load("last_revive_time.pkl")
+                self.last_used = load("variables/last_revive_time.pkl")
                 p1.last_used = self.last_used
             except:
                 self.last_used = utc_to_ist(datetime.datetime.utcnow())
@@ -71,7 +71,7 @@ class Revive(commands.Cog):
             if (msg_time - self.last_used).seconds > self.revive_delay or self.last_used == None:
                 if p1.revives_available!=0:
                     await ctx.channel.send(f"<@&{self.revive_role}> Trying to revive the chat. ||By <@{ctx.author.id}>||\n`{topic}`")
-                    save(msg_time, "last_revive_time.pkl")
+                    save(msg_time, "variables/last_revive_time.pkl")
                     p1.revives_available-=1
                     db.updateMember(p1)
                 else:
@@ -108,7 +108,7 @@ class Revive(commands.Cog):
     @commands.has_permissions(kick_members=True)
     @commands.command(name="show_revives")
     async def show_revives(self, ctx):
-        db = Database(DATABASE_URL, "members")
+        db = Database_members(DATABASE_URL, "members")
         p1 = Person(ctx.message.author)
 
         allowed_mentions=AllowedMentions(

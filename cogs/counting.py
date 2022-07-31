@@ -1,6 +1,6 @@
 from discord.ext import commands
 from discord import AllowedMentions, Embed
-from database import DB_messages, DATABASE_URL
+from database import Database_message_bank, DATABASE_URL
 import os
 import pdb
 
@@ -21,7 +21,7 @@ class Counting(commands.Cog):
     @commands.has_permissions(kick_members=True)
     @commands.command(name="lb")
     async def yoyo(self, ctx):
-        db = DB_messages(DATABASE_URL, "message_bank")
+        db = Database_message_bank(DATABASE_URL, "message_bank")
         
         allowed_mentions=AllowedMentions(
             users=False,         # Whether to ping individual user @mentions
@@ -36,7 +36,7 @@ class Counting(commands.Cog):
     @commands.has_permissions(kick_members=True)
     @commands.command(name="lb_week")
     async def lb_week(self, ctx, *args):
-        db = DB_messages(DATABASE_URL, "message_bank")
+        db = Database_message_bank(DATABASE_URL, "message_bank")
         
         allowed_mentions=AllowedMentions(
             users=False,         # Whether to ping individual user @mentions
@@ -55,7 +55,7 @@ class Counting(commands.Cog):
     @commands.has_permissions(kick_members=True)
     @commands.command(name="lb_week_embed")
     async def lb_week_embed(self, ctx):
-        db = DB_messages(DATABASE_URL, "message_bank")
+        db = Database_message_bank(DATABASE_URL, "message_bank")
 
         all_users = db.get_week_data(to_send=False)
 

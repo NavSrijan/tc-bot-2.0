@@ -12,7 +12,7 @@ class Geography(commands.Cog):
         self.countries = self.load_countries()
         self.lives = 3
         self.points = 0
-    def load_countries(self, file="country_data.csv"):
+    def load_countries(self, file="assets/random_data/country_data.csv"):
         with open(file, "r") as f:
             data = f.readlines()
         countries = {}
@@ -88,7 +88,7 @@ class Geography(commands.Cog):
             except:
                 return False
 
-        file = open("pi.pi", "r")
+        file = open("assets/random_data/pi.pi", "r")
         digits = file.readline()
         digits.strip(" ")
         
