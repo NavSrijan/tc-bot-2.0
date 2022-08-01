@@ -1,10 +1,11 @@
 import discord
 import asyncio
 from discord.ext import commands, tasks
-from database import Database_message_bank, DATABASE_URL
+from database import Database_message_bank, DATABASE_URL, Database_suggestions
+from helpers import VoteView
 import os
 import time
-import pdb
+import ipdb
 
 
 ##########
@@ -21,7 +22,8 @@ cogs = ['chat_cmd',
 'mod',
 'games',
 'help',
-'image_fun'
+'image_fun',
+'suggestions'
 
 ]
 
@@ -59,9 +61,6 @@ async def on_message(message: discord.Message):
             #unk = "<a:tc_excited:995961992173072445>"
             await message.add_reaction(tc_emoji)
             break
-        #if i in ["bkl", "bsdk", "chutiya", "chutiye", "❤️ de", "❤️de", "❤️ day", "❤️day", "bhadwe", "bhadwa", "bhadwi", "lodu", "gandu", "gaandu", "lawde", "lavde", "laude"]:
-        #    await message.reply("Gaali na de!")
-        #    break
 
     channels_with_image_access = [895221352267677697, 983791675874877500, 895221241412198410, 983787831476490291, 895014066853117983]
     roles_allowed_to_send_images = [960932026549174272, 998303854925975734, 893950378431877131, 970902786638250034, 839010251868078101, 975456077623746590, 977217186928160828]
@@ -77,7 +76,22 @@ async def on_message(message: discord.Message):
                     #await message.author.send(f"You aren't allowed to send link in <#{os.environ['revive_channel']}>.")
                     await message.author.send(f"You aren't allowed to send link in <#{957263189320540170}>.")
                     await message.delete()
-                
+
+    if message.channel.id == 987382478245363722:
+        # Converts suggestion to a vote
+        emb = discord.Embed(
+            title=f"{message.author.name}'s suggestion",
+            description=f"`{message.content}`\n👍:0\n👎:0",
+            color=discord.Color.dark_gold()
+        )
+
+        view = VoteView()
+        db = Database_suggestions(DATABASE_URL, "suggestions")
+
+        await message.channel.send(embed=emb, view=view)
+        return
+
+
 
 
     def process_messages(message):

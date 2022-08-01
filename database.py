@@ -190,3 +190,28 @@ class Database_message_bank():
 
         if self.messages_total_count > self.update_after_count:
             self.messages_total_count = 0
+
+class Database_suggestions(Database):
+    """
+    CREATE TABLE "suggestions" (
+	"message_id" BIGINT NOT NULL,
+	"author_id" BIGINT NOT NULL,
+    "resp" INT NOT NULL,
+	PRIMARY KEY ("message_id","author_id")
+);
+    """
+    def fetch_interactions_id(self, message_id, resp):
+        cursor = self.connect()
+        cursor.execute("SELECT * from {} WHERE message_id=%s AND resp=%s;".format(self.tableName), (message_id, resp))
+        temp = cursor.fetchall()
+        return temp
+    def delete_message_id(self, message):
+        cursor = self.connect()
+        sql = """DELETE FROM {} WHERE message_id=%s;""".format(self.tableName)
+        cursor.execute(sql, (message.id, ))
+        self.closeConnection()
+    def insert_message_id(self, message_id, user_id, resp):
+        cursor = self.connect()
+        sql = """INSERT INTO {} (message_id, author_id, resp) VALUES  (%s, %s, %s);""".format(self.tableName)
+        cursor.execute(sql, (message_id, user_id, resp))
+        self.closeConnection()
