@@ -3,7 +3,6 @@ import discord
 import os
 from helpers import PersistentView, VoteView
 from database import Database_suggestions, DATABASE_URL
-import ipdb
 
 class Suggestion(commands.Cog):
     """Suggestions"""

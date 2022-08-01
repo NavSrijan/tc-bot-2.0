@@ -5,7 +5,6 @@ from database import Database_message_bank, DATABASE_URL, Database_suggestions
 from helpers import VoteView
 import os
 import time
-import ipdb
 
 
 ##########

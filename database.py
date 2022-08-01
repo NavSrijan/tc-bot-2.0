@@ -2,7 +2,6 @@ import os
 import psycopg2
 import psycopg2.extras
 import datetime
-import pdb
 from functions import utc_to_ist
 
 DATABASE_URL = os.environ["DATABASE_URL2"]

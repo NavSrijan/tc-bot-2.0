@@ -1,7 +1,6 @@
 import discord
 import pickle as pkl
 from database import Database_suggestions, DATABASE_URL
-import ipdb
 
 class PersistentView(discord.ui.View):
     def __init__(self):
