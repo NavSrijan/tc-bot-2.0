@@ -88,6 +88,7 @@ async def on_message(message: discord.Message):
         db = Database_suggestions(DATABASE_URL, "suggestions")
 
         await message.channel.send(embed=emb, view=view)
+        await message.delete()
         return
 
 
