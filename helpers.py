@@ -32,11 +32,11 @@ class VoteView(discord.ui.View):
                 await interaction.response.send_message('Haven\'t you already responded?', ephemeral=True)
             emb = interaction.message.embeds[0]
             desc = emb.description
-            lines = "✅ ---> {}\n❌ ---> {}"
+            lines = "✅ ---> {}\n\n❌ ---> {}"
             suggs = desc.split("\n")[0]
             up = len(db.fetch_interactions_id(interaction.message.id, 1))
             down = len(db.fetch_interactions_id(interaction.message.id, 0))
-            emb.description = "\n".join([suggs, lines.format(up, down)])
+            emb.description = "\n\n".join([suggs, lines.format(up, down)])
 
             await interaction.response.edit_message(embed=emb)
         except Exception as e:
@@ -52,8 +52,8 @@ class VoteView(discord.ui.View):
                 await interaction.response.send_message('Haven\'t you already responded?', ephemeral=True)
             emb = interaction.message.embeds[0]
             desc = emb.description
-            lines = "👍:{}\n👎:{}"
-            suggs = desc.split("\n")[0]
+            lines = "✅ ---> {}\n\n❌ ---> {}"
+            suggs = desc.split("\n\n")[0]
             up = len(db.fetch_interactions_id(interaction.message.id, 1))
             down = len(db.fetch_interactions_id(interaction.message.id, 0))
             emb.description = "\n".join([suggs, lines.format(up, down)])
