@@ -48,6 +48,46 @@ class ImageFun(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+    @commands.command(name="ily")
+    async def ily(self, ctx, *args):
+        font_to_use = "assets/fonts/B612Mono-Bold.ttf"
+        choices = ['emma.jpeg', 'olsen.jpg', "scarjo.jpg"]
+        choice = random.choice(choices)
+        base_image = Image.open(f'assets/images/ily/{choice}')
+        base = Image.new('RGB', base_image.size)
+        base.paste(base_image)
+        text = 'I love you'
+        if ctx.message.mentions:
+            name = ctx.message.mentions[0].name
+        else:
+            await ctx.reply("Mention someone.")
+            return
+        name = "\n"+name.center(len(text), " ")
+        text+=name
+
+        title_text = ImageFont.truetype(font_to_use, 50)
+        xc, yc = base.size
+        a,b,c,d = title_text.getbbox(text)
+
+        font_size = 50
+        while xc < c or yc < d:
+            font_size-=5
+            title_text = ImageFont.truetype(font_to_use, font_size)
+            a,b,c,d = title_text.getbbox(text)
+
+        a,b,c,d = title_text.getbbox(text)
+        b_x = int(xc/2)-int(c/2)-(0*xc/100)
+        b_y = int(yc)-((20*yc)/100)-d
+
+
+        ImageDraw.Draw(base).text((b_x, b_y), text, 'rgb(255,0,0)', font=title_text, spacing=10)
+        
+        with BytesIO() as image_binary:
+            base.save(image_binary, 'PNG')
+            image_binary.seek(0)
+            file=discord.File(fp=image_binary, filename='modiji.png')
+            await ctx.send(file=file)
+
     @commands.command(name="travel")
     async def travel_ticket(self, ctx, *args):
         """Generate a airline ticket for your next travel destination.
