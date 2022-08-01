@@ -76,7 +76,7 @@ async def on_message(message: discord.Message):
                     await message.author.send(f"You aren't allowed to send link in <#{957263189320540170}>.")
                     await message.delete()
 
-    if message.channel.id == 973577832116674650:
+    if message.channel.id == 894495753655943210:
         # Converts suggestion to a vote
         emb = discord.Embed(
             title=f"{message.author.name}'s suggestion",
