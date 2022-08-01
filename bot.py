@@ -36,7 +36,7 @@ intents.members = True
 intents.message_content = True
 prefix = "$"
 activity = discord.Activity(type=discord.ActivityType.listening, name="$help")
-bot = commands.Bot(command_prefix=prefix, intents=intents, status=discord.Status.do_not_disturb, activity=activity)
+bot = commands.Bot(command_prefix=prefix, case_insensitive=True,intents=intents, status=discord.Status.do_not_disturb, activity=activity)
 db_2 = Database_message_bank(DATABASE_URL, "message_bank")
 
 @bot.event
@@ -51,7 +51,7 @@ async def on_message(message: discord.Message):
         return
     
     #print(message.content)
-    message.content = message.content.lower()
+    #message.content = message.content.lower()
 
     r_words =  message.content.lower().split(" ")
     for i in r_words:
@@ -71,16 +71,16 @@ async def on_message(message: discord.Message):
                 break
         if to_pass==True:
             for i in ["https://media.discordapp.net/attachments","https://cdn.discordapp.com/attachments", "https://imgur.com", "https://i.imgur.com", "https://images-ext-1.discordapp.net/external", "https://www.reddit.com/"]:
-                if i in message.content:
+                if i in message.content.lower():
                     #await message.author.send(f"You aren't allowed to send link in <#{os.environ['revive_channel']}>.")
                     await message.author.send(f"You aren't allowed to send link in <#{957263189320540170}>.")
                     await message.delete()
 
-    if message.channel.id == 987382478245363722:
+    if message.channel.id == 973577832116674650:
         # Converts suggestion to a vote
         emb = discord.Embed(
             title=f"{message.author.name}'s suggestion",
-            description=f"`{message.content}`\n👍:0\n👎:0",
+            description=f"`{message.content}`\n\n✅ ---> 0\n\n❌ ---> 0",
             color=discord.Color.dark_gold()
         )
 

@@ -22,7 +22,7 @@ class VoteView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.button(label='Green', style=discord.ButtonStyle.green, custom_id="VoteGreen")
+    @discord.ui.button(label='Upvote', style=discord.ButtonStyle.green, custom_id="VoteGreen")
     async def green(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             db = Database_suggestions(DATABASE_URL, "suggestions")
@@ -32,7 +32,7 @@ class VoteView(discord.ui.View):
                 await interaction.response.send_message('Haven\'t you already responded?', ephemeral=True)
             emb = interaction.message.embeds[0]
             desc = emb.description
-            lines = "👍:{}\n👎:{}"
+            lines = "✅ ---> {}\n❌ ---> {}"
             suggs = desc.split("\n")[0]
             up = len(db.fetch_interactions_id(interaction.message.id, 1))
             down = len(db.fetch_interactions_id(interaction.message.id, 0))
@@ -42,7 +42,7 @@ class VoteView(discord.ui.View):
         except Exception as e:
             print(e)
 
-    @discord.ui.button(label='Red', style=discord.ButtonStyle.red, custom_id='VoteRed')
+    @discord.ui.button(label='Downvote', style=discord.ButtonStyle.red, custom_id='VoteRed')
     async def red(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             db = Database_suggestions(DATABASE_URL, "suggestions")

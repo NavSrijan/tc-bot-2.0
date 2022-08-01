@@ -99,7 +99,7 @@ class Revive(commands.Cog):
     @commands.command(name="fake")
     async def fake_revive(self, ctx):
         """Revive the chat but it's fake!"""
-        if ctx.message.content == "fake revive":
+        if ctx.message.content.lower() == "fake revive":
             allowed_mentions=AllowedMentions(
             users=False,         # Whether to ping individual user @mentions
             everyone=False,      # Whether to ping @everyone or @here mentions
