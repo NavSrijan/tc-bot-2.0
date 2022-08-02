@@ -7,7 +7,6 @@ import os
 import random
 import requests
 from io import BytesIO
-import ipdb
 
 
 def icon(image_object, image_size):
