@@ -2,7 +2,7 @@ import discord
 import asyncio
 from discord.ext import commands, tasks
 from database import Database_message_bank, DATABASE_URL, Database_suggestions
-from helpers import VoteView
+from helpers import VoteView, VoteViewForEmoji
 import os
 import time
 
@@ -76,6 +76,7 @@ async def on_message(message: discord.Message):
                     await message.author.send(f"You aren't allowed to send link in <#{957263189320540170}>.")
                     await message.delete()
 
+    # Changing suggestions to polls
     if message.channel.id == 894495753655943210:
         # Converts suggestion to a vote
         emb = discord.Embed(
@@ -91,6 +92,32 @@ async def on_message(message: discord.Message):
         await message.delete()
         return
 
+    # Changing emojis to polls
+    if message.channel.id == 998123210493132875:
+        # Converts emoji suggestions to a vote
+        if message.attachments:
+            atm = message.attachments[0]
+        else:
+            a = await message.reply("Send only an image.")
+            await asyncio.sleep(2)
+            await message.delete()
+            await a.delete()
+            return
+
+
+        emb = discord.Embed(
+            title=f"{message.author.name}'s emoji suggestion",
+            description=f"`Is this emoji good?`\n\n✅ ---> 0\n\n❌ ---> 0",
+            color=discord.Color.random()
+            )
+        emb.set_image(url=atm.url)
+
+        view = VoteViewForEmoji()
+        db = Database_suggestions(DATABASE_URL, "suggestions")
+
+        await message.channel.send(embed=emb, view=view)
+        await message.delete()
+        return
 
 
 
