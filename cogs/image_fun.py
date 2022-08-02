@@ -7,6 +7,7 @@ import os
 import random
 import requests
 from io import BytesIO
+import ipdb
 
 
 def icon(image_object, image_size):
@@ -47,6 +48,55 @@ class ImageFun(commands.Cog):
     """Basic hello commands"""
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+
+    @commands.command(name="compress")
+    async def compress(self, ctx, *args):
+        images = []
+        discord_bg = "#36393F"
+#
+        #width = 200
+        #center = width // 2
+        #color_1 = (0, 0, 0)
+        #color_2 = (255, 255, 255)
+        #max_radius = int(center * 1.5)
+        #step = 8
+#
+        #for i in range(0, max_radius, step):
+        #    im = Image.new('RGB', (width, width), color_1)
+        #    draw = ImageDraw.Draw(im)
+        #    draw.ellipse((center - i, center - i, center + i, center + i), fill=color_2)
+        #    images.append(im)
+#
+        #for i in range(0, max_radius, step):
+        #    im = Image.new('RGB', (width, width), color_2)
+        #    draw = ImageDraw.Draw(im)
+        #    draw.ellipse((center - i, center - i, center + i, center + i), fill=color_1)
+        #    images.append(im)
+        
+        
+        if ctx.message.mentions:
+            name = ctx.message.mentions[0]
+        else:
+            await ctx.reply("Mention someone.")
+            return
+        
+        url = name.avatar.url
+        ima = Image.open(requests.get(url, stream=True).raw).convert('RGBA')
+
+        width, height = ima.size
+        w, h = ima.size
+
+        while height>0:
+            im = Image.new('RGBA', (w, h), color=discord_bg)
+            imz = ima.resize((width, height)).convert('RGBA')
+            x, y = w-width, h-height
+            im.paste(imz, (x,y), imz)
+            images.append(im)
+            height-=10
+
+        images[0].save('assets/images/compress/1.gif',
+                save_all=True, append_images=images[1:], optimize=False, duration=1, loop=0)
+        await ctx.channel.send(file=discord.File("assets/images/compress/1.gif"))
 
     @commands.command(name="ily")
     async def ily(self, ctx, *args):

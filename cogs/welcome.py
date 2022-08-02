@@ -1,6 +1,5 @@
 from discord.ext import commands
 import os
-import pdb
 
 class Welcome(commands.Cog):
     """Basic hello commands"""
