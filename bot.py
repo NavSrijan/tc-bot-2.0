@@ -110,7 +110,7 @@ async def on_message(message: discord.Message):
             description=f"`Is this emoji good?`\n\n✅ ---> 0\n\n❌ ---> 0",
             color=discord.Color.random()
             )
-        emb.set_image(url=atm.url)
+        emb.set_image(url=atm.proxy_url)
 
         view = VoteViewForEmoji()
         db = Database_suggestions(DATABASE_URL, "suggestions")
