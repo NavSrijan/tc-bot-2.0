@@ -79,7 +79,7 @@ class VoteViewForEmoji(discord.ui.View):
                 await interaction.response.send_message('Haven\'t you already responded?', ephemeral=True)
                 emb = interaction.message.embeds[0]
                 up = len(db.fetch_interactions_id(interaction.message.id, 1))
-                if up>=self.voteLimit1:
+                if up>=self.voteLimit:
                     guild = interaction.guild
                     url = emb.image.url
                     im = Image.open(requests.get(url, stream=True).raw).convert('RGB')
@@ -98,7 +98,7 @@ class VoteViewForEmoji(discord.ui.View):
             down = len(db.fetch_interactions_id(interaction.message.id, 0))
 
             try:
-                if up>=self.voteLimit1:
+                if up>=self.voteLimit:
                     guild = interaction.guild
                     url = emb.image.url
                     im = Image.open(requests.get(url, stream=True).raw).convert('RGB')
@@ -130,7 +130,7 @@ class VoteViewForEmoji(discord.ui.View):
                 try:
                     emb = interaction.message.embeds[0]
                     up = len(db.fetch_interactions_id(interaction.message.id, 1))
-                    if up>=self.voteLimit1:
+                    if up>=self.voteLimit:
                         guild = interaction.guild
                         url = emb.image.url
                         im = Image.open(requests.get(url, stream=True).raw).convert('RGB')
@@ -152,7 +152,7 @@ class VoteViewForEmoji(discord.ui.View):
             down = len(db.fetch_interactions_id(interaction.message.id, 0))
 
             try:
-                if up>=self.voteLimit1:
+                if up>=self.voteLimit:
                     guild = interaction.guild
                     url = emb.image.url
                     im = Image.open(requests.get(url, stream=True).raw).convert('RGB')
