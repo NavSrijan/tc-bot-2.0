@@ -104,7 +104,7 @@ async def on_message(message: discord.Message):
         return
 
     # Changing emojis to polls
-    if message.channel.id == 972708478978261023:
+    if message.channel.id == 998123210493132875:
         # Converts emoji suggestions to a vote
         if message.attachments:
             atm = message.attachments[0]
