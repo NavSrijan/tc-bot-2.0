@@ -3,6 +3,7 @@ import pickle as pkl
 from database import Database_suggestions, DATABASE_URL
 from PIL import Image
 import requests
+from functions import download_and_return_image
 
 class PersistentView(discord.ui.View):
     def __init__(self):
@@ -67,7 +68,15 @@ class VoteView(discord.ui.View):
 class VoteViewForEmoji(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
-        self.voteLimit = 3
+        self.voteLimit = 2
+    async def set_emoji(self, interaction, url):
+        img = Image.open(requests.get(url, stream=True).raw).convert('RGBA')
+        img = img.resize((32,32))
+        img.save("assets/images/em1.png")
+        with open("assets/images/em1.png","rb") as f:
+            image = f.read()
+        await interaction.guild.create_custom_emoji(name="em1", image=image)
+        await interaction.message.delete()
 
     @discord.ui.button(label='Upvote', style=discord.ButtonStyle.green, custom_id="VoteGreenForEmoji")
     async def green(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -80,16 +89,7 @@ class VoteViewForEmoji(discord.ui.View):
                 emb = interaction.message.embeds[0]
                 up = len(db.fetch_interactions_id(interaction.message.id, 1))
                 if up>=self.voteLimit:
-                    guild = interaction.guild
-                    url = emb.image.proxy_url
-                    #url = interaction.message.content
-                    im = Image.open(requests.get(url, stream=True).raw).convert('RGB')
-                    im.save("assets/images/em1.png")
-                    with open("assets/images/em1.png","rb") as e:
-                        image = e.read()
-                    
-                    await guild.create_custom_emoji(name="em1", image=image) #str(interaction.message.id)[6:]
-                    await interaction.message.delete()
+                    await self.set_emoji(interaction, emb.image.url)
                     return
             emb = interaction.message.embeds[0]
             desc = emb.description
@@ -100,16 +100,7 @@ class VoteViewForEmoji(discord.ui.View):
 
             try:
                 if up>=self.voteLimit:
-                    guild = interaction.guild
-                    url = emb.image.proxy_url
-                    #url = interaction.message.content
-                    im = Image.open(requests.get(url, stream=True).raw).convert('RGB')
-                    im.save("assets/images/em1.png")
-                    with open("assets/images/em1.png","rb") as e:
-                        image = e.read()
-                    
-                    await guild.create_custom_emoji(name="em1", image=image) #str(interaction.message.id)[6:]
-                    await interaction.message.delete()
+                    await self.set_emoji(interaction, emb.image.url)
                     return
             except:
                 pass
@@ -133,15 +124,7 @@ class VoteViewForEmoji(discord.ui.View):
                     emb = interaction.message.embeds[0]
                     up = len(db.fetch_interactions_id(interaction.message.id, 1))
                     if up>=self.voteLimit:
-                        guild = interaction.guild
-                        url = emb.image.proxy_url
-                        im = Image.open(requests.get(url, stream=True).raw).convert('RGB')
-                        im.save("assets/images/em1.png")
-                        with open("assets/images/em1.png","rb") as e:
-                            image = e.read()
-                        
-                        await guild.create_custom_emoji(name="em1", image=image) #str(interaction.message.id)[6:]
-                        await interaction.message.delete()
+                        await self.set_emoji(interaction, emb.image.url)
                         return
                 except:
                     pass
@@ -155,15 +138,7 @@ class VoteViewForEmoji(discord.ui.View):
 
             try:
                 if up>=self.voteLimit:
-                    guild = interaction.guild
-                    url = emb.image.proxy_url
-                    im = Image.open(requests.get(url, stream=True).raw).convert('RGB')
-                    im.save("assets/images/em1.jpg")
-                    with open("assets/images/em1.jpg","rb") as e:
-                        image = e.read()
-                    
-                    await guild.create_custom_emoji(name="em1", image=image) #str(interaction.message.id)[6:]
-                    await interaction.message.delete()
+                    await self.set_emoji(interaction, emb.image.url)
                     return
             except:
                 pass

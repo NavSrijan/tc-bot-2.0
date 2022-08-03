@@ -23,7 +23,8 @@ class Database():
         self.tableName = tableName
     def connect(self):
         self.conn = psycopg2.connect(self.DATABASE_URL)
-        return self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        self.cursor = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        return self.cursor
     def closeConnection(self):
         self.conn.commit()
         self.conn.close()
@@ -197,7 +198,7 @@ class Database_suggestions(Database):
 	"author_id" BIGINT NOT NULL,
     "resp" INT NOT NULL,
 	PRIMARY KEY ("message_id","author_id")
-);
+    );
     """
     def fetch_interactions_id(self, message_id, resp):
         cursor = self.connect()
@@ -213,4 +214,34 @@ class Database_suggestions(Database):
         cursor = self.connect()
         sql = """INSERT INTO {} (message_id, author_id, resp) VALUES  (%s, %s, %s);""".format(self.tableName)
         cursor.execute(sql, (message_id, user_id, resp))
+        self.closeConnection()
+
+class Database_afk(Database):
+    """
+    CREATE TABLE "afk" (
+	"id" BIGINT NOT NULL,
+	"afk_status" BOOLEAN,
+	"afk_time" TIMESTAMP,
+	"content" TEXT,
+	PRIMARY KEY ("id")
+);
+    """
+    def get_all_afk(self):
+        cursor = self.connect()
+        cursor.execute("SELECT * from {}".format(self.tableName))
+        temp = self.cursor.fetchall()
+        self.closeConnection()
+        return temp
+
+    def remove_afk(self, message):
+        cursor = self.connect()
+        sql = """DELETE FROM {} WHERE id=%s;""".format(self.tableName)
+        cursor.execute(sql, (message.author.id, ))
+        self.closeConnection()
+
+    def make_afk(self, message):
+        text = message.content[5:]
+        cursor = self.connect()
+        sql = """INSERT INTO {} (id, afk_status, afk_time, content) VALUES  (%s, %s, %s, %s);""".format(self.tableName)
+        cursor.execute(sql, (message.author.id, True, datetime.datetime.utcnow(), text))
         self.closeConnection()

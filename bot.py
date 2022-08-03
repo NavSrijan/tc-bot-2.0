@@ -1,15 +1,28 @@
 import discord
 import asyncio
 from discord.ext import commands, tasks
-from database import Database_message_bank, DATABASE_URL, Database_suggestions
+import datetime
+from database import Database_message_bank, DATABASE_URL, Database_suggestions, Database_afk
 from helpers import VoteView, VoteViewForEmoji
+from functions import download_and_return_image
 import os
 import time
-
 
 ##########
 # Variables
 ##
+db_2 = Database_message_bank(DATABASE_URL, "message_bank")
+db_afk = Database_afk(DATABASE_URL, "afk")
+
+def get_afk_people_dict():
+    global db_afk
+    afk_people = {}
+    all_users = db_afk.get_all_afk()
+    for i in all_users:
+        afk_people[i[0]] = [i[1], i[2], i[3]]
+    return afk_people
+
+afk_people = get_afk_people_dict()
 
 ##
 ##########
@@ -37,7 +50,7 @@ intents.message_content = True
 prefix = "$"
 activity = discord.Activity(type=discord.ActivityType.listening, name="$help")
 bot = commands.Bot(command_prefix=prefix, case_insensitive=True,intents=intents, status=discord.Status.do_not_disturb, activity=activity)
-db_2 = Database_message_bank(DATABASE_URL, "message_bank")
+
 
 @bot.event
 async def on_ready():
@@ -46,13 +59,11 @@ async def on_ready():
 
 @bot.event
 async def on_message(message: discord.Message):
+    global afk_people, db_afk
 
     if message.author == bot.user or message.author.bot == True:
         return
     
-    #print(message.content)
-    #message.content = message.content.lower()
-
     r_words =  message.content.lower().split(" ")
     for i in r_words:
         if i in ["tc", "teenage", "community", "teenage", "teenagecommunity"]:
@@ -80,7 +91,7 @@ async def on_message(message: discord.Message):
     if message.channel.id == 894495753655943210:
         # Converts suggestion to a vote
         emb = discord.Embed(
-            title=f"{message.author.name}'s suggestion",
+            title=f"{message.author.display_name}'s suggestion",
             description=f"`{message.content}`\n\n✅ ---> 0\n\n❌ ---> 0",
             color=discord.Color.dark_gold()
         )
@@ -93,7 +104,7 @@ async def on_message(message: discord.Message):
         return
 
     # Changing emojis to polls
-    if message.channel.id == 998123210493132875:
+    if message.channel.id == 972708478978261023:
         # Converts emoji suggestions to a vote
         if message.attachments:
             atm = message.attachments[0]
@@ -106,20 +117,51 @@ async def on_message(message: discord.Message):
 
 
         emb = discord.Embed(
-            title=f"{message.author.name}'s emoji suggestion",
+            title=f"{message.author.display_name}'s emoji suggestion",
             description=f"`Is this emoji good?`\n\n✅ ---> 0\n\n❌ ---> 0",
             color=discord.Color.random()
             )
-        emb.set_image(url=atm.proxy_url)
+        img = download_and_return_image(atm.url)
+        emb.set_image(url="attachment://emojiSuggestion.png")
 
         view = VoteViewForEmoji()
         db = Database_suggestions(DATABASE_URL, "suggestions")
 
-        await message.channel.send(embed=emb, view=view)
+        await message.channel.send(file=img, embed=emb, view=view)
         await message.delete()
         return
 
-
+    # Managing AFK
+    ## Making AFK
+    if message.content.lower().startswith("$afk"):
+        db_afk.make_afk(message)
+        afk_people[message.author.id] = [True, datetime.datetime.utcnow(), message.content[5:]]
+        name = message.author.display_name
+        new_name = f"[AFK] {name}"
+        try:
+            await message.author.edit(nick=new_name)
+        except Exception as e:
+            print(e)
+        await message.channel.send(f"{message.author.display_name} is AFK.")
+        return
+    ## Removing AFK
+    if message.author.id in afk_people:
+        db_afk.remove_afk(message)
+        name = message.author.display_name
+        if name[0:6] == "[AFK] ":
+            name = name[6:]
+            try:
+                await message.author.edit(nick=name)
+            except Exception as e:
+                print(e)
+        del afk_people[message.author.id]
+        to_delete = await message.reply("Removed your AFK.")
+        await asyncio.sleep(2)
+        await to_delete.delete()
+    ## Check if anyone mentions AFK user
+    for i in message.mentions:
+        if i.id in afk_people:
+            await message.reply(f"{i.display_name} is AFK: {afk_people[i.id][-1]}")
 
     def process_messages(message):
         to_not_count = ["owo", "pls"]
