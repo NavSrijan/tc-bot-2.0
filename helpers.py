@@ -68,7 +68,7 @@ class VoteView(discord.ui.View):
 class VoteViewForEmoji(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
-        self.voteLimit = 2
+        self.voteLimit = 4
     async def set_emoji(self, interaction, url):
         img = Image.open(requests.get(url, stream=True).raw).convert('RGBA')
         img = img.resize((32,32))
