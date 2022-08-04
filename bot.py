@@ -159,9 +159,18 @@ async def on_message(message: discord.Message):
         await asyncio.sleep(2)
         await to_delete.delete()
     ## Check if anyone mentions AFK user
+    def return_time_string(td: datetime.timedelta):
+        m, s = divmod(td.seconds, 60)
+        h, m = divmod(m, 60)
+        if h==0:
+            return f"{m} mins {s} secs"
+        else:
+            return f"{h} hours {m} mins {s} secs"
     for i in message.mentions:
         if i.id in afk_people:
-            await message.reply(f"{i.display_name} is AFK: {afk_people[i.id][-1]}")
+            last_online = afk_people[i.id][1]
+            diff = (datetime.datetime.utcnow() - last_online)
+            await message.reply(f"{i.display_name} went AFK {return_time_string(diff)} ago:\n{afk_people[i.id][-1]}")
 
     def process_messages(message):
         to_not_count = ["owo", "pls"]
