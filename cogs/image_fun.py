@@ -94,6 +94,20 @@ class ImageFun(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+    @commands.command(name="iloveyou")
+    async def ily_real(self, ctx, *args):
+        """Have feelings for somebody? Say it today!
+        Syntax: $iloveyou
+        """
+        x, y = 300, 100
+        base = Image.open(f'assets/images/iloveyou/1.jpg')
+        url = ctx.author.avatar.url
+        im = Image.open(requests.get(url, stream=True).raw).convert('RGBA')
+        dw = icon(im, 350)
+        base.paste(dw, (x, y), dw)
+        file = send_image(base)
+        await ctx.send(file=file)
+
     @commands.command(name="binod")
     async def binod(self, ctx, *args):
         """Dekh raha hai na Binod?
@@ -129,6 +143,8 @@ class ImageFun(commands.Cog):
 
     @commands.command(name="compress")
     async def compress(self, ctx, *args):
+        """Don't like someone? Just compress them!
+        Syntax: $compress @user"""
         images = []
         discord_bg = "#36393F"
         
@@ -158,6 +174,8 @@ class ImageFun(commands.Cog):
 
     @commands.command(name="ily")
     async def ily(self, ctx, *args):
+        """Lonely?
+        Syantx: $ily @user"""
         font_to_use = "assets/fonts/B612Mono-Bold.ttf"
         choices = ['emma.jpeg', 'olsen.jpg', "scarjo.jpg"]
         choice = random.choice(choices)
