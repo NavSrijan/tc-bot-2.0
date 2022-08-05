@@ -8,7 +8,6 @@ import random
 import requests
 from io import BytesIO
 
-
 def icon(image_object, image_size):
     
     #for i in ["assets/pfp1.png","assets/pfp2.png","assets/pfp3.png"]:
@@ -47,6 +46,53 @@ class ImageFun(commands.Cog):
     """Basic hello commands"""
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+
+    @commands.command(name="jal")
+    async def jal(self, ctx, *args):
+        font_to_use = "assets/fonts/B612Mono-Bold.ttf"
+        base = Image.open(f'assets/images/jal/jal.jpg')
+        if len(args)>=1:
+            name = " ".join(args)
+        else:
+            name = ""
+        text = f"Jal lijiye, thak gaye honge"
+
+        name = "\n"+name.center(len(text), " ")
+        text+=name
+
+        title_text = ImageFont.truetype(font_to_use, 80)
+        xc, yc = base.size
+        a,b,c,d = title_text.getbbox(text)
+
+        font_size = 100
+        tx, ty = 0, yc-500
+        while c-a>xc:
+            font_size-=1
+            title_text = ImageFont.truetype(font_to_use, font_size)
+            a,b,c,d = title_text.getbbox(text)
+            tx = int((xc-(c-a))/2)
+        
+        ty = yc - 200
+        x, y = tx, ty
+        shadowcolor = "black"
+        fillcolor = "white"
+        font = ImageFont.truetype(font_to_use, font_size+30)
+
+        #ImageDraw.Draw(base).text((tx, ty), text, 'rgb(255,255,255)', font=title_text, spacing=10)
+        draw = ImageDraw.Draw(base)
+        draw.text((x-2, y-2), text, font=font, fill=shadowcolor)
+        draw.text((x+2, y-2), text, font=font, fill=shadowcolor)
+        draw.text((x-2, y+2), text, font=font, fill=shadowcolor)
+        draw.text((x+2, y+2), text, font=font, fill=shadowcolor)
+
+        draw.text((x, y), text, font=font, fill=fillcolor)
+
+        
+        with BytesIO() as image_binary:
+            base.save(image_binary, 'PNG')
+            image_binary.seek(0)
+            file=discord.File(fp=image_binary, filename='modiji.png')
+            await ctx.send(file=file)
 
     @commands.command(name="compress")
     async def compress(self, ctx, *args):
@@ -149,7 +195,6 @@ class ImageFun(commands.Cog):
             file=discord.File(fp=image_binary, filename='modiji.png')
             await ctx.send(file=file)
 
-
     @commands.command(name="wish")
     async def modiji(self, ctx):
         """
@@ -182,7 +227,6 @@ class ImageFun(commands.Cog):
         emb = basic_embed(color=discord.Color.orange() , title=f"{ctx.author.name} wishes {name}", image_url="attachment://modiji.png")
         await ctx.send(file=file, embed=emb)
 
-    
     @commands.has_permissions(kick_members=True)
     @commands.command(name="lb_image")
     async def lb_image(self, ctx, *args):
@@ -355,7 +399,6 @@ class ImageFun(commands.Cog):
             await chnl.send("<@&839005140891205684>",file=discord.File(fp=image_binary, filename='lb_image.png'))
 
         #base.show()
-
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
