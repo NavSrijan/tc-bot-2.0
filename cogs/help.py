@@ -36,7 +36,6 @@ class Help(commands.Cog):
     async def help(self, ctx, *input):
         """Shows all modules of that bot"""
 	
-	# !SET THOSE VARIABLES TO MAKE THE COG FUNCTIONAL!
         prefix = "$" # ENTER YOUR PREFIX - loaded from config, as string or how ever you want!
         version = 0.1 # enter version of your code
         

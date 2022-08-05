@@ -7,6 +7,7 @@ import os
 import random
 import requests
 from io import BytesIO
+import textwrap
 
 def icon(image_object, image_size):
     
@@ -40,59 +41,91 @@ def icon(image_object, image_size):
     
     return im
 
+def center_text(base, text, font_to_use, shadowcolor="black", fillcolor="white", textwrap_ = False, name="", font_diff = 0):
+    title_text = ImageFont.truetype(font_to_use, 80)
+    xc, yc = base.size
+    a,b,c,d = title_text.getbbox(text)
 
+
+    font_size = 100
+    tx, ty = 0, yc-500
+    while c-a>xc:
+        font_size-=1
+        title_text = ImageFont.truetype(font_to_use, font_size)
+        a,b,c,d = title_text.getbbox(text)
+        tx = int((xc-(c-a))/2)
+
+    if len(text)>=4:
+        to_subtract_y = 300
+    else:
+        to_subtract_y = 200
+
+    if textwrap_ == True:
+        text = textwrap.wrap(text, width=25)
+        text = " \n".join(text)
+    else:
+        name = "\n"+name.center(len(text), " ")
+        text+=name
+
+
+    ty = yc - to_subtract_y
+    x, y = tx, ty
+    shadowcolor = "black"
+    fillcolor = "white"
+    font = ImageFont.truetype(font_to_use, font_size+font_diff)
+    draw = ImageDraw.Draw(base)
+    draw.text((x-2, y-2), text, font=font, fill=shadowcolor)
+    draw.text((x+2, y-2), text, font=font, fill=shadowcolor)
+    draw.text((x-2, y+2), text, font=font, fill=shadowcolor)
+    draw.text((x+2, y+2), text, font=font, fill=shadowcolor)
+
+    draw.text((x, y), text, font=font, fill=fillcolor)
+    return base
+
+def send_image(base):
+    with BytesIO() as image_binary:
+        base.save(image_binary, 'PNG')
+        image_binary.seek(0)
+        file=discord.File(fp=image_binary, filename='modiji.png')
+        return file
 
 class ImageFun(commands.Cog):
     """Basic hello commands"""
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+    @commands.command(name="binod")
+    async def binod(self, ctx, *args):
+        """Dekh raha hai na Binod?
+        Syntax: $binod kaise help dekha ja raha hai
+        """
+        font_to_use = "assets/fonts/B612Mono-Bold.ttf"
+        base = Image.open(f'assets/images/binod/binod.png')
+        if len(args)>=1:
+            name = " ".join(args)
+        else:
+            name = ""
+
+        text = name
+        base = center_text(base, text, font_to_use, textwrap_=True, font_diff=-5)
+        file = send_image(base)
+        await ctx.send(file=file)
+
     @commands.command(name="jal")
     async def jal(self, ctx, *args):
+        """Jal lijiye
+        Syntax: $jal thak gaye honge dc chalate chalate"""
         font_to_use = "assets/fonts/B612Mono-Bold.ttf"
         base = Image.open(f'assets/images/jal/jal.jpg')
         if len(args)>=1:
             name = " ".join(args)
         else:
             name = ""
+
         text = f"Jal lijiye, thak gaye honge"
-
-        name = "\n"+name.center(len(text), " ")
-        text+=name
-
-        title_text = ImageFont.truetype(font_to_use, 80)
-        xc, yc = base.size
-        a,b,c,d = title_text.getbbox(text)
-
-        font_size = 100
-        tx, ty = 0, yc-500
-        while c-a>xc:
-            font_size-=1
-            title_text = ImageFont.truetype(font_to_use, font_size)
-            a,b,c,d = title_text.getbbox(text)
-            tx = int((xc-(c-a))/2)
-        
-        ty = yc - 200
-        x, y = tx, ty
-        shadowcolor = "black"
-        fillcolor = "white"
-        font = ImageFont.truetype(font_to_use, font_size+30)
-
-        #ImageDraw.Draw(base).text((tx, ty), text, 'rgb(255,255,255)', font=title_text, spacing=10)
-        draw = ImageDraw.Draw(base)
-        draw.text((x-2, y-2), text, font=font, fill=shadowcolor)
-        draw.text((x+2, y-2), text, font=font, fill=shadowcolor)
-        draw.text((x-2, y+2), text, font=font, fill=shadowcolor)
-        draw.text((x+2, y+2), text, font=font, fill=shadowcolor)
-
-        draw.text((x, y), text, font=font, fill=fillcolor)
-
-        
-        with BytesIO() as image_binary:
-            base.save(image_binary, 'PNG')
-            image_binary.seek(0)
-            file=discord.File(fp=image_binary, filename='modiji.png')
-            await ctx.send(file=file)
+        base = center_text(base, text, font_to_use, name=name, font_diff=0)
+        file = send_image(base)
+        await ctx.send(file=file)
 
     @commands.command(name="compress")
     async def compress(self, ctx, *args):
