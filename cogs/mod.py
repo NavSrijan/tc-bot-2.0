@@ -119,7 +119,7 @@ class Mod(commands.Cog):
                 return
 
             desc = f"""
-{customText}!!
+{customText}
 
 **•Movie name ->**
 `{movieName}`
@@ -146,6 +146,8 @@ class Mod(commands.Cog):
                 return user == member and reaction.emoji in [a, b] and user.bot == False
             reaction = await self.bot.wait_for("reaction_add", check = check_reaction, timeout=60)
             emoji = reaction[0].emoji
+            color = discord.Color.from_str("#4ce4e7")
+            emb.color = color
 
             await ctx.channel.send("Any additional text?\nSend `no` for none.")
             msg = await self.bot.wait_for("message", check=check, timeout=60)
