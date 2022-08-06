@@ -7,7 +7,6 @@ import requests
 import ast
 import time
 
-import pdb
 
 def getFact():
     limit = 1

@@ -103,23 +103,35 @@ class Mod(commands.Cog):
             msg = await self.bot.wait_for('message', check = check, timeout=180)
             movieDuration = msg.content
 
-            await ctx.message.channel.send("Time?")
-            msg = await self.bot.wait_for('message', check = check, timeout=180)
-            ttime = msg.content
+            #await ctx.message.channel.send("Time?")
+            #msg = await self.bot.wait_for('message', check = check, timeout=180)
+            #ttime = msg.content
+
+            await ctx.channel.send("Likhna kya hai?")
+            msg = await self.bot.wait_for("message", check=check, timeout=60)
+            try:
+                if msg.content.lower() == "no":
+                    customText = ""
+                else:
+                    customText = (msg.content)
+            except:
+                await msg.reply("Kuch to gadbad hui")
+                return
 
             desc = f"""
-Hey guys, we are planning to host a movie night today at {ttime} !!
+{customText}!!
+
 **•Movie name ->**
-{movieName}
+`{movieName}`
 **•Duration ->**
-{movieDuration}
+`{movieDuration}`
 """
             image_url = "https://media.discordapp.net/attachments/894495731451297852/992826041422848060/images_13.jpeg?width=475&height=475"
-            thumbnail_url = "https://cdn.discordapp.com/attachments/992882759330701323/995960581892870245/standard_1.gif"
+            #thumbnail_url = "https://cdn.discordapp.com/attachments/992882759330701323/995960581892870245/standard_1.gif"
 
             emb = discord.Embed(title="Movie Alert!", description=desc)
             emb.set_image(url=image_url)
-            emb.set_thumbnail(url=thumbnail_url)
+            #emb.set_thumbnail(url=thumbnail_url)
             emb.set_footer(text=utc_to_ist(datetime.datetime.utcnow()).date())
 
             await ctx.message.channel.send("Which channel to send to?")
@@ -134,10 +146,21 @@ Hey guys, we are planning to host a movie night today at {ttime} !!
                 return user == member and reaction.emoji in [a, b] and user.bot == False
             reaction = await self.bot.wait_for("reaction_add", check = check_reaction, timeout=60)
             emoji = reaction[0].emoji
+
+            await ctx.channel.send("Any additional text?\nSend `no` for none.")
+            msg = await self.bot.wait_for("message", check=check, timeout=60)
+            try:
+                if msg.content.lower() == "no":
+                    addText = ""
+                else:
+                    addText = (msg.content)
+            except:
+                await msg.reply("Kuch to gadbad hui")
+                return
             if emoji == a:
                 try:
                     chnl = self.bot.get_channel(channel_to_send_to)
-                    await chnl.send(embed=emb)
+                    await chnl.send(addText, embed=emb)
                 except:
                     await msg.reply("Channel wrong")
             else:
