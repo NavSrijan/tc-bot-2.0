@@ -446,11 +446,21 @@ class ImageFun(commands.Cog):
         except:
             await msg.reply("Not a valid channel id")
             return
+        await ctx.channel.send("Any additional text?\nSend `no` for none.")
+        msg = await self.bot.wait_for("message", check=check, timeout=60)
+        try:
+            if msg.content.lower() == "no":
+                addText = ""
+            else:
+                addText = (msg.content)
+        except:
+            await msg.reply("Kuch to gadbad hui")
+            return
 
         with BytesIO() as image_binary:
             base.save(image_binary, 'PNG')
             image_binary.seek(0)
-            await chnl.send("<@&839005140891205684>",file=discord.File(fp=image_binary, filename='lb_image.png'))
+            await chnl.send(f"<@&839005140891205684>\n{addText}",file=discord.File(fp=image_binary, filename='lb_image.png'))
 
         #base.show()
 
