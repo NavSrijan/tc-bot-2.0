@@ -123,7 +123,6 @@ class Geography(commands.Cog):
                             await send_score()
                             break
                     total_timeout -= int(time.time()-last_time)
-                    print(total_timeout)
                     last_time = time.time()
                 except asyncio.TimeoutError:
                     await ctx.send(f"The answer was `{country}`.")
