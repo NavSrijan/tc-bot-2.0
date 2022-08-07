@@ -86,7 +86,7 @@ class Geography(commands.Cog):
             await ctx.send(embed=emb)
 
         score = 0
-        lives = 3
+        lives = 5
 
         
         channel = ctx.channel
@@ -95,7 +95,7 @@ class Geography(commands.Cog):
             return message.channel == ctx.channel
 
         while lives!=0:
-            total_timeout = 10
+            total_timeout = 60
             country = await send_new_flag()
             last_time = time.time()
             while True:
