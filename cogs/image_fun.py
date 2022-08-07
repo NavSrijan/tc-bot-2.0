@@ -41,54 +41,6 @@ def icon(image_object, image_size):
     
     return im
 
-def center_text(base, text, font_to_use, shadowcolor="black", fillcolor="white", textwrap_ = False, name="", font_diff = 0):
-    title_text = ImageFont.truetype(font_to_use, 80)
-    xc, yc = base.size
-    a,b,c,d = title_text.getbbox(text)
-
-
-    font_size = 100
-    tx, ty = 0, yc-500
-    while c-a>xc:
-        font_size-=1
-        title_text = ImageFont.truetype(font_to_use, font_size)
-        a,b,c,d = title_text.getbbox(text)
-        tx = int((xc-(c-a))/2)
-
-    if len(text)>=4:
-        to_subtract_y = 300
-    else:
-        to_subtract_y = 200
-
-    if textwrap_ == True:
-        text = textwrap.wrap(text, width=25)
-        text = " \n".join(text)
-    else:
-        name = "\n"+name.center(len(text), " ")
-        text+=name
-
-
-    ty = yc - to_subtract_y
-    x, y = tx, ty
-    shadowcolor = "black"
-    fillcolor = "white"
-    font = ImageFont.truetype(font_to_use, font_size+font_diff)
-    draw = ImageDraw.Draw(base)
-    draw.text((x-2, y-2), text, font=font, fill=shadowcolor)
-    draw.text((x+2, y-2), text, font=font, fill=shadowcolor)
-    draw.text((x-2, y+2), text, font=font, fill=shadowcolor)
-    draw.text((x+2, y+2), text, font=font, fill=shadowcolor)
-
-    draw.text((x, y), text, font=font, fill=fillcolor)
-    return base
-
-def send_image(base):
-    with BytesIO() as image_binary:
-        base.save(image_binary, 'PNG')
-        image_binary.seek(0)
-        file=discord.File(fp=image_binary, filename='modiji.png')
-        return file
-
 class ImageFun(commands.Cog):
     """Basic hello commands"""
     def __init__(self, bot: commands.Bot):

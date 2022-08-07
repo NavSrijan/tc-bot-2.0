@@ -1,8 +1,11 @@
 from discord.ext import commands
+from PIL import Image
 import random
 import asyncio
 import os
-import pdb
+import json
+from helpers import *
+import time
 
 class Geography(commands.Cog):
     """Games"""
@@ -61,6 +64,80 @@ class Geography(commands.Cog):
         self.lives = 3
         await channel.send(f"You lost! Total Points: {pons}")
         
+    @commands.command(name="flags")
+    async def flags(self, ctx):
+        def get_flag_image_object(country_code):
+            url = f"https://flagcdn.com/256x192/{country_code}.png"
+            im = Image.open(requests.get(url, stream=True).raw).convert('RGBA')
+            return im
+
+        data = open("assets/random_data/flags/codes.json")
+        codes = json.load(data)
+
+        async def send_new_flag():
+            country = random.choice(list(codes.keys()))
+            file = send_image(get_flag_image_object(country), name="flags.png")
+            emb = basic_embed(color=discord.Color.random() , title=f"Which country is this?", image_url="attachment://flags.png")
+            await ctx.send(file=file, embed=emb)
+            return codes[country]
+
+        async def send_score():
+            emb = basic_embed(title="Flags", desc=f"Score: `{score}`\nLives: `{lives}`")
+            await ctx.send(embed=emb)
+
+        score = 0
+        lives = 3
+
+        
+        channel = ctx.channel
+
+        def check(message):
+            return message.channel == ctx.channel
+
+        while lives!=0:
+            total_timeout = 10
+            country = await send_new_flag()
+            last_time = time.time()
+            while True:
+                try:
+                    msg = await self.bot.wait_for('message', check = check, timeout=total_timeout)
+                    if msg.content == "$skip":
+                        await send_score()
+                        lives-=1
+                        await ctx.send(f"The answer was {country}.")
+                        break
+                    elif msg.content == "$hint":
+                        hint=country[0]
+                        for i in country[1:]:
+                            if i==" ":
+                                hint+= " ​ ​"
+                            elif i=="-":
+                                hint+= "-"
+                            else:
+                                hint+= " \_"
+                        await ctx.send(embed=basic_embed(title="Hint", desc=hint))
+                    else:
+                        if msg.content.lower() == country.lower():
+                            score +=1
+                            await ctx.send(embed=basic_embed(title="Correct!", desc=f"{msg.author.mention} got the correct answer!"))
+                            await send_score()
+                            break
+                    total_timeout -= int(time.time()-last_time)
+                    print(total_timeout)
+                    last_time = time.time()
+                except asyncio.TimeoutError:
+                    await ctx.send(f"The answer was `{country}`.")
+                    lives-=1
+                    await send_score()
+                    break
+        await ctx.send("All lives lost.")
+        await send_score()
+
+
+
+
+
+
     @commands.command(name='pi')
     async def pi(self, ctx):
         """How many digits of pi do you know?"""
