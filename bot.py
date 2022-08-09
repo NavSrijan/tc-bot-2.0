@@ -73,7 +73,7 @@ async def afk(ctx, *args):
             except Exception as e:
                 print(e)
             await message.channel.send(f"{message.author.display_name} is AFK.")
-            break
+            return
     await ctx.reply("You can't use this. Level up first!")
 
 @commands.has_permissions(kick_members=True)
