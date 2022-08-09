@@ -4,6 +4,7 @@ from functions import utc_to_ist
 import datetime
 from helpers import basic_embed
 import os
+import random
 import asyncio
 
 class Mod(commands.Cog):
@@ -40,6 +41,7 @@ class Mod(commands.Cog):
     @commands.command(name="kick")
     async def kick(self, ctx):
         """Kick a member"""
+        gifs = ["https://tenor.com/view/throw-him-out-gif-14876020", "https://tenor.com/view/berg-ankit-kick-out-throw-out-get-out-of-here-gif-20129402", "https://tenor.com/view/spongebob-squarepants-get-out-kick-out-booted-bye-felicia-gif-13565963", "https://tenor.com/view/anime-love-after-world-domination-kick-kicking-kick-out-gif-25869776", "https://tenor.com/view/dont-mess-with-the-zohan-you-no-te-metas-con-pissed-off-kick-chair-gif-15621872", "https://tenor.com/view/kirk-star-trek-kick-gif-26008018", "https://tenor.com/view/oh-yeah-high-kick-take-down-fight-gif-14272509", "https://tenor.com/view/bad-mom-grandma-baby-kicking-i-love-children-gif-23173847"]
         if ctx.message.mentions:
             member = ctx.message.mentions[0]
         else:
@@ -48,8 +50,8 @@ class Mod(commands.Cog):
         name = member.name
         try:
             await member.kick()
-            await ctx.channel.send("https://tenor.com/view/bad-mom-grandma-baby-kicking-i-love-children-gif-23173847")
-            await ctx.channel.send(f"{name} has been kicked.")
+            await ctx.channel.send(random.choice(gifs))
+            await ctx.channel.send(f"`{name} has been kicked.`")
         except:
             await ctx.reply("Sorry but, I don't have the permissions.")
 

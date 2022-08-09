@@ -233,10 +233,10 @@ class Database_afk(Database):
         self.closeConnection()
         return temp
 
-    def remove_afk(self, message):
+    def remove_afk(self, author_id):
         cursor = self.connect()
         sql = """DELETE FROM {} WHERE id=%s;""".format(self.tableName)
-        cursor.execute(sql, (message.author.id, ))
+        cursor.execute(sql, (author_id, ))
         self.closeConnection()
 
     def make_afk(self, message):

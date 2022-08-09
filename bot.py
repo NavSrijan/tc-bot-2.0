@@ -57,6 +57,47 @@ async def on_ready():
     print('We have logged in as {0.user}'.format(bot))
     await load_cogs(bot, cogs)
 
+@bot.command(name="afk")
+async def afk(ctx, *args):
+    message = ctx.message
+    role_required = [977217186928160828, 1005791066257096705, 1005791107713601576, 1005791150629720155, 1005791187652841512, 1005791239490261092, 1005791278199488564, 1005791286571315240, 1005791355357904946, 998303854925975734, 960932026549174272, 988445679426867200, 970902786638250034, 893950378431877131, 839010251868078101]
+    for i in role_required:
+        if ctx.guild.get_role(i) in ctx.author.roles:
+            db_afk.make_afk(message)
+            afk_people[message.author.id] = [True, datetime.datetime.utcnow(), message.content[5:]]
+            name = message.author.display_name
+            new_name = f"[AFK] {name}"
+            try:
+                await message.author.edit(nick=new_name)
+            except Exception as e:
+                print(e)
+            await message.channel.send(f"{message.author.display_name} is AFK.")
+            break
+        else:
+            await ctx.reply("You can't use this. Level up first!")
+            break
+
+@commands.has_permissions(kick_members=True)
+@bot.command(name="remove_afk")
+async def remove_afk(ctx, *args):
+    message = ctx.message
+    try:
+        mention = message.mentions[0]
+        db_afk.remove_afk(mention.id)
+        name = mention.display_name
+        if name[0:6] == "[AFK] ":
+            name = name[6:]
+            try:
+                await mention.edit(nick=name)
+            except Exception as e:
+                print(e)
+        del afk_people[mention.id]
+        to_delete = await message.reply(f"Removed {mention.mention}'s AFK.")
+        await asyncio.sleep(2)
+        await to_delete.delete()
+    except:
+        await ctx.reply("Mention someone.")
+
 @bot.event
 async def on_message(message: discord.Message):
     global afk_people, db_afk
@@ -132,21 +173,9 @@ async def on_message(message: discord.Message):
         return
 
     # Managing AFK
-    ## Making AFK
-    if message.content.lower().startswith("$afk"):
-        db_afk.make_afk(message)
-        afk_people[message.author.id] = [True, datetime.datetime.utcnow(), message.content[5:]]
-        name = message.author.display_name
-        new_name = f"[AFK] {name}"
-        try:
-            await message.author.edit(nick=new_name)
-        except Exception as e:
-            print(e)
-        await message.channel.send(f"{message.author.display_name} is AFK.")
-        return
     ## Removing AFK
     if message.author.id in afk_people:
-        db_afk.remove_afk(message)
+        db_afk.remove_afk(message.author.id)
         name = message.author.display_name
         if name[0:6] == "[AFK] ":
             name = name[6:]
@@ -167,7 +196,7 @@ async def on_message(message: discord.Message):
         else:
             return f"{h} hours {m} mins {s} secs"
     for i in message.mentions:
-        if i.id in afk_people:
+        if i.id in afk_people and not message.content.startswith("$remove_afk"):
             last_online = afk_people[i.id][1]
             diff = (datetime.datetime.utcnow() - last_online)
             await message.reply(f"{i.display_name} went AFK {return_time_string(diff)} ago:\n{afk_people[i.id][-1]}")
