@@ -35,7 +35,8 @@ cogs = ['chat_cmd',
 'games',
 'help',
 'image_fun',
-'suggestions'
+'suggestions',
+'boosters'
 
 ]
 
@@ -73,9 +74,7 @@ async def afk(ctx, *args):
                 print(e)
             await message.channel.send(f"{message.author.display_name} is AFK.")
             break
-        else:
-            await ctx.reply("You can't use this. Level up first!")
-            break
+    await ctx.reply("You can't use this. Level up first!")
 
 @commands.has_permissions(kick_members=True)
 @bot.command(name="remove_afk")
