@@ -28,6 +28,8 @@ class Boosters(commands.Cog):
     @commands.command(name="custom_role")
     async def custom_role(self, ctx):
         """Custom role for the user"""
+        booster_role = 988445679426867200
+        #booster_role = 977217186928160828
         try:
             nitro_roles = self.load_nitro_roles()
         except:
@@ -35,10 +37,9 @@ class Boosters(commands.Cog):
         roles = []
         for i in ctx.message.author.roles:
             roles.append(i.id)
-        if 988445679426867200 in roles:
+        if booster_role in roles:
             def check(message):
                 return message.author == ctx.message.author and message.channel == ctx.message.channel
-
             await ctx.reply(embed=basic_embed(desc="What should be the roles name?"))
             msg = await self.bot.wait_for("message", check=check, timeout=60)
             name = msg.content
@@ -64,9 +65,12 @@ class Boosters(commands.Cog):
             guild = ctx.guild
             new_role = await guild.create_role(name=name, color=color, hoist=True)
             await ctx.message.author.add_roles(new_role)
+            booster_role_obj = ctx.guild.get_role(booster_role)
+            await new_role.edit(position=booster_role_obj.position)
 
             nitro_roles.append(new_role.id)
             self.save_nitro_roles(nitro_roles)
+            await ctx.channel.send("Done!")
 
         else:
             await ctx.message.reply(embed=basic_embed(desc="Shouldn't you be boosting first?"))
