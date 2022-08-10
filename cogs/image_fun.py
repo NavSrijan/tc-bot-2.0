@@ -42,7 +42,7 @@ def icon(image_object, image_size):
     return im
 
 class ImageFun(commands.Cog):
-    """Basic hello commands"""
+    """Image manipulation commands"""
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 

@@ -18,8 +18,8 @@ class Person():
         self.last_used = datetime.datetime.now()
         self.revives_used = 0
 
-class Revive(commands.Cog):
-    """Contains chat revive commands"""
+class Chat_commands(commands.Cog):
+    """Contains chat commands"""
     def __init__(self, bot):
         self.bot = bot
         self.last_used = None
@@ -28,6 +28,20 @@ class Revive(commands.Cog):
         self.revive_role = int(os.environ['revive_role'])
         self.topics = load("assets/random_data/topics.pkl")
         self.alreadyDone = []
+
+    @commands.command(name="highlight")
+    async def highlight(self, ctx, word):
+        """Get a DM if someone mentions any word
+        Syntax: $highlight <word>
+        """
+        await ctx.reply("You won't be getting highligts for long.\nUse $highlight_stop to stop getting highlights")
+        self.bot.highlights[ctx.author] = word
+
+    @commands.command(name="highlight_stop")
+    async def highlight_stop(self, ctx):
+        """Stop getting highlights"""
+        self.bot.highlights.pop(ctx.author)
+        await ctx.reply("You won't get highlights now.")
 
     @commands.command(name="revive")
     async def revive(self, ctx, *args):
@@ -139,4 +153,4 @@ class Revive(commands.Cog):
             print(error)
 
 async def setup(bot):
-    await bot.add_cog(Revive(bot))
+    await bot.add_cog(Chat_commands(bot))

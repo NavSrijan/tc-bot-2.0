@@ -3,7 +3,7 @@ import asyncio
 from discord.ext import commands, tasks
 import datetime
 from database import Database_message_bank, DATABASE_URL, Database_suggestions, Database_afk
-from helpers import VoteView, VoteViewForEmoji
+from helpers import VoteView, VoteViewForEmoji, basic_embed
 from functions import download_and_return_image
 import os
 import time
@@ -51,7 +51,7 @@ intents.message_content = True
 prefix = "$"
 activity = discord.Activity(type=discord.ActivityType.listening, name="$help")
 bot = commands.Bot(command_prefix=prefix, case_insensitive=True,intents=intents, status=discord.Status.do_not_disturb, activity=activity)
-
+bot.highlights = {}
 
 @bot.event
 async def on_ready():
@@ -111,6 +111,16 @@ async def on_message(message: discord.Message):
             #unk = "<a:tc_excited:995961992173072445>"
             await message.add_reaction(tc_emoji)
             break
+
+        val_list = list(bot.highlights.values())
+        if i in val_list:
+            key_list = list(bot.highlights.keys())
+            pos = val_list.index(i)
+            p1 = key_list[pos]
+            emb = discord.Embed(description=message.content+f"\n\n[Jump to the message]({message.jump_url})")
+            emb.set_author(name=message.author.display_name, icon_url=message.author.avatar.url)
+            emb.color = discord.Color.blurple()
+            await p1.send(embed=emb)
 
     channels_with_image_access = [895221352267677697, 983791675874877500, 895221241412198410, 983787831476490291, 895014066853117983]
     roles_allowed_to_send_images = [960932026549174272, 998303854925975734, 893950378431877131, 970902786638250034, 839010251868078101, 975456077623746590, 977217186928160828]

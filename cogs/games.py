@@ -7,7 +7,7 @@ import json
 from helpers import *
 import time
 
-class Geography(commands.Cog):
+class Games(commands.Cog):
     """Games"""
     
     def __init__(self, bot):
@@ -205,4 +205,4 @@ class Geography(commands.Cog):
     
 
 async def setup(bot):
-    await bot.add_cog(Geography(bot))
+    await bot.add_cog(Games(bot))

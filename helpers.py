@@ -151,13 +151,16 @@ class VoteViewForEmoji(discord.ui.View):
         except Exception as e:
             print(e)
 
-def basic_embed(title="", desc="", color=discord.Color.green(), fields={}, footer=None, author=None, image_url=None, thumbnail_url=None):
+def basic_embed(title="", desc="", color=discord.Color.green(), fields={}, footer=None, author=None, image_url=None, thumbnail_url=None, icon_url=None):
     emb = discord.Embed(title=title, description=desc, color=color)
 
     if footer:
         emb.set_footer(footer)
     if author:
-        emb.set_author(author)
+        if author_icon_url !=None:
+            emb.set_author(author, icon_url=author_icon_url)
+        else:
+            emb.set_author(author)
     if image_url:
         emb.set_image(url=image_url)
     if thumbnail_url:
