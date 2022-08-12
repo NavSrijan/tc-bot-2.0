@@ -34,15 +34,15 @@ class Chat_commands(commands.Cog):
         self.topics = load("assets/random_data/topics.pkl")
         self.alreadyDone = []
 
-    @commands.command(name="highlight")
-    async def highlight(self, ctx, word):
-        """Get a DM if someone mentions any word
-        Syntax: $highlight <word>
-        """
-        await ctx.reply(
-            "You won't be getting highligts for long.\nUse $highlight_stop to stop getting highlights"
-        )
-        self.bot.highlights[ctx.author] = word
+    #@commands.command(name="highlight")
+    #async def highlight(self, ctx, word):
+    #    """Get a DM if someone mentions any word
+    #    Syntax: $highlight <word>
+    #    """
+    #    await ctx.reply(
+    #        "You won't be getting highligts for long.\nUse $highlight_stop to stop getting highlights"
+    #    )
+    #    self.bot.highlights[ctx.author] = word
 
     @commands.command(name="suggest")
     async def suggest(self, ctx, *args):
@@ -57,11 +57,11 @@ class Chat_commands(commands.Cog):
         await ctx.reply("Your suggestion has been noted.")
         await ctx.message.delete()
 
-    @commands.command(name="highlight_stop")
-    async def highlight_stop(self, ctx):
-        """Stop getting highlights"""
-        self.bot.highlights.pop(ctx.author)
-        await ctx.reply("You won't get highlights now.")
+    #@commands.command(name="highlight_stop")
+    #async def highlight_stop(self, ctx):
+    #    """Stop getting highlights"""
+    #    self.bot.highlights.pop(ctx.author)
+    #    await ctx.reply("You won't get highlights now.")
 
     @commands.group(aliases=['r', 'rev'])
     async def revive(self, ctx):
