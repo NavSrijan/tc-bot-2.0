@@ -42,8 +42,11 @@ cogs = ['chat_cmd',
 
 async def load_cogs(bot, cogs):
     for extension in cogs:
-        await bot.load_extension('cogs.' + extension)
-        print(f"Loaded {extension}")
+        try:
+            await bot.load_extension('cogs.' + extension)
+            print(f"Loaded {extension}")
+        except:
+            print(f"Error loading {extension}")
 
 intents = discord.Intents.default()
 intents.members = True

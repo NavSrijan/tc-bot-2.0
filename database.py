@@ -59,6 +59,13 @@ class Database_members(Database):
         cursor = self.connect()
         cursor.execute(sql,(revivesAvailable, ))
         self.closeConnection()
+    def resetRevives(self, id):
+        sql = """UPDATE {}
+        SET revives=%s
+        WHERE id=%s;""".format(self.tableName)
+        cursor = self.connect()
+        cursor.execute(sql,(revivesAvailable, id))
+        self.closeConnection()
     def fetchUser(self, person):
         cursor = self.connect()
         cursor.execute("SELECT * from {} WHERE id=%s;".format(self.tableName), (person.id, ))

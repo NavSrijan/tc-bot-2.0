@@ -5,6 +5,7 @@ from PIL import Image, ImageFont, ImageDraw
 import requests
 from functions import download_and_return_image
 from io import BytesIO
+import textwrap
 
 class PersistentView(discord.ui.View):
     def __init__(self):
