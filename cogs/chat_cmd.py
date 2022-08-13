@@ -127,7 +127,7 @@ class Chat_commands(commands.Cog):
                 await ctx.reply(f"The chat can be revived again in {m}m, {s}s."
                                 )
 
-    @commands.command(name="rc", aliases=["revivechat", "revive_chat", "rev_chat"])
+    @commands.command(name="rc", aliases=["revivechat", "revive_chat", "rev_chat"], hidden=True)
     async def rc(self, ctx):
         chat_command = self.bot.get_command('revive').all_commands['chat']
         await ctx.invoke(chat_command)

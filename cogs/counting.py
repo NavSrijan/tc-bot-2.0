@@ -2,7 +2,6 @@ from discord.ext import commands
 from discord import AllowedMentions, Embed
 from database import Database_message_bank, DATABASE_URL
 import os
-import pdb
 
 class Counting(commands.Cog):
     """Hehe, you can't use these."""
