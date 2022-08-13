@@ -6,7 +6,6 @@ from functions import utc_to_ist, load, save
 import datetime
 import random
 from helpers import basic_embed
-
 import os
 
 
@@ -130,7 +129,8 @@ class Chat_commands(commands.Cog):
 
     @commands.command(name="rc", aliases=["revivechat", "revive_chat", "rev_chat"])
     async def rc(self, ctx):
-        await ctx.invoke(self.bot.get_command('revive chat'))
+        chat_command = self.bot.get_command('revive').all_commands['chat']
+        await ctx.invoke(chat_command)
 
     @commands.has_permissions(kick_members=True)
     @revive.command(name="reset")
@@ -142,7 +142,7 @@ class Chat_commands(commands.Cog):
             ll = [ctx.author]
         db = Database_members(DATABASE_URL, "members")
         for member in ll:
-            db.resetRevives(member.id)
+            db.resetRevivesUser(member.id)
         await ctx.reply("Done.")
 
     @commands.has_permissions(kick_members=True)
