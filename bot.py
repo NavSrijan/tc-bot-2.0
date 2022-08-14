@@ -114,7 +114,7 @@ async def on_message(message: discord.Message):
             #unk = "<a:tc_excited:995961992173072445>"
             await message.add_reaction(tc_emoji)
             break
-        if i in ["independence", "independent", "india", "bharat", "swatantrata", "diwas", "hindustan", "aazadi", "azadi", "azad"]:
+        if i in ["independence", "independent", "india", "bharat", "swatantrata", "diwas", "hindustan", "aazadi", "azadi", "azad", "bhagat", "sukhdev"]:
             emoji_to_react = "<:pepeindia:1005858993492729998>"
             await message.add_reaction(emoji_to_react)
             break
