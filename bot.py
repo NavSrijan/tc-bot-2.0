@@ -7,6 +7,7 @@ from helpers import VoteView, VoteViewForEmoji, basic_embed
 from functions import download_and_return_image
 import os
 import time
+import logging
 
 ##########
 # Variables
@@ -56,6 +57,13 @@ bot = commands.Bot(command_prefix=prefix,
                    status=discord.Status.do_not_disturb,
                    activity=activity)
 bot.highlights = {}
+
+# Logging
+logger = logging.getLogger('discord')
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
 
 
 @bot.event
