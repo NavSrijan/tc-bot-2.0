@@ -11,10 +11,10 @@ class Freedom(commands.Cog):
     @commands.command(name="how", aliases=["how's", "hows", "htj"])
     async def Josh(self, ctx, *args):
         """JOSH!"""
-        alia=["how's the josh", "hows the josh?", "how's the josh?", "htj?", "htj"]
+        alia=["how's the josh", "hows the josh?", "hows the josh", "how's the josh?", "htj?", "htj"]
         for i in alia:
             if ctx.message.content[1:].lower().startswith(i):
-                await ctx.send("**HIGH SIR!!!**")
+                await ctx.send("https://tenor.com/view/high-sir-salute-respect-yessir-yeah-gif-15588688")
                 return
 
 
