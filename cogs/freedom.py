@@ -1,6 +1,5 @@
 from discord.ext import commands
 import os
-import ipdb
 
 
 class Freedom(commands.Cog):
