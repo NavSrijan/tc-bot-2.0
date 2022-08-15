@@ -40,8 +40,9 @@ async def load_cogs(bot, cogs):
         try:
             await bot.load_extension('cogs.' + extension)
             print(f"Loaded {extension}")
-        except:
+        except Exception as e:
             print(f"Error loading {extension}")
+            print(e)
 
 
 intents = discord.Intents.default()
