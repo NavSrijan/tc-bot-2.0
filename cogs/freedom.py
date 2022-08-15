@@ -11,7 +11,6 @@ class Freedom(commands.Cog):
     @commands.command(name="how", aliases=["how's", "hows", "htj"])
     async def Josh(self, ctx, *args):
         """JOSH!"""
-        ipdb.set_trace()
         alia=["how's the josh", "hows the josh?", "how's the josh?", "htj?", "htj"]
         for i in alia:
             if ctx.message.content[1:].lower().startswith(i):
