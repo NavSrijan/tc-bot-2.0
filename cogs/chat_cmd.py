@@ -127,10 +127,19 @@ class Chat_commands(commands.Cog):
                 await ctx.reply(f"The chat can be revived again in {m}m, {s}s."
                                 )
 
-    @commands.command(name="rc", aliases=["revivechat", "revive_chat", "rev_chat"], hidden=True)
+    @commands.command(name="rc",
+                      aliases=["revivechat", "revive_chat", "rev_chat"],
+                      hidden=True)
     async def rc(self, ctx):
         chat_command = self.bot.get_command('revive').all_commands['chat']
         await ctx.invoke(chat_command)
+
+    @commands.has_permissions(kick_members=True)
+    @revive.command(name="reset_time", aliases=["rt"])
+    async def reset_revive_time(self, ctx):
+        """Resets the revive cooldown, so It can be used again."""
+        self.last_used = None
+        await ctx.reply("The revive time has been reset")
 
     @commands.has_permissions(kick_members=True)
     @revive.command(name="reset")
@@ -161,7 +170,7 @@ class Chat_commands(commands.Cog):
             toSend += f"{member.mention}: {p1.revives_available}" + "\n"
         await ctx.reply(toSend)
 
-    @commands.command(name="topic")
+    @commands.command(name="topic", aliases=["t"])
     async def topic(self, ctx):
         """Sends a random topic to discuss upon."""
         if len(self.topics) != 0:
@@ -174,19 +183,18 @@ class Chat_commands(commands.Cog):
             self.alreadyDone.append(self.topics.pop(self.topics.index(topic)))
         await ctx.message.channel.send(f"`{topic}`")
 
-    @commands.command(name="fake")
+    @revive.command(name="fake")
     async def fake_revive(self, ctx):
         """Revive the chat but it's fake!"""
-        if ctx.message.content.lower() == "fake revive":
-            allowed_mentions = AllowedMentions(
-                users=False,  # Whether to ping individual user @mentions
-                everyone=False,  # Whether to ping @everyone or @here mentions
-                roles=False,  # Whether to ping role @mentions
-                replied_user=False,  # Whether to ping on replies to messages
-            )
-            await ctx.message.channel.send(
-                f"<@&{self.revive_role}> Trying to revive the chat. ||By <@{ctx.author.id}>||",
-                allowed_mentions=allowed_mentions)
+        allowed_mentions = AllowedMentions(
+            users=False,  # Whether to ping individual user @mentions
+            everyone=False,  # Whether to ping @everyone or @here mentions
+            roles=False,  # Whether to ping role @mentions
+            replied_user=False,  # Whether to ping on replies to messages
+        )
+        await ctx.message.channel.send(
+            f"<@&{self.revive_role}> Trying to revive the chat. ||By <@{ctx.author.id}>||",
+            allowed_mentions=allowed_mentions)
 
     @commands.has_permissions(kick_members=True)
     @commands.command(name="show_revives")
@@ -209,6 +217,14 @@ class Chat_commands(commands.Cog):
             finalMsg += chunk.format(i[0], i[1], i[3]) + "\n"
         await ctx.message.reply(finalMsg, allowed_mentions=allowed_mentions)
 
+    @commands.command(name="state")
+    async def state(self, ctx, *args):
+        try:
+            state = args[0]
+        except:
+            await ctx.reply("No state found.")
+            return
+
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
@@ -216,8 +232,7 @@ class Chat_commands(commands.Cog):
         elif isinstance(error, commands.MissingPermissions):
             await ctx.reply(embed=basic_embed(
                 title="Permission Error",
-                desc=
-                "You don't have the permission to use this.\nIf you feel you should be using this, contact staff."
+                desc="You don't have the permission to use this.\nIf you feel you should be using this, contact staff."
             ))
         else:
             print(error)
