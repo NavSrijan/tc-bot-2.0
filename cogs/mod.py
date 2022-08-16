@@ -7,16 +7,22 @@ import os
 import random
 import asyncio
 
+
 class Mod(commands.Cog):
     """Hehe, you can't use these."""
-    
+
     def __init__(self, bot):
         self.bot = bot
 
     @commands.has_permissions(kick_members=True)
-    @commands.command(name="t")
+    @commands.command(name="test", hidden=True)
     async def test(self, ctx):
-        emb = basic_embed(desc="hi", color=discord.Color.red(), image_url="https://tenor.com/view/wow-very-dangerous-wow-berry-dangerous-very-dangerous-ayub-kha98-tiktoker-gif-23393447")
+        emb = basic_embed(
+            desc="hi",
+            color=discord.Color.red(),
+            image_url=
+            "https://tenor.com/view/wow-very-dangerous-wow-berry-dangerous-very-dangerous-ayub-kha98-tiktoker-gif-23393447"
+        )
         await ctx.reply(embed=emb)
 
     @commands.has_permissions(kick_members=True)
@@ -25,23 +31,36 @@ class Mod(commands.Cog):
         """
         Locks the channel
         """
-        await ctx.channel.set_permissions(ctx.message.guild.default_role, read_messages=True, send_messages=False)
+        await ctx.channel.set_permissions(ctx.message.guild.default_role,
+                                          read_messages=True,
+                                          send_messages=False)
         await ctx.channel.send("The channel has been locked.")
-    
+
     @commands.has_permissions(kick_members=True)
     @commands.command(name="unlock")
     async def unlock_channel(self, ctx):
         """
         Unlocks the channel
         """
-        await ctx.channel.set_permissions(ctx.message.guild.default_role, read_messages=True, send_messages=True)
+        await ctx.channel.set_permissions(ctx.message.guild.default_role,
+                                          read_messages=True,
+                                          send_messages=True)
         await ctx.channel.send("The channel has been unlocked.")
 
     @commands.has_permissions(kick_members=True)
     @commands.command(name="kick")
     async def kick(self, ctx):
         """Kick a member"""
-        gifs = ["https://tenor.com/view/throw-him-out-gif-14876020", "https://tenor.com/view/berg-ankit-kick-out-throw-out-get-out-of-here-gif-20129402", "https://tenor.com/view/spongebob-squarepants-get-out-kick-out-booted-bye-felicia-gif-13565963", "https://tenor.com/view/anime-love-after-world-domination-kick-kicking-kick-out-gif-25869776", "https://tenor.com/view/dont-mess-with-the-zohan-you-no-te-metas-con-pissed-off-kick-chair-gif-15621872", "https://tenor.com/view/kirk-star-trek-kick-gif-26008018", "https://tenor.com/view/oh-yeah-high-kick-take-down-fight-gif-14272509", "https://tenor.com/view/bad-mom-grandma-baby-kicking-i-love-children-gif-23173847"]
+        gifs = [
+            "https://tenor.com/view/throw-him-out-gif-14876020",
+            "https://tenor.com/view/berg-ankit-kick-out-throw-out-get-out-of-here-gif-20129402",
+            "https://tenor.com/view/spongebob-squarepants-get-out-kick-out-booted-bye-felicia-gif-13565963",
+            "https://tenor.com/view/anime-love-after-world-domination-kick-kicking-kick-out-gif-25869776",
+            "https://tenor.com/view/dont-mess-with-the-zohan-you-no-te-metas-con-pissed-off-kick-chair-gif-15621872",
+            "https://tenor.com/view/kirk-star-trek-kick-gif-26008018",
+            "https://tenor.com/view/oh-yeah-high-kick-take-down-fight-gif-14272509",
+            "https://tenor.com/view/bad-mom-grandma-baby-kicking-i-love-children-gif-23173847"
+        ]
         if ctx.message.mentions:
             member = ctx.message.mentions[0]
         else:
@@ -67,11 +86,12 @@ class Mod(commands.Cog):
         name = member.name
         try:
             await member.ban()
-            await ctx.channel.send("https://tenor.com/view/bad-mom-grandma-baby-kicking-i-love-children-gif-23173847")
+            await ctx.channel.send(
+                "https://tenor.com/view/bad-mom-grandma-baby-kicking-i-love-children-gif-23173847"
+            )
             await ctx.channel.send(f"{name} has been banned.")
         except:
             await ctx.reply("Sorry but, I don't have the permissions.")
-
 
     @commands.has_permissions(kick_members=True)
     @commands.command(name="embed")
@@ -88,21 +108,28 @@ class Mod(commands.Cog):
         a = "🇦"
         b = "🇧"
 
-        msg = await ctx.message.channel.send("A. Movie announcement or B. General announcement?")
+        msg = await ctx.message.channel.send(
+            "A. Movie announcement or B. General announcement?")
         await msg.add_reaction(a)
         await msg.add_reaction(b)
+
         def check_reaction(reaction, user):
-            return user == member and reaction.emoji in [a, b] and user.bot == False
-        reaction = await self.bot.wait_for("reaction_add", check = check_reaction, timeout=60)
+            return user == member and reaction.emoji in [
+                a, b
+            ] and user.bot == False
+
+        reaction = await self.bot.wait_for("reaction_add",
+                                           check=check_reaction,
+                                           timeout=60)
         emoji = reaction[0].emoji
 
         if emoji == a:
             await ctx.message.channel.send("Movie name?")
-            msg = await self.bot.wait_for('message', check = check, timeout=180)
+            msg = await self.bot.wait_for('message', check=check, timeout=180)
             movieName = msg.content
 
             await ctx.message.channel.send("Movie duration?")
-            msg = await self.bot.wait_for('message', check = check, timeout=180)
+            msg = await self.bot.wait_for('message', check=check, timeout=180)
             movieDuration = msg.content
 
             #await ctx.message.channel.send("Time?")
@@ -137,16 +164,22 @@ class Mod(commands.Cog):
             emb.set_footer(text=utc_to_ist(datetime.datetime.utcnow()).date())
 
             await ctx.message.channel.send("Which channel to send to?")
-            msg = await self.bot.wait_for('message', check = check, timeout=180)
+            msg = await self.bot.wait_for('message', check=check, timeout=180)
             channel_to_send_to = int(msg.content[2:-1])
 
             await msg.reply(embed=emb)
             msg = await ctx.message.channel.send("Is this correct?")
             await msg.add_reaction(a)
             await msg.add_reaction(b)
+
             def check_reaction(reaction, user):
-                return user == member and reaction.emoji in [a, b] and user.bot == False
-            reaction = await self.bot.wait_for("reaction_add", check = check_reaction, timeout=60)
+                return user == member and reaction.emoji in [
+                    a, b
+                ] and user.bot == False
+
+            reaction = await self.bot.wait_for("reaction_add",
+                                               check=check_reaction,
+                                               timeout=60)
             emoji = reaction[0].emoji
             color = discord.Color.from_str("#4ce4e7")
             emb.color = color
@@ -191,6 +224,7 @@ class Mod(commands.Cog):
     async def mass_role(self, ctx, *args):
         """Adds a role to every user in the server."""
         await ctx.reply("Send the role id to add to everyone.")
+
         def check(message):
             return message.author == ctx.author and message.channel == ctx.channel
 
@@ -201,7 +235,9 @@ class Mod(commands.Cog):
         except:
             await ctx.channel.send("Not a valid role id.")
             return
-        await msg.reply("Are you sure? This will give everyone in this server this role. y/n")
+        await msg.reply(
+            "Are you sure? This will give everyone in this server this role. y/n"
+        )
         msg = await self.bot.wait_for("message", check=check, timeout=60)
         if msg.content.lower() != "y":
             await msg.reply("Okay! Aborting.")
@@ -225,6 +261,7 @@ class Mod(commands.Cog):
     async def mass_derole(self, ctx, *args):
         """Adds a role to every user in the server."""
         await ctx.reply("Send the role id to remove from everyone.")
+
         def check(message):
             return message.author == ctx.author and message.channel == ctx.channel
 
@@ -235,7 +272,9 @@ class Mod(commands.Cog):
         except:
             await ctx.channel.send("Not a valid role id.")
             return
-        await msg.reply("Are you sure? This will remove this role from everyone in this server. y/n")
+        await msg.reply(
+            "Are you sure? This will remove this role from everyone in this server. y/n"
+        )
         msg = await self.bot.wait_for("message", check=check, timeout=60)
         if msg.content.lower() != "y":
             await msg.reply("Okay! Aborting.")
@@ -269,6 +308,7 @@ class Mod(commands.Cog):
         else:
             #ctx.message.reply(error)
             print(error)
+
 
 async def setup(bot):
     await bot.add_cog(Mod(bot))
