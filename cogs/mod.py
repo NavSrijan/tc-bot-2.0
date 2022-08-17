@@ -2,8 +2,8 @@ from discord.ext import commands
 import discord
 from functions import utc_to_ist
 import datetime
+import time
 from helpers import basic_embed
-import os
 import random
 import asyncio
 
@@ -24,6 +24,33 @@ class Mod(commands.Cog):
             "https://tenor.com/view/wow-very-dangerous-wow-berry-dangerous-very-dangerous-ayub-kha98-tiktoker-gif-23393447"
         )
         await ctx.reply(embed=emb)
+
+    @commands.has_permissions(kick_members=True)
+    @commands.command(name="torture")
+    async def torture(self, ctx):
+        """Keep deleting a users message for 60s."""
+        if len(ctx.message.mentions) >= 1:
+            user = ctx.message.mentions[0]
+        else:
+            await ctx.reply("Mention someone.")
+            return
+
+        def check(message):
+            return message.author == user
+
+        total_timeout = 60
+        old_time = time.time()
+        while total_timeout > 0:
+            try:
+                msg = await self.bot.wait_for('message',
+                                              check=check,
+                                              timeout=total_timeout)
+                await msg.delete()
+                total_timeout -= +time.time() - old_time
+                old_time = time.time()
+            except:
+                await ctx.reply("Done.")
+        await ctx.reply("Done.")
 
     @commands.has_permissions(kick_members=True)
     @commands.command(name="lock")
