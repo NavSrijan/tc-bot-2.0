@@ -328,6 +328,89 @@ class Mod(commands.Cog):
         except:
             await ctx.reply(f"{extension} is already unloaded.")
 
+    @commands.has_permissions(kick_members=True)
+    @commands.group(name="config")
+    async def config(self, ctx):
+        """Change the config"""
+        if ctx.invoked_subcommand is None:
+            await ctx.send("Not a valid command")
+
+    @commands.has_permissions(kick_members=True)
+    @config.command(name="add_url")
+    async def add_blocked_url(self, ctx, *args):
+        for i in args:
+            urls = self.bot.config_obj.add_blocked_url(i)
+
+        text = "These urls are blocked."
+        for i in urls:
+            text += f"`{i}` \n"
+        await ctx.reply(text)
+
+    @commands.has_permissions(kick_members=True)
+    @config.command(name="remove_url")
+    async def remove_blocked_url(self, ctx, *args):
+        for i in args:
+            urls = self.bot.config_obj.remove_blocked_url(i)
+
+        text = "These urls are blocked.\n"
+        for i in urls:
+            text += f"`{i}` \n"
+        await ctx.reply(text)
+
+    @commands.has_permissions(kick_members=True)
+    @config.command(name="show_urls")
+    async def show_blocked_url(self, ctx):
+        text = "These urls are blocked."
+        urls = self.bot.config['blocked_urls']['urls']
+        for i in urls:
+            text += f"`{i}` \n"
+        await ctx.reply(text)
+
+    @commands.has_permissions(kick_members=True)
+    @config.command(name="revive_channel")
+    async def revive_channel(self, ctx, revive_channel):
+        try:
+            chnl = self.bot.get_channel(revive_channel)
+            self.bot.config['commands']['revive']['revive_channel'] = revive_channel
+            await ctx.reply("The revive channel has been successfully changed.")
+            self.bot.config_obj.dump_config()
+        except:
+            await ctx.reply(f"Provide the id of the channel you with to switch the revive_channel to.\nCurrent channel is <#{self.bot.config['commands']['revive']['revive_channel']}>")
+
+    @commands.has_permissions(kick_members=True)
+    @config.command(name="revive_available")
+    async def revive_available(self, ctx, revive_available):
+        try:
+            chnl = int(revive_available)
+            self.bot.config['commands']['revive']['revive_available'] = revive_available
+            await ctx.reply("The revive count has been successfully changed.")
+            self.bot.config_obj.dump_config()
+        except:
+            await ctx.reply(f"Provide the number to set the revives to.\nCurrent available revives is {self.bot.config['commands']['revive']['revive_available']}")
+
+    @commands.has_permissions(kick_members=True)
+    @config.command(name="revive_delay")
+    async def revive_delay(self, ctx, revive_delay):
+        try:
+            chnl = int(revive_delay)
+            self.bot.config['commands']['revive']['revive_delay'] = revive_delay
+            await ctx.reply("The revive delay has been successfully changed.")
+            self.bot.config_obj.dump_config()
+        except:
+            await ctx.reply(f"Provide the number of seconds to set the revive delay to.\nCurrent delay is {self.bot.config['commands']['revive']['revive_delay']}")
+
+    @commands.has_permissions(kick_members=True)
+    @config.command(name="revive_role")
+    async def revive_delay(self, ctx, revive_role):
+        try:
+            chnl = int(revive_role)
+            self.bot.config['commands']['revive']['revive_delay'] = revive_role
+            await ctx.reply("The revive role has been successfully changed.")
+            self.bot.config_obj.dump_config()
+        except:
+            await ctx.reply(f"Provide the revive role to set the revive role to.\nCurrent role is {self.bot.config['commands']['revive']['revive_role']}")
+
+
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
