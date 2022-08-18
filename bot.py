@@ -98,6 +98,7 @@ async def afk(ctx, *args):
     ]
     for i in role_required:
         if ctx.guild.get_role(i) in ctx.author.roles:
+            name = message.author.display_name
             new_name = f"[AFK] {name}"
             try:
                 await message.author.edit(nick=new_name)
@@ -110,7 +111,6 @@ async def afk(ctx, *args):
             afk_people[message.author.id] = [
                 True, datetime.datetime.utcnow(), message.content[5:]
             ]
-            name = message.author.display_name
             return
     await ctx.reply("You can't use this. Level up first!")
 
