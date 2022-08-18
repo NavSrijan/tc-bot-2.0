@@ -219,14 +219,15 @@ class Games(commands.Cog):
     @commands.command(name='guess')
     async def guess(self, ctx):
         """Try to guess the number between 1 and 100 in 5 tries."""
-        tries = 5
+        tries = 8
         upperLimit = 100
         number = random.randint(0, upperLimit)
 
         def check(message):
             if message.content.lower() in ["$skip"]:
                 return True
-            return message.channel == ctx.channel and message.author == ctx.author
+            return message.channel == ctx.channel 
+            # and message.author == ctx.author
 
 
         def return_string_for_number(number_to_check):
