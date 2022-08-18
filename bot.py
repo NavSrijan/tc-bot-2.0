@@ -35,7 +35,8 @@ intents.message_content = True
 config_obj = Config("variables/config.toml")
 config = config_obj.get_config()
 prefix = config['bot']['prefix']
-activity = discord.Activity(type=discord.ActivityType.listening, name=f"{config['bot']['prefix']}help")
+activity = discord.Activity(type=discord.ActivityType.listening,
+                            name=f"{config['bot']['prefix']}help")
 bot = commands.Bot(command_prefix=prefix,
                    case_insensitive=True,
                    intents=intents,
@@ -97,6 +98,7 @@ async def afk(ctx, *args):
     ]
     for i in role_required:
         if ctx.guild.get_role(i) in ctx.author.roles:
+            asyncio.sleep(90)
             db_afk.make_afk(message)
             afk_people[message.author.id] = [
                 True, datetime.datetime.utcnow(), message.content[5:]
@@ -201,7 +203,8 @@ async def on_message(message: discord.Message):
         return
 
     # Changing emojis to polls
-    if message.channel.id == config['commands']['misc']['emoji_suggestions_channel']:
+    if message.channel.id == config['commands']['misc'][
+            'emoji_suggestions_channel']:
         # Converts emoji suggestions to a vote
         if message.attachments:
             atm = message.attachments[0]
@@ -278,7 +281,9 @@ async def on_message(message: discord.Message):
     except Exception as e:
         print(e)
 
+
 bot.remove_command('help')
+
 
 async def main():
     async with bot:
