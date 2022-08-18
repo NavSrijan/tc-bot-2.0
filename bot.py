@@ -98,7 +98,7 @@ async def afk(ctx, *args):
     ]
     for i in role_required:
         if ctx.guild.get_role(i) in ctx.author.roles:
-            await asyncio.sleep(90)
+            await asyncio.sleep(30)
             db_afk.make_afk(message)
             afk_people[message.author.id] = [
                 True, datetime.datetime.utcnow(), message.content[5:]
