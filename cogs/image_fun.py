@@ -12,8 +12,6 @@ import textwrap
 
 def icon(image_object, image_size):
 
-    #for i in ["assets/pfp1.png","assets/pfp2.png","assets/pfp3.png"]:
-    #im = Image.open(image_path).convert('RGBA')
     im = image_object
 
     # start to make the photo square
@@ -366,7 +364,6 @@ class ImageFun(commands.Cog):
         runner_up_list = {}
         temp = 0
         for i in top_10:
-            #runner_up_list[i[0]] = i[1]
             try:
                 runner_up_list[ctx.message.guild.get_member(int(
                     i[0])).name] = i[1]
@@ -442,11 +439,6 @@ class ImageFun(commands.Cog):
             text = f"{k+1}.{' '*k_s}{i}:{' '*num_of_spaces} {runner_up_list[i]}"
             if k:
                 ry += 40
-            #elif k==6:
-            #    rx += 100
-            #    ry = 500
-            #else:
-            #    ry += 20
             k += 1
 
             ImageDraw.Draw(base).text((rx, ry),
@@ -480,18 +472,15 @@ class ImageFun(commands.Cog):
         with BytesIO() as image_binary:
             base.save(image_binary, 'PNG')
             image_binary.seek(0)
-            await chnl.send(f"<@&839005140891205684>\n{addText}",
+            await chnl.send(f"<@&{self.bot.config.tc_family_role}>\n{addText}",
                             file=discord.File(fp=image_binary,
                                               filename='lb_image.png'))
-
-        #base.show()
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
             pass
         else:
-            #ctx.message.reply(error)
             print(error)
 
 

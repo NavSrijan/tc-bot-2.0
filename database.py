@@ -2,10 +2,10 @@ import os
 import psycopg2
 import psycopg2.extras
 import datetime
-from functions import utc_to_ist
+from functions import utc_to_ist, load
 
 DATABASE_URL = os.environ["DATABASE_URL2"]
-revivesAvailable = os.environ["revives_available"]
+revivesAvailable = 3
 """
 CREATE TABLE "members" (
 	"id" BIGINT NOT NULL,

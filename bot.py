@@ -1,13 +1,17 @@
-import discord
 import asyncio
-from discord.ext import commands, tasks
 import datetime
-from database import Database_message_bank, DATABASE_URL, Database_suggestions, Database_afk
-from helpers import VoteView, VoteViewForEmoji, basic_embed
-from functions import download_and_return_image
+import logging
 import os
 import time
-import logging
+
+import discord
+from discord.ext import commands
+
+from database import (DATABASE_URL, Database_afk, Database_message_bank,
+                      Database_suggestions)
+from functions import download_and_return_image, load, save
+from helpers import VoteView, VoteViewForEmoji, basic_embed
+from config import Config
 
 ##########
 # Variables
@@ -15,25 +19,42 @@ import logging
 db_2 = Database_message_bank(DATABASE_URL, "message_bank")
 db_afk = Database_afk(DATABASE_URL, "afk")
 
-
-def get_afk_people_dict():
-    global db_afk
-    afk_people = {}
-    all_users = db_afk.get_all_afk()
-    for i in all_users:
-        afk_people[i[0]] = [i[1], i[2], i[3]]
-    return afk_people
-
-
-afk_people = get_afk_people_dict()
-
 ##
 ##########
 # Cogs to load
 cogs = [
     'chat_cmd', 'welcome', 'counting', 'news', 'mod', 'games', 'help',
-    'image_fun', 'suggestions', 'boosters', 'freedom'
+    'image_fun', 'suggestions', 'boosters'
 ]
+
+intents = discord.Intents.default()
+intents.members = True
+intents.message_content = True
+
+# Loading the config
+config_obj = Config("variables/config.toml")
+config = config_obj.get_config()
+prefix = config['bot']['prefix']
+activity = discord.Activity(type=discord.ActivityType.listening, name=f"{config['bot']['prefix']}help")
+bot = commands.Bot(command_prefix=prefix,
+                   case_insensitive=True,
+                   intents=intents,
+                   status=discord.Status.do_not_disturb,
+                   activity=activity)
+bot.highlights = {}
+bot.config_obj = config_obj
+bot.config = config
+bot.prefix = prefix
+
+# Logging
+logger = logging.getLogger('discord')
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(filename='discord.log',
+                              encoding='utf-8',
+                              mode='w')
+handler.setFormatter(
+    logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
 
 
 async def load_cogs(bot, cogs):
@@ -46,24 +67,16 @@ async def load_cogs(bot, cogs):
             print(e)
 
 
-intents = discord.Intents.default()
-intents.members = True
-intents.message_content = True
-prefix = "$"
-activity = discord.Activity(type=discord.ActivityType.listening, name="$help")
-bot = commands.Bot(command_prefix=prefix,
-                   case_insensitive=True,
-                   intents=intents,
-                   status=discord.Status.do_not_disturb,
-                   activity=activity)
-bot.highlights = {}
+def get_afk_people_dict():
+    global db_afk
+    afk_people = {}
+    all_users = db_afk.get_all_afk()
+    for i in all_users:
+        afk_people[i[0]] = [i[1], i[2], i[3]]
+    return afk_people
 
-# Logging
-logger = logging.getLogger('discord')
-logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
+
+afk_people = get_afk_people_dict()
 
 
 @bot.event
@@ -133,16 +146,7 @@ async def on_message(message: discord.Message):
     for i in r_words:
         if i in ["tc", "teenage", "community", "teenage", "teenagecommunity"]:
             tc_emoji = "<a:tc_excited:995961225525608500>"
-            #unk = "<a:tc_excited:995961992173072445>"
             await message.add_reaction(tc_emoji)
-            break
-        if i in [
-                "independence", "independent", "india", "bharat",
-                "swatantrata", "diwas", "hindustan", "aazadi", "azadi", "azad",
-                "bhagat", "sukhdev"
-        ]:
-            emoji_to_react = "<:pepeindia:1005858993492729998>"
-            await message.add_reaction(emoji_to_react)
             break
 
         val_list = list(bot.highlights.values())
@@ -174,23 +178,15 @@ async def on_message(message: discord.Message):
                 to_pass = False
                 break
         if to_pass == True:
-            for i in [
-                    "https://media.discordapp.net/attachments",
-                    "https://cdn.discordapp.com/attachments",
-                    "https://imgur.com", "https://i.imgur.com",
-                    "https://images-ext-1.discordapp.net/external",
-                    "https://www.reddit.com/", "https://www.youtube.com/",
-                    "https://youtu.be/", "https://bit.ly/"
-            ]:
+            for i in config['blocked_urls']['urls']:
                 if i in message.content.lower():
-                    #await message.author.send(f"You aren't allowed to send link in <#{os.environ['revive_channel']}>.")
                     await message.author.send(
                         f"You aren't allowed to send link in <#{957263189320540170}>."
                     )
                     await message.delete()
 
     # Changing suggestions to polls
-    if message.channel.id == 894495753655943210:
+    if message.channel.id == config['commands']['misc']['suggestions_channel']:
         # Converts suggestion to a vote
         emb = discord.Embed(
             title=f"{message.author.display_name}'s suggestion",
@@ -205,7 +201,7 @@ async def on_message(message: discord.Message):
         return
 
     # Changing emojis to polls
-    if message.channel.id == 998123210493132875:
+    if message.channel.id == config['commands']['misc']['emoji_suggestions_channel']:
         # Converts emoji suggestions to a vote
         if message.attachments:
             atm = message.attachments[0]
@@ -282,9 +278,7 @@ async def on_message(message: discord.Message):
     except Exception as e:
         print(e)
 
-
 bot.remove_command('help')
-
 
 async def main():
     async with bot:

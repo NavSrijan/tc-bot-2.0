@@ -1,8 +1,10 @@
 from discord.ext import commands
 import os
 
+
 class Welcome(commands.Cog):
     """Basic hello commands"""
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -11,8 +13,8 @@ class Welcome(commands.Cog):
         """
         Welcomes the new user who joins.
         """
-        channel = self.bot.get_channel(int(os.environ['welcome_channel']))
-        self_roles_channel = int(os.environ['self_roles_channel'])
+        channel = self.bot.get_channel(int(self.bot.config['commands']['welcome']['welcome_channel']))
+        self_roles_channel = int(self.bot.config.config['commands']['welcome']['self_roles_channel'])
 
         arrow1 = "<a:animatearrow:976181084578517032>"
         arrow2 = "<a:arrowrigh23t:976181875083198464>"
@@ -26,18 +28,15 @@ class Welcome(commands.Cog):
 """
         await channel.send(welcomeMessage)
 
-
-
         def check(message):
             return message.author == member
-        
-        tc_emoji = "<a:tc_excited:995961225525608500>"
-        #unk = "<a:tc_excited:995961992173072445>"
 
-        message = await self.bot.wait_for('message', check = check, timeout = 300)
+        tc_emoji = "<a:tc_excited:995961225525608500>"
+
+        message = await self.bot.wait_for('message', check=check, timeout=300)
         await message.add_reaction(tc_emoji)
-    
-    @commands.command(name="hello")
+
+    @commands.command(name="hello", aliases=["hi", "greetings", "namaste"])
     async def hello(self, ctx):
         """Say hello to the bot!"""
         await ctx.send(f"Hello! {ctx.message.content[5:]}")
@@ -47,7 +46,6 @@ class Welcome(commands.Cog):
         if isinstance(error, commands.CommandNotFound):
             pass
         else:
-            #ctx.message.reply(error)
             print(error)
 
     @commands.command(name="yo")

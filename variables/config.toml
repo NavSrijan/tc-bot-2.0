@@ -1,0 +1,39 @@
+name = "Test"
+
+[bot]
+prefix = "$"
+[commands]
+	[commands.revive]
+	name = "revive"
+	revive_channel = 957263189320540170
+	revives_available = 3
+	revive_role = 957743867111817287
+	revive_delay = 1800
+
+	[commands.welcome]
+	name = "welcome"
+	welcome_channel = 957263189320540170  
+
+	[commands.misc]
+	name = "misc"
+	logs_channel = 1005161139451199528
+	mods_channel = 894495731451297852
+	suggestions_channel = 894495753655943210
+	emoji_suggestions_channel = 998123210493132875
+	booster_role = 988445679426867200
+	tc_family_role = 839005140891205684
+
+[blocked_urls]
+urls =[
+	"https://media.discordapp.net/attachments",
+        "https://cdn.discordapp.com/attachments",
+        "https://imgur.com",
+        "https://i.imgur.com",
+        "https://images-ext-1.discordapp.net/external",
+        "https://www.reddit.com/",
+        "https://www.youtube.com/",
+        "https://youtu.be/",
+        "https://bit.ly/"
+        ]
+
+

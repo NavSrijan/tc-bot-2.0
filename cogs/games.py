@@ -295,7 +295,6 @@ class Games(commands.Cog):
         if isinstance(error, commands.CommandNotFound):
             pass
         else:
-            #ctx.message.reply(error)
             print(error)
 
 

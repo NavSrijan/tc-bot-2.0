@@ -1,8 +1,10 @@
-from discord.ext import commands
+import os
+
 import discord
+from discord.ext import commands
+
 from functions import load, save
 from helpers import basic_embed
-import os
 
 
 class Boosters(commands.Cog):
@@ -20,8 +22,7 @@ class Boosters(commands.Cog):
     @commands.command(name="custom_role", aliases=["cus_rol", "cr"])
     async def custom_role(self, ctx):
         """Custom role for the user"""
-        booster_role = 988445679426867200
-        #booster_role = 977217186928160828
+        booster_role = self.bot.config['commands']['misc']['booster_role']
         try:
             nitro_roles = self.load_nitro_roles()
         except:
