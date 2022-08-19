@@ -197,17 +197,19 @@ class Chat_commands(commands.Cog):
             f"<@&{self.revive_role}> Trying to revive the chat. ||By <@{ctx.author.id}>||",
             allowed_mentions=allowed_mentions)
 
-    @commands.has_permissions(kick_members=True)
     @commands.command(name="avatar", aliases=["av"])
     async def avatar(self, ctx, *args):
-        if len(ctx.message.mentions) > 0:
-            user = ctx.message.mentions[0]
-            try:
-                av = user.avatar.url
-            except:
-                av = user.default_avatar.url
-            emb = basic_embed(title=user.name, image_url=av)
-            await ctx.reply(embed=emb)
+        if ctx.message.channel.id in [1006956616354107472]:
+            if len(ctx.message.mentions) > 0:
+                user = ctx.message.mentions[0]
+                try:
+                    av = user.avatar.url
+                except:
+                    av = user.default_avatar.url
+                emb = basic_embed(title=user.name, image_url=av)
+                await ctx.reply(embed=emb)
+        else:
+            await ctx.reply("Try using this command in <#1006956616354107472>")
 
     @commands.has_permissions(kick_members=True)
     @commands.command(name="show_revives")
