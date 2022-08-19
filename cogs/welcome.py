@@ -14,7 +14,7 @@ class Welcome(commands.Cog):
         Welcomes the new user who joins.
         """
         channel = self.bot.get_channel(int(self.bot.config['commands']['welcome']['welcome_channel']))
-        self_roles_channel = int(self.bot.config.config['commands']['welcome']['self_roles_channel'])
+        self_roles_channel = int(self.bot.config['commands']['welcome']['self_roles_channel'])
 
         arrow1 = "<a:animatearrow:976181084578517032>"
         arrow2 = "<a:arrowrigh23t:976181875083198464>"
