@@ -56,6 +56,12 @@ class Chat_commands(commands.Cog):
         await ctx.reply("Your suggestion has been noted.")
         await ctx.message.delete()
 
+    @commands.command(name="joke", hidden=True)
+    async def joke(self, ctx, *args):
+        categories = ["Dark", "Programming", "Misc", "Pun", "Spooky", "Christmas"]
+        url = "https://v2.jokeapi.dev/joke/Dark?blacklistFlags=nsfw,explicit"
+
+        
     #@commands.command(name="highlight_stop")
     #async def highlight_stop(self, ctx):
     #    """Stop getting highlights"""
@@ -199,17 +205,39 @@ class Chat_commands(commands.Cog):
 
     @commands.command(name="avatar", aliases=["av"])
     async def avatar(self, ctx, *args):
-        if ctx.message.channel.id in [1006956616354107472]:
-            if len(ctx.message.mentions) > 0:
-                user = ctx.message.mentions[0]
-                try:
-                    av = user.avatar.url
-                except:
-                    av = user.default_avatar.url
-                emb = basic_embed(title=user.name, image_url=av)
-                await ctx.reply(embed=emb)
+        def display_av(user):
+            try:
+                av = user.avatar.url
+            except:
+                av = user.default_avatar.url
+            emb = basic_embed(title=user.name, image_url=av)
+            return emb
+        if len(ctx.message.mentions) > 0:
+            user_o = ctx.message.mentions[0]
+            a = "✅"
+            b = "❌"
+            msg = await ctx.reply(f"{user_o.mention} Do you wish for your pfp to be enlarged?")
+            await msg.add_reaction(a)
+            await msg.add_reaction(b)
+
+            def check_reaction(reaction, user):
+                return user == user_o and reaction.emoji in [
+                    a, b
+                ] and user_o.bot is False
+
+            reaction = await self.bot.wait_for("reaction_add",
+                                               check=check_reaction,
+                                               timeout=60)
+            emoji = reaction[0].emoji
+            if emoji == a:
+                emb = display_av(user_o)
+                await msg.clear_reactions()
+                await msg.edit(content="", embed=emb)
+            else:
+                await msg.edit(content="The user does not want their pfp to be displayed.")
+
         else:
-            await ctx.reply("Try using this command in <#1006956616354107472>")
+            await ctx.reply(embed=display_av(ctx.message.author))
 
     @commands.has_permissions(kick_members=True)
     @commands.command(name="show_revives")
