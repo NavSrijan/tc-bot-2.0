@@ -335,13 +335,74 @@ class Mod(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send("Not a valid command")
 
+    @config.command(name="show")
+    async def show_config(self, ctx):
+        """Displays all the config variables"""
+        config =self.bot.config
+        desc = ""
+        for section in config:
+            if section == "name":
+                name = config[section]
+                desc += f"**{name}**\n\n"
+            elif section == "bot":
+                desc += f"`prefix`: {config[section]['prefix']}\n\n"
+            elif section == "commands":
+                desc += "\n**commands**\n"
+                for con in config[section]:
+                    desc+="\n"
+                    for sec_2 in config[section][con]:
+                        desc += f"`{sec_2}`: {config[section][con][sec_2]}\n"
+            elif type(config[section]) is dict:
+                desc += f"`{section}`\n"
+                for sec_2 in config[section]:
+                    if isinstance(config[section][sec_2], list) :
+                        desc += f"{sec_2}\n`"
+                        for el in config[section][sec_2]:
+                            desc += el+"\n"
+                        desc += "`"
+                    else:
+                        desc += f"`{sec_2}`: {config[section][sec_2]}\n"
+        emb = basic_embed(desc=desc)
+        await ctx.reply(embed=emb)
+
+    @commands.has_permissions(kick_members=True)
+    @config.command(name="change")
+    async def change_config(self, ctx, *args):
+        """Change the commands section of the config.
+        Syntax: $config change <name of group> <variable to change> <value>"""
+        if len(args) >= 3:
+            try:
+                group = args[0]
+                var = args[1]
+                value = args[2]
+                
+                if isinstance(self.bot.config['commands'][group][var], int):
+                    try:
+                        value = int(value)
+                        self.bot.config['commands'][group][var] = value
+                        self.bot.config_obj.dump_config()
+                        await ctx.reply(f"{var} has been changed to {value}.")
+                    except:
+                        await ctx.reply("Not a correct value it seems.")
+                else:
+                    self.bot.config['commands'][group][var] = value
+                    self.bot.config_obj.dump_config()
+                    await ctx.reply(f"{var} has been changed to {value}.")
+            except:
+                await ctx.reply("Syntax error.")
+
+
+        else:
+            await ctx.reply("What to change?\nSyntax: $config change <name of group> <variable to change> <value>")
+
+
     @commands.has_permissions(kick_members=True)
     @config.command(name="add_url")
     async def add_blocked_url(self, ctx, *args):
         for i in args:
             urls = self.bot.config_obj.add_blocked_url(i)
 
-        text = "These urls are blocked."
+        text = "These urls are blocked.\n"
         for i in urls:
             text += f"`{i}` \n"
         await ctx.reply(text)
@@ -366,57 +427,12 @@ class Mod(commands.Cog):
             text += f"`{i}` \n"
         await ctx.reply(text)
 
-    @commands.has_permissions(kick_members=True)
-    @config.command(name="revive_channel")
-    async def revive_channel(self, ctx, revive_channel):
-        try:
-            chnl = self.bot.get_channel(revive_channel)
-            self.bot.config['commands']['revive']['revive_channel'] = revive_channel
-            await ctx.reply("The revive channel has been successfully changed.")
-            self.bot.config_obj.dump_config()
-        except:
-            await ctx.reply(f"Provide the id of the channel you with to switch the revive_channel to.\nCurrent channel is <#{self.bot.config['commands']['revive']['revive_channel']}>")
-
-    @commands.has_permissions(kick_members=True)
-    @config.command(name="revive_available")
-    async def revive_available(self, ctx, revive_available):
-        try:
-            chnl = int(revive_available)
-            self.bot.config['commands']['revive']['revive_available'] = revive_available
-            await ctx.reply("The revive count has been successfully changed.")
-            self.bot.config_obj.dump_config()
-        except:
-            await ctx.reply(f"Provide the number to set the revives to.\nCurrent available revives is {self.bot.config['commands']['revive']['revive_available']}")
-
-    @commands.has_permissions(kick_members=True)
-    @config.command(name="revive_delay")
-    async def revive_delay(self, ctx, revive_delay):
-        try:
-            chnl = int(revive_delay)
-            self.bot.config['commands']['revive']['revive_delay'] = revive_delay
-            await ctx.reply("The revive delay has been successfully changed.")
-            self.bot.config_obj.dump_config()
-        except:
-            await ctx.reply(f"Provide the number of seconds to set the revive delay to.\nCurrent delay is {self.bot.config['commands']['revive']['revive_delay']}")
-
-    @commands.has_permissions(kick_members=True)
-    @config.command(name="revive_role")
-    async def revive_delay(self, ctx, revive_role):
-        try:
-            chnl = int(revive_role)
-            self.bot.config['commands']['revive']['revive_delay'] = revive_role
-            await ctx.reply("The revive role has been successfully changed.")
-            self.bot.config_obj.dump_config()
-        except:
-            await ctx.reply(f"Provide the revive role to set the revive role to.\nCurrent role is {self.bot.config['commands']['revive']['revive_role']}")
-
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
             pass
         else:
-            #ctx.message.reply(error)
             print(error)
 
 
