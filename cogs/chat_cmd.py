@@ -7,6 +7,8 @@ import datetime
 import random
 from helpers import basic_embed
 import os
+from jokeapi import Jokes
+
 
 class Person():
 
@@ -58,10 +60,29 @@ class Chat_commands(commands.Cog):
 
     @commands.command(name="joke", hidden=True)
     async def joke(self, ctx, *args):
-        categories = ["Dark", "Programming", "Misc", "Pun", "Spooky", "Christmas"]
-        url = "https://v2.jokeapi.dev/joke/Dark?blacklistFlags=nsfw,explicit"
+        jokesapi = await Jokes()
+        categories = [
+            "dark", "programming", "misc", "pun", "spooky", "christmas"
+        ]
+        blacklist = ["nsfw", "explicit"]
+        if len(args) == 0:
+            joke = await jokesapi.get_joke(blacklist=blacklist)
+        else:
+            if args[0] in categories:
+                joke = await jokesapi.get_joke(blacklist=blacklist,
+                                               category=[args[0]])
+            else:
+                joke = await jokesapi.get_joke(blacklist=blacklist)
 
-        
+        if joke["type"] == "twopart":
+            setup = joke["setup"]
+            delivery = joke["delivery"]
+            cont = f"{setup}\n||{delivery}||"
+        else:
+            cont = joke['joke']
+
+        await ctx.reply(cont)
+
     @commands.command(name="highlight_stop")
     async def highlight_stop(self, ctx):
         """Stop getting highlights"""
@@ -130,9 +151,12 @@ class Chat_commands(commands.Cog):
                 last = (msg_time - self.last_used).seconds
                 timeLeft = self.revive_delay - last
                 m, s = divmod(timeLeft, 60)
-                await ctx.reply(f"The chat can be revived again in {m}m, {s}s.")
+                await ctx.reply(f"The chat can be revived again in {m}m, {s}s."
+                                )
         else:
-            await ctx.reply(f"Head over to <#{self.vars['revive_channel']}> to revive the chat.")
+            await ctx.reply(
+                f"Head over to <#{self.vars['revive_channel']}> to revive the chat."
+            )
 
     @commands.command(name="rc",
                       aliases=["revivechat", "revive_chat", "rev_chat"],
@@ -205,6 +229,7 @@ class Chat_commands(commands.Cog):
 
     @commands.command(name="avatar", aliases=["av"])
     async def avatar(self, ctx, *args):
+
         def display_av(user):
             try:
                 av = user.avatar.url
@@ -212,11 +237,13 @@ class Chat_commands(commands.Cog):
                 av = user.default_avatar.url
             emb = basic_embed(title=user.name, image_url=av)
             return emb
+
         if len(ctx.message.mentions) > 0:
             user_o = ctx.message.mentions[0]
             a = "✅"
             b = "❌"
-            msg = await ctx.reply(f"{user_o.mention} Do you wish for your pfp to be enlarged?")
+            msg = await ctx.reply(
+                f"{user_o.mention} Do you wish for your pfp to be enlarged?")
             await msg.add_reaction(a)
             await msg.add_reaction(b)
 
@@ -235,7 +262,9 @@ class Chat_commands(commands.Cog):
                 await msg.edit(content="", embed=emb)
             else:
                 await msg.clear_reactions()
-                await msg.edit(content="The user does not want their pfp to be displayed.")
+                await msg.edit(
+                    content="The user does not want their pfp to be displayed."
+                )
 
         else:
             await ctx.reply(embed=display_av(ctx.message.author))
@@ -330,7 +359,8 @@ class Chat_commands(commands.Cog):
             ]
         ]
         slogan = random.choice(slogans)
-        await ctx.channel.send(embed=basic_embed(title=slogan[0], desc=f"{slogan[1]}"))
+        await ctx.channel.send(
+            embed=basic_embed(title=slogan[0], desc=f"{slogan[1]}"))
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
