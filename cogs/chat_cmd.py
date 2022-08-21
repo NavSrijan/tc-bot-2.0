@@ -234,6 +234,7 @@ class Chat_commands(commands.Cog):
                 await msg.clear_reactions()
                 await msg.edit(content="", embed=emb)
             else:
+                await msg.clear_reactions()
                 await msg.edit(content="The user does not want their pfp to be displayed.")
 
         else:
