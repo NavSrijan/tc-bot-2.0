@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 
+
 class Help(commands.Cog):
     """Sends this help message"""
 
@@ -14,17 +15,30 @@ class Help(commands.Cog):
         if len(args) == 0:
             # Preparing the description
             desc = ""
+            emb = discord.Embed(title="Help",
+                                description=desc,
+                                color=discord.Color.gold())
+            blocked_cogs = ["Suggestion"]
             for cog in self.bot.cogs:
-                desc += f"`{cog}` {self.bot.cogs[cog].__doc__}\n"
-            emb = discord.Embed(title="Help", description=desc, color=discord.Color.gold())
-            #emb.set_footer(text="Author: <@302253506947973130>")
+                if cog not in blocked_cogs:
+                    desc += cog + "\n`"
+                    for cmd in self.bot.get_cog(cog).get_commands():
+                        if not cmd.hidden:
+                            desc+=cmd.name+", "
+                    desc = desc[0:-2]
+                    desc += "`\n"
+
+            desc += f"\n\n For more info about a command use {prefix}help <command>.\nAuthor: <@302253506947973130>"
+
+            emb.description = desc
         elif len(args) == 1:
             # Getting the help for a particular command or module
             done = False
             for cog in self.bot.cogs:
                 if cog.lower() == args[0].lower():
-                    emb = discord.Embed(
-                        title=cog, description=self.bot.cogs[cog].__doc__, color=discord.Color.gold())
+                    emb = discord.Embed(title=cog,
+                                        description=self.bot.cogs[cog].__doc__,
+                                        color=discord.Color.gold())
 
                     for cmd in self.bot.get_cog(cog).get_commands():
                         if not cmd.hidden:
@@ -37,14 +51,18 @@ class Help(commands.Cog):
                 for cog in self.bot.cogs:
                     for cmd in self.bot.get_cog(cog).get_commands():
                         if not cmd.hidden and cmd.name == args[0]:
-                            emb = discord.Embed(title=cmd.name, description=cmd.help, color=discord.Color.gold())
+                            emb = discord.Embed(title=cmd.name,
+                                                description=cmd.help,
+                                                color=discord.Color.gold())
                             done = True
                             break
             if not done:
-                emb = discord.Embed(description="Command not found.", color=discord.Color.red())
+                emb = discord.Embed(description="Command not found.",
+                                    color=discord.Color.red())
 
         else:
-            emb = discord.Embed(description="Supply only one argument.", color=discord.Color.red())
+            emb = discord.Embed(description="Supply only one argument.",
+                                color=discord.Color.red())
 
         await ctx.channel.send(embed=emb)
 
