@@ -153,16 +153,21 @@ async def on_message(message: discord.Message):
 
         val_list = list(bot.highlights.values())
         if i in val_list:
-            key_list = list(bot.highlights.keys())
-            pos = val_list.index(i)
-            p1 = key_list[pos]
-            emb = discord.Embed(
-                description=message.content +
-                f"\n\n[Jump to the message]({message.jump_url})")
-            emb.set_author(name=message.author.display_name,
-                           icon_url=message.author.avatar.url)
-            emb.color = discord.Color.blurple()
-            await p1.send(embed=emb)
+            if message.channel.id in [
+                    957263189320540170, 894987356678000670, 895229974909444096,
+                    895025182207524925, 984196485518340136, 895017321037455372,
+                    895221478411350026, 983824068497264670, 1006956616354107472
+            ]:
+                key_list = list(bot.highlights.keys())
+                pos = val_list.index(i)
+                p1 = key_list[pos]
+                emb = discord.Embed(
+                    description=message.content +
+                    f"\n\n[Jump to the message]({message.jump_url})")
+                emb.set_author(name=message.author.display_name,
+                               icon_url=message.author.avatar.url)
+                emb.color = discord.Color.blurple()
+                await p1.send(embed=emb)
 
     channels_with_image_access = [
         895221352267677697, 983791675874877500, 895221241412198410,
