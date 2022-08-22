@@ -29,7 +29,7 @@ class Games(commands.Cog):
             countries[j[0][1:-1].lower()] = j[1][1:-1].lower()
         return countries
 
-    @commands.command(name="capitals")
+    @commands.hybrid_command(name="capitals")
     async def country_capital(self, ctx):
         """Play a game to guess the capitals of countries!"""
         await ctx.reply(
@@ -77,8 +77,9 @@ class Games(commands.Cog):
         self.lives = 3
         await channel.send(f"You lost! Total Points: {pons}")
 
-    @commands.command(name="flags")
+    @commands.hybrid_command(name="flags")
     async def flags(self, ctx):
+        """Can you guess the countries from their flags?"""
 
         def get_flag_image_object(country_code):
             url = f"https://flagcdn.com/256x192/{country_code}.png"
@@ -124,6 +125,10 @@ class Games(commands.Cog):
                         lives -= 1
                         await ctx.send(f"The answer was {country}.")
                         break
+                    elif msg.content == "$end":
+                        await send_score()
+                        await ctx.send(f"The answer was {country}.")
+                        return
                     elif msg.content == "$hint":
                         hint = country[0]
                         for i in country[1:]:
@@ -155,7 +160,7 @@ class Games(commands.Cog):
         await ctx.send("All lives lost.")
         await send_score()
 
-    @commands.command(name='pi')
+    @commands.hybrid_command(name='pi')
     async def pi(self, ctx):
         """How many digits of pi do you know?"""
         x = 0
@@ -216,9 +221,9 @@ class Games(commands.Cog):
                 await channel.send("SCORE: {}".format(score - 2))
                 break
 
-    @commands.command(name='guess')
+    @commands.hybrid_command(name='guess')
     async def guess(self, ctx):
-        """Try to guess the number between 1 and 100 in 5 tries."""
+        """Try to guess the number between 1 and 100 in 8 tries."""
         tries = 8
         upperLimit = 100
         number = random.randint(0, upperLimit)
@@ -253,7 +258,7 @@ class Games(commands.Cog):
                 elif diff >= 0:
                     return "Your guess was very close."
 
-        await ctx.reply(f"You have {tries} to guess the number.")
+        await ctx.reply(f"You have {tries} tries to guess the number.")
         await ctx.channel.send("Guess now!")
 
         while tries != 0:

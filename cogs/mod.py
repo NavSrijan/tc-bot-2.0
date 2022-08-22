@@ -15,7 +15,7 @@ class Mod(commands.Cog):
         self.bot = bot
 
     @commands.has_permissions(kick_members=True)
-    @commands.command(name="test", hidden=True)
+    @commands.hybrid_command(name="test", hidden=True)
     async def test(self, ctx):
         emb = basic_embed(
             desc="hi",
@@ -26,13 +26,13 @@ class Mod(commands.Cog):
         await ctx.reply(embed=emb)
 
     @commands.has_permissions(kick_members=True)
-    @commands.command(name="torture")
-    async def torture(self, ctx):
+    @commands.hybrid_command(name="torture")
+    async def torture(self, ctx, user: discord.Member):
         """Keep deleting a users message for 60s."""
-        if len(ctx.message.mentions) >= 1:
-            user = ctx.message.mentions[0]
+        if user:
+            await ctx.reply("Starting torture")
         else:
-            await ctx.reply("Mention someone.")
+            await ctx.reply("Mention someone.", ephemeral=True)
             return
 
         def check(message):
@@ -53,7 +53,7 @@ class Mod(commands.Cog):
         await ctx.reply("Done.")
 
     @commands.has_permissions(kick_members=True)
-    @commands.command(name="lock")
+    @commands.hybrid_command(name="lock")
     async def lock_channel(self, ctx):
         """
         Locks the channel
@@ -64,7 +64,7 @@ class Mod(commands.Cog):
         await ctx.channel.send("The channel has been locked.")
 
     @commands.has_permissions(kick_members=True)
-    @commands.command(name="unlock")
+    @commands.hybrid_command(name="unlock")
     async def unlock_channel(self, ctx):
         """
         Unlocks the channel
@@ -75,8 +75,8 @@ class Mod(commands.Cog):
         await ctx.channel.send("The channel has been unlocked.")
 
     @commands.has_permissions(kick_members=True)
-    @commands.command(name="kick")
-    async def kick(self, ctx):
+    @commands.hybrid_command(name="kick")
+    async def kick(self, ctx, user: discord.Member):
         """Kick a member"""
         gifs = [
             "https://tenor.com/view/throw-him-out-gif-14876020",
@@ -88,8 +88,8 @@ class Mod(commands.Cog):
             "https://tenor.com/view/oh-yeah-high-kick-take-down-fight-gif-14272509",
             "https://tenor.com/view/bad-mom-grandma-baby-kicking-i-love-children-gif-23173847"
         ]
-        if ctx.message.mentions:
-            member = ctx.message.mentions[0]
+        if user:
+            member = user
         else:
             await ctx.reply("Mention someone.")
             return
@@ -97,16 +97,16 @@ class Mod(commands.Cog):
         try:
             await member.kick()
             await ctx.channel.send(random.choice(gifs))
-            await ctx.channel.send(f"`{name} has been kicked.`")
+            await ctx.reply(f"`{name} has been kicked.`")
         except:
             await ctx.reply("Sorry but, I don't have the permissions.")
 
     @commands.has_permissions(ban_members=True)
-    @commands.command(name="ban")
-    async def ban(self, ctx):
+    @commands.hybrid_command(name="ban")
+    async def ban(self, ctx, user: discord.Member):
         """Ban a member"""
-        if ctx.message.mentions:
-            member = ctx.message.mentions[0]
+        if user:
+            member = user
         else:
             await ctx.reply("Mention someone.")
             return
@@ -116,7 +116,7 @@ class Mod(commands.Cog):
             await ctx.channel.send(
                 "https://tenor.com/view/bad-mom-grandma-baby-kicking-i-love-children-gif-23173847"
             )
-            await ctx.channel.send(f"{name} has been banned.")
+            await ctx.reply(f"{name} has been banned.")
         except:
             await ctx.reply("Sorry but, I don't have the permissions.")
 
@@ -329,7 +329,7 @@ class Mod(commands.Cog):
             await ctx.reply(f"{extension} is already unloaded.")
 
     @commands.has_permissions(kick_members=True)
-    @commands.group(name="config")
+    @commands.hybrid_group(name="config")
     async def config(self, ctx):
         """Change the config"""
         if ctx.invoked_subcommand is None:
@@ -367,14 +367,14 @@ class Mod(commands.Cog):
 
     @commands.has_permissions(kick_members=True)
     @config.command(name="change")
-    async def change_config(self, ctx, *args):
+    async def change_config(self, ctx, group_name, variable, value):
         """Change the commands section of the config.
         Syntax: $config change <name of group> <variable to change> <value>"""
-        if len(args) >= 3:
+        if group_name and variable and value:
             try:
-                group = args[0]
-                var = args[1]
-                value = args[2]
+                group = group_name
+                var = variable
+                value = value
                 
                 if isinstance(self.bot.config['commands'][group][var], int):
                     try:
@@ -398,9 +398,8 @@ class Mod(commands.Cog):
 
     @commands.has_permissions(kick_members=True)
     @config.command(name="add_url")
-    async def add_blocked_url(self, ctx, *args):
-        for i in args:
-            urls = self.bot.config_obj.add_blocked_url(i)
+    async def add_blocked_url(self, ctx, url):
+        urls = self.bot.config_obj.add_blocked_url(url)
 
         text = "These urls are blocked.\n"
         for i in urls:
@@ -409,9 +408,8 @@ class Mod(commands.Cog):
 
     @commands.has_permissions(kick_members=True)
     @config.command(name="remove_url")
-    async def remove_blocked_url(self, ctx, *args):
-        for i in args:
-            urls = self.bot.config_obj.remove_blocked_url(i)
+    async def remove_blocked_url(self, ctx, url):
+        urls = self.bot.config_obj.remove_blocked_url(url)
 
         text = "These urls are blocked.\n"
         for i in urls:

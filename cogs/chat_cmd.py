@@ -1,5 +1,5 @@
 from discord.ext import commands
-from discord import AllowedMentions
+from discord import AllowedMentions, app_commands
 import discord
 from database import Database_members, DATABASE_URL
 from functions import utc_to_ist, load, save
@@ -8,6 +8,7 @@ import random
 from helpers import basic_embed
 import os
 from jokeapi import Jokes
+from typing import Literal
 
 
 class Person():
@@ -34,45 +35,60 @@ class Chat_commands(commands.Cog):
         self.revive_role = int(self.vars['revive_role'])
         self.topics = load("assets/random_data/topics.pkl")
         self.alreadyDone = []
+        self.one_time_revive_pass = False
 
-    @commands.command(name="highlight", aliases=["hl"])
+    @commands.hybrid_command(name="highlight", aliases=["hl"])
     async def highlight(self, ctx, word):
-        """Get a DM if someone mentions any word
-        Syntax: $highlight <word>
-        """
+        """Get a DM if someone mentions any word"""
         await ctx.reply(
-            "You won't be getting highligts for long.\nUse $highlight_stop to stop getting highlights"
-        )
+            "You won't be getting highligts for long.\nUse $highlight_stop to stop getting highlights",
+            ephemeral=True)
         self.bot.highlights[ctx.author] = word
 
-    @commands.command(name="suggest")
-    async def suggest(self, ctx, *args):
+    @commands.hybrid_command(name="suggest")
+    async def suggest(self, ctx, suggestion):
         """Suggest something reagarding the bot"""
-        sugg = " ".join(args)
-        thewhistler = self.bot.get_user(302253506947973130)
-        emb = discord.Embed(description=sugg)
-        emb.set_author(name=ctx.message.author.display_name + " suggested.",
-                       icon_url=ctx.message.author.avatar.url)
-        emb.color = discord.Color.blurple()
-        await thewhistler.send(embed=emb)
-        await ctx.reply("Your suggestion has been noted.")
-        await ctx.message.delete()
+        if ctx.interaction:
+            sugg = suggestion
+            thewhistler = self.bot.get_user(302253506947973130)
+            emb = discord.Embed(description=sugg)
+            emb.set_author(name=ctx.message.author.display_name +
+                           " suggested.",
+                           icon_url=ctx.message.author.avatar.url)
+            emb.color = discord.Color.blurple()
+            await thewhistler.send(embed=emb)
+            await ctx.reply("Your suggestion has been noted.", ephemeral=True)
+        else:
+            sugg = ctx.message.content
+            thewhistler = self.bot.get_user(302253506947973130)
+            emb = discord.Embed(description=sugg)
+            emb.set_author(name=ctx.message.author.display_name +
+                           " suggested.",
+                           icon_url=ctx.message.author.avatar.url)
+            emb.color = discord.Color.blurple()
+            await thewhistler.send(embed=emb)
+            await ctx.reply("Your suggestion has been noted.", ephemeral=True)
+            await ctx.message.delete()
 
-    @commands.command(name="joke", hidden=True)
-    async def joke(self, ctx, *args):
+    @commands.hybrid_command(name="joke")
+    async def joke(self,
+                   ctx,
+                   category: Literal["dark", "programming", "misc", "pun",
+                                     "spooky", "christmas"] = None):
         jokesapi = await Jokes()
         categories = [
             "dark", "programming", "misc", "pun", "spooky", "christmas"
         ]
         blacklist = ["nsfw", "explicit"]
-        if len(args) == 0:
+        if category == None:
             joke = await jokesapi.get_joke(blacklist=blacklist)
         else:
-            if args[0] in categories:
+            if category in categories:
                 joke = await jokesapi.get_joke(blacklist=blacklist,
-                                               category=[args[0]])
+                                               category=[category])
             else:
-                joke = await jokesapi.get_joke(blacklist=blacklist)
+                joke = await jokesapi.get_joke(blacklist=blacklist,
+                                               search_string=category)
 
         if joke["type"] == "twopart":
             setup = joke["setup"]
@@ -83,13 +99,13 @@ class Chat_commands(commands.Cog):
 
         await ctx.reply(cont)
 
-    @commands.command(name="highlight_stop")
+    @commands.hybrid_command(name="highlight_stop", aliases=["hl_s"])
     async def highlight_stop(self, ctx):
         """Stop getting highlights"""
         self.bot.highlights.pop(ctx.author)
         await ctx.reply("You won't get highlights now.")
 
-    @commands.group(aliases=['r', 'rev'])
+    @commands.hybrid_group(name="revive")
     async def revive(self, ctx):
         """Commands regarding revive chat"""
         if ctx.invoked_subcommand is None:
@@ -136,10 +152,12 @@ class Chat_commands(commands.Cog):
             except:
                 self.last_used = utc_to_ist(datetime.datetime.utcnow())
 
-            if (msg_time - self.last_used
-                ).seconds > self.revive_delay or self.last_used is None:
+            if (
+                    msg_time - self.last_used
+            ).seconds > self.revive_delay or self.last_used is None or self.one_time_revive_pass is True:
+                self.one_time_revive_pass = False
                 if p1.revives_available != 0:
-                    await ctx.channel.send(
+                    await ctx.reply(
                         f"<@&{self.revive_role}> Trying to revive the chat. ||By <@{ctx.author.id}>||\n`{topic}`"
                     )
                     save(msg_time, "variables/last_revive_time.pkl")
@@ -158,10 +176,11 @@ class Chat_commands(commands.Cog):
                 f"Head over to <#{self.vars['revive_channel']}> to revive the chat."
             )
 
-    @commands.command(name="rc",
-                      aliases=["revivechat", "revive_chat", "rev_chat"],
-                      hidden=True)
+    @commands.hybrid_command(name="rc",
+                             aliases=["revivechat", "revive_chat", "rev_chat"],
+                             hidden=True)
     async def rc(self, ctx):
+        """Alias for revive_chat"""
         chat_command = self.bot.get_command('revive').all_commands['chat']
         await ctx.invoke(chat_command)
 
@@ -169,15 +188,15 @@ class Chat_commands(commands.Cog):
     @revive.command(name="reset_time", aliases=["rt"])
     async def reset_revive_time(self, ctx):
         """Resets the revive cooldown, so It can be used again."""
-        self.last_used = None
-        await ctx.reply("The revive time has been reset")
+        self.one_time_revive_pass = True
+        await ctx.reply("The revive time has been reset", ephemeral=True)
 
     @commands.has_permissions(kick_members=True)
     @revive.command(name="reset")
-    async def reset_revives(self, ctx):
+    async def reset_revives(self, ctx, user: discord.Member = None):
         """Reset the revives for a user"""
-        if len(ctx.message.mentions) > 1:
-            ll = ctx.message.mentions
+        if user != None:
+            ll = [user]
         else:
             ll = [ctx.author]
         db = Database_members(DATABASE_URL, "members")
@@ -187,10 +206,10 @@ class Chat_commands(commands.Cog):
 
     @commands.has_permissions(kick_members=True)
     @revive.command(name="count")
-    async def count_revives(self, ctx):
+    async def count_revives(self, ctx, user: discord.Member = None):
         """Shows the revives left for a user"""
-        if len(ctx.message.mentions) > 1:
-            ll = ctx.message.mentions
+        if user != None:
+            ll = user
         else:
             ll = [ctx.author]
         db = Database_members(DATABASE_URL, "members")
@@ -201,7 +220,7 @@ class Chat_commands(commands.Cog):
             toSend += f"{member.mention}: {p1.revives_available}" + "\n"
         await ctx.reply(toSend)
 
-    @commands.command(name="topic", aliases=["t"])
+    @commands.hybrid_command(name="topic", aliases=["t"])
     async def topic(self, ctx):
         """Sends a random topic to discuss upon."""
         if len(self.topics) != 0:
@@ -212,7 +231,7 @@ class Chat_commands(commands.Cog):
             self.alreadyDone = []
             topic = random.choice(self.topics)
             self.alreadyDone.append(self.topics.pop(self.topics.index(topic)))
-        await ctx.message.channel.send(f"`{topic}`")
+        await ctx.reply(f"`{topic}`")
 
     @revive.command(name="fake")
     async def fake_revive(self, ctx):
@@ -223,12 +242,12 @@ class Chat_commands(commands.Cog):
             roles=False,  # Whether to ping role @mentions
             replied_user=False,  # Whether to ping on replies to messages
         )
-        await ctx.message.channel.send(
+        await ctx.reply(
             f"<@&{self.revive_role}> Trying to revive the chat. ||By <@{ctx.author.id}>||",
             allowed_mentions=allowed_mentions)
 
-    @commands.command(name="avatar", aliases=["av"])
-    async def avatar(self, ctx, *args):
+    @commands.hybrid_command(name="avatar", aliases=["av"])
+    async def avatar(self, ctx, user_av: discord.Member):
 
         def display_av(user):
             try:
@@ -238,39 +257,74 @@ class Chat_commands(commands.Cog):
             emb = basic_embed(title=user.name, image_url=av)
             return emb
 
-        if len(ctx.message.mentions) > 0:
-            user_o = ctx.message.mentions[0]
-            a = "✅"
-            b = "❌"
-            msg = await ctx.reply(
-                f"{user_o.mention} Do you wish for your pfp to be enlarged?")
-            await msg.add_reaction(a)
-            await msg.add_reaction(b)
-
-            def check_reaction(reaction, user):
-                return user == user_o and reaction.emoji in [
-                    a, b
-                ] and user_o.bot is False
-
-            reaction = await self.bot.wait_for("reaction_add",
-                                               check=check_reaction,
-                                               timeout=60)
-            emoji = reaction[0].emoji
-            if emoji == a:
-                emb = display_av(user_o)
-                await msg.clear_reactions()
-                await msg.edit(content="", embed=emb)
-            else:
-                await msg.clear_reactions()
-                await msg.edit(
-                    content="The user does not want their pfp to be displayed."
+        if ctx.interaction:
+            if user_av:
+                user_o = user_av
+                a = "✅"
+                b = "❌"
+                msg = await ctx.reply(
+                    f"{user_o.mention} Do you wish for your pfp to be enlarged?"
                 )
+                await msg.add_reaction(a)
+                await msg.add_reaction(b)
+
+                def check_reaction(reaction, user):
+                    return user == user_o and reaction.emoji in [
+                        a, b
+                    ] and user_o.bot is False
+
+                reaction = await self.bot.wait_for("reaction_add",
+                                                   check=check_reaction,
+                                                   timeout=60)
+                emoji = reaction[0].emoji
+                if emoji == a:
+                    emb = display_av(user_o)
+                    await msg.clear_reactions()
+                    await msg.edit(content="", embed=emb)
+                else:
+                    await msg.clear_reactions()
+                    await msg.edit(
+                        content=
+                        "The user does not want their pfp to be displayed.")
+
+            else:
+                await ctx.reply(embed=display_av(ctx.message.author))
 
         else:
-            await ctx.reply(embed=display_av(ctx.message.author))
+            if user_av:
+                user_o = user_av
+                a = "✅"
+                b = "❌"
+                msg = await ctx.reply(
+                    f"{user_o.mention} Do you wish for your pfp to be enlarged?"
+                )
+                await msg.add_reaction(a)
+                await msg.add_reaction(b)
+
+                def check_reaction(reaction, user):
+                    return user == user_o and reaction.emoji in [
+                        a, b
+                    ] and user_o.bot is False
+
+                reaction = await self.bot.wait_for("reaction_add",
+                                                   check=check_reaction,
+                                                   timeout=60)
+                emoji = reaction[0].emoji
+                if emoji == a:
+                    emb = display_av(user_o)
+                    await msg.clear_reactions()
+                    await msg.edit(content="", embed=emb)
+                else:
+                    await msg.clear_reactions()
+                    await msg.edit(
+                        content=
+                        "The user does not want their pfp to be displayed.")
+
+            else:
+                await ctx.reply(embed=display_av(ctx.message.author))
 
     @commands.has_permissions(kick_members=True)
-    @commands.command(name="show_revives")
+    @commands.hybrid_command(name="show_revives")
     async def show_revives(self, ctx):
         """Shows the number of revives each person has left."""
         db = Database_members(DATABASE_URL, "members")
@@ -288,33 +342,15 @@ class Chat_commands(commands.Cog):
 
         for i in all:
             finalMsg += chunk.format(i[0], i[1], i[3]) + "\n"
-        await ctx.message.reply(finalMsg, allowed_mentions=allowed_mentions)
+        await ctx.reply(finalMsg, allowed_mentions=allowed_mentions)
 
-    @commands.command(name="state", hidden=True)
-    async def state(self, ctx, *args):
+    @commands.hybrid_command(name="state", hidden=True)
+    async def state(self, ctx, state):
         """Stereotypes, TBD"""
-        try:
-            state = args[0]
-        except:
-            await ctx.reply("No state found.")
-            return
+        pass
 
-    @commands.command(name="how", aliases=["how's", "hows", "htj"])
-    async def josh(self, ctx, *args):
-        """JOSH!"""
-        alia = [
-            "how's the josh", "hows the josh?", "hows the josh",
-            "how's the josh?", "htj?", "htj"
-        ]
-        for i in alia:
-            if ctx.message.content[1:].lower().startswith(i):
-                await ctx.send(
-                    "https://tenor.com/view/high-sir-salute-respect-yessir-yeah-gif-15588688"
-                )
-                return
-
-    @commands.command(name="slogan", aliases=["india"])
-    async def slogan(self, ctx, *args):
+    @commands.hybrid_command(name="slogan", aliases=["india"])
+    async def slogan(self, ctx):
         """SlOGAN!"""
         slogans = [
             [

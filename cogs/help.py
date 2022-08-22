@@ -8,11 +8,11 @@ class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="help", aliases=["h"])
-    async def help(self, ctx, *args):
+    @commands.hybrid_command(name="help", aliases=["h"])
+    async def help(self, ctx, command=None):
         prefix = "$"
         # Show the main help message
-        if len(args) == 0:
+        if command is None:
             # Preparing the description
             desc = ""
             emb = discord.Embed(title="Help",
@@ -31,11 +31,11 @@ class Help(commands.Cog):
             desc += f"\n\n For more info about a command use {prefix}help <command>.\nAuthor: <@302253506947973130>"
 
             emb.description = desc
-        elif len(args) == 1:
+        elif command is not None:
             # Getting the help for a particular command or module
             done = False
             for cog in self.bot.cogs:
-                if cog.lower() == args[0].lower():
+                if cog.lower() == command.lower():
                     emb = discord.Embed(title=cog,
                                         description=self.bot.cogs[cog].__doc__,
                                         color=discord.Color.gold())
@@ -50,7 +50,7 @@ class Help(commands.Cog):
             if not done:
                 for cog in self.bot.cogs:
                     for cmd in self.bot.get_cog(cog).get_commands():
-                        if not cmd.hidden and cmd.name == args[0]:
+                        if not cmd.hidden and cmd.name == command:
                             emb = discord.Embed(title=cmd.name,
                                                 description=cmd.help,
                                                 color=discord.Color.gold())
@@ -64,7 +64,7 @@ class Help(commands.Cog):
             emb = discord.Embed(description="Supply only one argument.",
                                 color=discord.Color.red())
 
-        await ctx.channel.send(embed=emb)
+        await ctx.reply(embed=emb)
 
 
 async def setup(bot):

@@ -36,7 +36,8 @@ class Welcome(commands.Cog):
         message = await self.bot.wait_for('message', check=check, timeout=300)
         await message.add_reaction(tc_emoji)
 
-    @commands.command(name="hello", aliases=["hi", "greetings", "namaste"])
+    #@commands.command(name="hello", aliases=["hi", "greetings", "namaste"])
+    @commands.hybrid_command(name="hello")
     async def hello(self, ctx):
         """Say hello to the bot!"""
         await ctx.send(f"Hello! {ctx.message.content[5:]}")
@@ -48,7 +49,7 @@ class Welcome(commands.Cog):
         else:
             print(error)
 
-    @commands.command(name="yo")
+    @commands.hybrid_command(name="yo")
     async def yo(self, ctx):
         """What help do you need for this?"""
         await ctx.reply("yoyo")

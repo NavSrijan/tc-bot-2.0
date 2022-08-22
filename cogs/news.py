@@ -54,40 +54,36 @@ class News(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="news")
-    async def news(self, ctx, *args):
+    @commands.hybrid_command(name="news")
+    async def news(self, ctx, query):
         """
         Get a news article.
         syntax: $news topic
         """
         try:
-            query = " ".join(args)
-        except:
-            query = ""
-        try:
             emb = getNews(query)
-            await ctx.message.channel.send(embed=emb)
+            await ctx.reply(embed=emb)
         except:
-            z = await ctx.message.reply("This query fetched no articles.")
+            z = await ctx.reply("This query fetched no articles.", ephemeral=True)
             time.sleep(2)
             await z.delete()
 
-    @commands.command(name="fact")
+    @commands.hybrid_command(name="fact")
     async def fact(self, ctx):
         """
         Get a random fact.
         """
         fact = getFact()
         toSend = f"```{fact}```"
-        await ctx.message.reply(toSend)
+        await ctx.reply(toSend)
 
-    @commands.command(name="what", aliases=["define"])
-    async def meaning(self, ctx, *args):
+    @commands.hybrid_command(name="what", aliases=["define"])
+    async def meaning(self, ctx, query):
         """
         Querys Urban dictionary to get the meaning of the word.
         syntax: $what {word}
         """
-        word = " ".join(args)
+        word = query
         res = getMeaning(word)
         toSend = "Data from Urban Dictionary"
         j = 1
@@ -98,7 +94,7 @@ class News(commands.Cog):
                 j += 1
             if j == 4:
                 break
-        await ctx.message.reply(toSend)
+        await ctx.reply(toSend)
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):

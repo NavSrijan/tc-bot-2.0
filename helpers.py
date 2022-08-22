@@ -7,6 +7,7 @@ from functions import download_and_return_image
 from io import BytesIO
 import textwrap
 
+
 class PersistentView(discord.ui.View):
 
     def __init__(self):
@@ -61,7 +62,8 @@ class VoteView(discord.ui.View):
             suggs = desc.split("\n")[0]
             up = len(db.fetch_interactions_id(interaction.message.id, 1))
             down = len(db.fetch_interactions_id(interaction.message.id, 0))
-            emb.description = suggs+"\n\n"+lines.format(up, down)#"\n\n".join([suggs, lines.format(up, down)])
+            emb.description = suggs + "\n\n" + lines.format(
+                up, down)  #"\n\n".join([suggs, lines.format(up, down)])
 
             await interaction.response.edit_message(embed=emb)
         except Exception as e:
@@ -87,7 +89,7 @@ class VoteView(discord.ui.View):
             suggs = desc.split("\n\n")[0]
             up = len(db.fetch_interactions_id(interaction.message.id, 1))
             down = len(db.fetch_interactions_id(interaction.message.id, 0))
-            emb.description = suggs+"\n\n"+lines.format(up, down)
+            emb.description = suggs + "\n\n" + lines.format(up, down)
 
             await interaction.response.edit_message(embed=emb)
         except Exception as e:

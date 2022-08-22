@@ -18,7 +18,7 @@ class Counting(commands.Cog):
             print(error)
 
     @commands.has_permissions(kick_members=True)
-    @commands.command(name="lb", aliases=["leaderboard"])
+    @commands.hybrid_command(name="lb", aliases=["leaderboard"])
     async def lb(self, ctx):
         """Get the lb for the day"""
         db = Database_message_bank(DATABASE_URL, "message_bank")
@@ -34,8 +34,8 @@ class Counting(commands.Cog):
         await ctx.channel.send(db.get_data(num=10))
 
     @commands.has_permissions(kick_members=True)
-    @commands.command(name="lb_week", aliases=["leaderboard_week", "leaderboard_w", "lb_w"])
-    async def lb_week(self, ctx, *args):
+    @commands.hybrid_command(name="lb_week", aliases=["leaderboard_week", "leaderboard_w", "lb_w"])
+    async def lb_week(self, ctx, number_of_entries: int=10):
         """Get the lb for the week."""
         db = Database_message_bank(DATABASE_URL, "message_bank")
 
@@ -47,14 +47,10 @@ class Counting(commands.Cog):
         )
 
         #await ctx.channel.send(db.get_week_data(), allowed_mentions=allowed_mentions)
-        try:
-            nums = int(args[0])
-            await ctx.channel.send(db.get_week_data(num=nums))
-        except:
-            await ctx.channel.send(db.get_week_data())
+        await ctx.reply(db.get_week_data(num=number_of_entries))
 
     @commands.has_permissions(kick_members=True)
-    @commands.command(name="lb_week_embed")
+    @commands.hybrid_command(name="lb_week_embed")
     async def lb_week_embed(self, ctx):
         """Get an embed with the weekly lb"""
         db = Database_message_bank(DATABASE_URL, "message_bank")

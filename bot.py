@@ -18,6 +18,8 @@ from config import Config
 ##
 db_2 = Database_message_bank(DATABASE_URL, "message_bank")
 db_afk = Database_afk(DATABASE_URL, "afk")
+MY_GUILD = discord.Object(id=838857215305187328) 
+
 
 ##
 ##########
@@ -83,8 +85,12 @@ afk_people = get_afk_people_dict()
 @bot.event
 async def on_ready():
     print('We have logged in as {0.user}'.format(bot))
-    await load_cogs(bot, cogs)
 
+@bot.event
+async def setup_hook():
+    await load_cogs(bot, cogs)
+    bot.tree.copy_global_to(guild=MY_GUILD)
+    await bot.tree.sync(guild=MY_GUILD)
 
 @bot.command(name="afk")
 async def afk(ctx, *args):
@@ -156,7 +162,7 @@ async def on_message(message: discord.Message):
             if message.channel.id in [
                     957263189320540170, 894987356678000670, 895229974909444096,
                     895025182207524925, 984196485518340136, 895017321037455372,
-                    895221478411350026, 983824068497264670, 1006956616354107472
+                    895221478411350026, 983824068497264670, 1006956616354107472, 973577832116674650, 972708478978261023
             ]:
                 key_list = list(bot.highlights.keys())
                 pos = val_list.index(i)

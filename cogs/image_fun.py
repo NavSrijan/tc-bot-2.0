@@ -47,9 +47,9 @@ class ImageFun(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @commands.command(name="iloveyou")
-    async def ily_real(self, ctx, *args):
-        """Have feelings for somebody? Say it today!
+    @commands.hybrid_command(name="iloveyou")
+    async def ily_real(self, ctx):
+        """Just puts your pfp on Dr. Strange for some reason ||I was bored.||
         Syntax: $iloveyou
         """
         x, y = 300, 100
@@ -61,65 +61,58 @@ class ImageFun(commands.Cog):
         file = send_image(base)
         await ctx.send(file=file)
 
-    @commands.command(name="spinner")
+    @commands.hybrid_command(name="spinner")
     async def spinner(self, ctx):
+        """Spinner!"""
         path = "assets/images/spinner"
         files = os.listdir(path)
 
-        with open(path+"/"+random.choice(files), "rb") as f:
+        with open(path + "/" + random.choice(files), "rb") as f:
             await ctx.reply(file=discord.File(f))
 
-
-
-    @commands.command(name="binod")
-    async def binod(self, ctx, *args):
+    @commands.hybrid_command(name="binod")
+    async def binod(self, ctx, text=""):
         """Dekh raha hai na Binod?
         Syntax: $binod kaise help dekha ja raha hai
         """
         font_to_use = "assets/fonts/B612Mono-Bold.ttf"
         base = Image.open(f'assets/images/binod/binod.png')
-        if len(args) >= 1:
-            name = " ".join(args)
-        else:
-            name = ""
 
-        text = name
         base = center_text(base,
                            text,
                            font_to_use,
                            textwrap_=True,
                            font_diff=-5)
         file = send_image(base)
-        await ctx.send(file=file)
+        await ctx.reply(file=file)
 
-    @commands.command(name="jal")
-    async def jal(self, ctx, *args):
+    @commands.hybrid_command(name="jal")
+    async def jal(self, ctx, text=" "):
         """Jal lijiye
         Syntax: $jal thak gaye honge dc chalate chalate"""
         font_to_use = "assets/fonts/B612Mono-Bold.ttf"
         base = Image.open(f'assets/images/jal/jal.jpg')
-        if len(args) >= 1:
-            name = " ".join(args)
-        else:
-            name = ""
+
+        name = text
 
         text = f"Jal lijiye, thak gaye honge"
         base = center_text(base, text, font_to_use, name=name, font_diff=0)
         file = send_image(base)
-        await ctx.send(file=file)
+        await ctx.reply(file=file)
 
-    @commands.command(name="compress")
-    async def compress(self, ctx, *args):
+    @commands.hybrid_command(name="compress")
+    async def compress(self, ctx, user: discord.Member):
         """Don't like someone? Just compress them!
         Syntax: $compress @user"""
         images = []
         discord_bg = "#36393F"
 
-        if ctx.message.mentions:
-            name = ctx.message.mentions[0]
+        if user:
+            name = user
         else:
             await ctx.reply("Mention someone.")
             return
+        await ctx.reply("Generating.", ephemeral=True)
 
         url = name.avatar.url
         ima = Image.open(requests.get(url, stream=True).raw).convert('RGBA')
@@ -144,8 +137,8 @@ class ImageFun(commands.Cog):
         await ctx.channel.send(
             file=discord.File("assets/images/compress/1.gif"))
 
-    @commands.command(name="ily")
-    async def ily(self, ctx, *args):
+    @commands.hybrid_command(name="ily")
+    async def ily(self, ctx, user: discord.Member):
         """Lonely?
         Syantx: $ily @user"""
         font_to_use = "assets/fonts/B612Mono-Bold.ttf"
@@ -155,11 +148,12 @@ class ImageFun(commands.Cog):
         base = Image.new('RGB', base_image.size)
         base.paste(base_image)
         text = 'I love you'
-        if ctx.message.mentions:
-            name = ctx.message.mentions[0].name
+        if user:
+            name = user.name
         else:
             await ctx.reply("Mention someone.")
             return
+        await ctx.reply("Generating", ephemeral=True)
         name = "\n" + name.center(len(text), " ")
         text += name
 
@@ -187,21 +181,16 @@ class ImageFun(commands.Cog):
             base.save(image_binary, 'PNG')
             image_binary.seek(0)
             file = discord.File(fp=image_binary, filename='modiji.png')
-            await ctx.send(file=file)
+            await ctx.reply(file=file)
 
-    @commands.command(name="travel")
-    async def travel_ticket(self, ctx, *args):
+    @commands.hybrid_command(name="travel")
+    async def travel_ticket(self, ctx, passenger, from_place, destination):
         """Generate a airline ticket for your next travel destination.
         syntax example: $travel "Nick Jonas" Delhi Karachi
         """
-        if len(args) < 3:
-            await ctx.reply(
-                "Send in the following format:\n`$travel \"{Passengers name}\" From To`"
-            )
-        else:
-            name = args[0]
-            to_place = args[1]
-            from_place = args[2]
+        name = passenger
+        to_place = from_place
+        from_place = destination
 
         font_to_use = "assets/fonts/B612Mono-Bold.ttf"
         base_image = Image.open(
@@ -236,8 +225,8 @@ class ImageFun(commands.Cog):
             file = discord.File(fp=image_binary, filename='modiji.png')
             await ctx.send(file=file)
 
-    @commands.command(name="wish")
-    async def modiji(self, ctx):
+    @commands.hybrid_command(name="wish")
+    async def modiji(self, ctx, user: discord.Member):
         """
         Wish someone a best of luck!
         syntax: $wish {mention}
@@ -252,11 +241,7 @@ class ImageFun(commands.Cog):
         base = Image.new('RGB', base_image.size)
         base.paste(base_image)
         text = '      Best of Luck      '
-        if ctx.message.mentions:
-            name = ctx.message.mentions[0].name
-        else:
-            await ctx.reply("Mention someone.")
-            return
+        name = user.name
         name = "\n" + name.center(len(text), " ")
         text += name
         title_text = ImageFont.truetype(font_to_use, 70)
@@ -274,20 +259,21 @@ class ImageFun(commands.Cog):
         emb = basic_embed(color=discord.Color.orange(),
                           title=f"{ctx.author.name} wishes {name}",
                           image_url="attachment://modiji.png")
-        await ctx.send(file=file, embed=emb)
+        await ctx.reply(file=file, embed=emb)
 
     @commands.has_permissions(kick_members=True)
-    @commands.command(name="lb_image")
-    async def lb_image(self, ctx, *args):
+    @commands.hybrid_command(name="lb_image")
+    async def lb_image(self, ctx, offset_by_days: int = 0):
         """
         Generates weekly lb image
         syntax: $lb_image <days_to_subtract>
         """
         font_to_use = "assets/fonts/B612Mono-Bold.ttf"
         db = Database_message_bank(DATABASE_URL, "message_bank")
+        await ctx.reply("Starting the process.", ephemeral=True)
 
         try:
-            date_to_subtract = int(args[0])
+            date_to_subtract = int(offset_by_days)
             lb = db.get_week_data(to_send=False,
                                   date_to_subtract=date_to_subtract)
         except:
@@ -472,9 +458,9 @@ class ImageFun(commands.Cog):
         with BytesIO() as image_binary:
             base.save(image_binary, 'PNG')
             image_binary.seek(0)
-            await chnl.send(f"<@&{self.bot.config['commands']['misc']['tc_family_role']}>\n{addText}",
-                            file=discord.File(fp=image_binary,
-                                              filename='lb_image.png'))
+            await chnl.send(
+                f"<@&{self.bot.config['commands']['misc']['tc_family_role']}>\n{addText}",
+                file=discord.File(fp=image_binary, filename='lb_image.png'))
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
