@@ -77,6 +77,73 @@ class Games(commands.Cog):
         self.lives = 3
         await channel.send(f"You lost! Total Points: {pons}")
 
+    @commands.hybrid_command(name="math")
+    async def math(self, ctx):
+        """Can you calculate fast?"""
+        async def send_score():
+            emb = basic_embed(title="Maths",
+                              desc=f"Score: `{score}`\nLives: `{lives}`")
+            await ctx.send(embed=emb)
+
+        async def get_sum():
+            a= random.randint(11, 999)
+            b= random.randint(11, 999)
+            c=a+b
+            emb = basic_embed(color=discord.Color.random(),
+                              title=f"Sum?",
+                              desc=f"{a} + {b} = ?")
+            await ctx.send(embed=emb)
+            return c
+
+
+        score = 0
+        lives = 3
+
+        channel = ctx.channel
+
+        def check(message):
+            return message.channel == ctx.channel
+
+        while lives != 0:
+            total_timeout = 60
+            summ = await get_sum()
+            last_time = time.time()
+            while True:
+                try:
+                    msg = await self.bot.wait_for('message',
+                                                  check=check,
+                                                  timeout=total_timeout)
+                    if msg.content == "$skip":
+                        await send_score()
+                        lives -= 1
+                        await ctx.send(f"The answer was {summ}.")
+                        break
+                    elif msg.content == "$end":
+                        await send_score()
+                        await ctx.send(f"The answer was {summ}.")
+                        return
+                    else:
+                        if msg.content.lower() == str(summ):
+                            score += 1
+                            await ctx.send(embed=basic_embed(
+                                title="Correct!",
+                                desc=
+                                f"{msg.author.mention} got the correct answer!"
+                            ))
+                            await send_score()
+                            break
+                    total_timeout -= int(time.time() - last_time)
+                    last_time = time.time()
+                except asyncio.TimeoutError:
+                    await ctx.send(f"The answer was {summ}.")
+                    lives -= 1
+                    await send_score()
+                    break
+        await ctx.send("All lives lost.")
+        await send_score()
+
+
+
     @commands.hybrid_command(name="flags")
     async def flags(self, ctx):
         """Can you guess the countries from their flags?"""
