@@ -105,7 +105,7 @@ class Games(commands.Cog):
             return message.channel == ctx.channel
 
         while lives != 0:
-            total_timeout = 60
+            total_timeout = 15
             summ = await get_sum()
             last_time = time.time()
             while True:
