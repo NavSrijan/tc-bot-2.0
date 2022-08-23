@@ -6,7 +6,7 @@ from functions import utc_to_ist, load, save
 import datetime
 import random
 from helpers import basic_embed
-import os
+import asyncio
 from jokeapi import Jokes
 from typing import Literal
 
@@ -44,6 +44,26 @@ class Chat_commands(commands.Cog):
             "You won't be getting highligts for long.\nUse $highlight_stop to stop getting highlights",
             ephemeral=True)
         self.bot.highlights[ctx.author] = word
+
+    @commands.hybrid_command(name="laser")
+    async def laser(self, ctx, user: discord.Member):
+        mo = "<:modiji:1011452564195246120>"
+        las = "<:l1:1011452560147746939>"
+        mol = "<:m1:1011452558444871731>"
+        explode = "<a:explode:1011458958046793740>"
+
+        text = f"{user.mention}" + ' ' * (30) + mo
+        msg = await ctx.reply(text)
+
+        for i in range(0, 6):
+            await asyncio.sleep(1.5)
+            text = f"{user.mention}" + ' ' * ((6 - i-1)*6) + las * i + mol
+            await msg.edit(content=text)
+        text = f"{explode}" + ' ' * ((6 - i-1)*6) + las * i + mol
+        await msg.edit(content=text)
+        await asyncio.sleep(1.5)
+        text = f"{explode}" + ' ' * (30) + mo
+        await msg.edit(content=text)
 
     @commands.hybrid_command(name="suggest")
     async def suggest(self, ctx, suggestion):

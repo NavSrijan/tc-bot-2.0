@@ -3,12 +3,12 @@ import json
 import os
 import random
 import time
-import random
 
 from discord.ext import commands
 from PIL import Image
 
 from helpers import *
+from typing import Literal
 
 
 class Games(commands.Cog):
@@ -78,25 +78,87 @@ class Games(commands.Cog):
         await channel.send(f"You lost! Total Points: {pons}")
 
     @commands.hybrid_command(name="math")
-    async def math(self, ctx):
+    async def math(self, ctx, difficulty: Literal["easy", "normal", "hard"]):
         """Can you calculate fast?"""
+
+        await ctx.reply("Starting the game.")
+
         async def send_score():
-            emb = basic_embed(title="Maths",
-                              desc=f"Score: `{score}`\nLives: `{lives}`")
-            await ctx.send(embed=emb)
+            text = ""
+            for i in score:
+                text += f"{self.bot.get_user(i).mention}: `{score[i]}`\n"
+
+            emb = basic_embed(title="Maths", desc=f"{text}\nLives: `{lives}`")
+            await ctx.channel.send(embed=emb)
 
         async def get_sum():
-            a= random.randint(11, 999)
-            b= random.randint(11, 999)
-            c=a+b
+
+            def sum_f(diff):
+                if diff == "easy":
+                    lower_limit = 1
+                    upper_limit = 101
+                elif diff == "normal":
+                    lower_limit = 11
+                    upper_limit = 1000
+                elif diff == "hard":
+                    lower_limit = 111
+                    upper_limit = 10000
+
+                a = random.randint(lower_limit, upper_limit)
+                b = random.randint(lower_limit, upper_limit)
+                c = a + b
+                text = f"{a} + {b} = ?"
+                return text, c
+
+            def sub_f(diff):
+                if diff == "easy":
+                    lower_limit = 1
+                    upper_limit = 101
+                    a = random.randint(lower_limit, upper_limit)
+                    b = random.randint(lower_limit, a)
+                elif diff == "normal":
+                    lower_limit = 11
+                    upper_limit = 1000
+                elif diff == "hard":
+                    lower_limit = 111
+                    upper_limit = 10000
+                if diff != "easy":
+                    a = random.randint(lower_limit, upper_limit)
+                    b = random.randint(lower_limit, upper_limit)
+                c = a - b
+                text = f"{a} - {b} = ?"
+                return text, c
+
+            def mul_f(diff):
+                if diff == "easy":
+                    lower_limit = 1
+                    upper_limit = 21
+                    a = random.randint(lower_limit, upper_limit)
+                    b = random.randint(lower_limit, 10)
+                elif diff == "normal":
+                    lower_limit = 1
+                    upper_limit = 10
+                elif diff == "hard":
+                    lower_limit = 111
+                    upper_limit = 1000
+                if diff != "easy":
+                    a = random.randint(lower_limit, upper_limit)
+                    b = random.randint(lower_limit, upper_limit)
+                c = a * b
+                text = f"{a} * {b} = ?"
+                return text, c
+
+            options = [sum_f, sub_f, mul_f]
+            func_to_use = random.choice(options)
+            text, c = func_to_use(difficulty)
+
             emb = basic_embed(color=discord.Color.random(),
-                              title=f"Sum?",
-                              desc=f"{a} + {b} = ?")
-            await ctx.send(embed=emb)
+                              title=f"Answer?",
+                              desc=text)
+            await ctx.channel.send(embed=emb)
             return c
 
-
-        score = 0
+        score = {}
         lives = 3
 
         channel = ctx.channel
@@ -105,7 +167,7 @@ class Games(commands.Cog):
             return message.channel == ctx.channel
 
         while lives != 0:
-            total_timeout = 15
+            total_timeout = 10
             summ = await get_sum()
             last_time = time.time()
             while True:
@@ -116,15 +178,19 @@ class Games(commands.Cog):
                     if msg.content == "$skip":
                         await send_score()
                         lives -= 1
-                        await ctx.send(f"The answer was {summ}.")
+                        await ctx.channel.send(f"The answer was {summ}.")
                         break
                     elif msg.content == "$end":
                         await send_score()
-                        await ctx.send(f"The answer was {summ}.")
+                        await ctx.channel.send(f"The answer was {summ}.")
                         return
                     else:
                         if msg.content.lower() == str(summ):
-                            score += 1
+                            try:
+                                score_usr = score[msg.author.id] + 1
+                                score[msg.author.id] = score_usr
+                            except:
+                                score[msg.author.id] = 1
                             await ctx.send(embed=basic_embed(
                                 title="Correct!",
                                 desc=
@@ -135,14 +201,12 @@ class Games(commands.Cog):
                     total_timeout -= int(time.time() - last_time)
                     last_time = time.time()
                 except asyncio.TimeoutError:
-                    await ctx.send(f"The answer was {summ}.")
+                    await ctx.channel.send(f"The answer was {summ}.")
                     lives -= 1
                     await send_score()
                     break
         await ctx.send("All lives lost.")
         await send_score()
-
-
 
     @commands.hybrid_command(name="flags")
     async def flags(self, ctx):
@@ -298,9 +362,8 @@ class Games(commands.Cog):
         def check(message):
             if message.content.lower() in ["$skip"]:
                 return True
-            return message.channel == ctx.channel 
+            return message.channel == ctx.channel
             # and message.author == ctx.author
-
 
         def return_string_for_number(number_to_check):
             diff = number - number_to_check
@@ -352,7 +415,7 @@ class Games(commands.Cog):
                                     int(number_to_check))
                                 await ctx.send(to_send)
                                 tries -= 1
-                                if tries==0:
+                                if tries == 0:
                                     await ctx.send(f"The number was {number}.")
                                 break
                         except:
