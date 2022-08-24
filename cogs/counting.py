@@ -35,7 +35,7 @@ class Counting(commands.Cog):
 
         im_size = (640, 420)
 
-        font = ImageFont.truetype("B612Mono-Bold", 12)
+        font = ImageFont.truetype("assets/fonts/B612Mono-Bold.ttf", 12)
         im = Image.new('RGBA', (im_size[0], im_size[1]))
         draw = ImageDraw.Draw(im)
 
