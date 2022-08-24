@@ -412,7 +412,7 @@ class Games(commands.Cog):
                                                     timeout=total_timeout)
                         if msg.content == "$end":
                             await ctx.send(f"The number was {number}.")
-                            self.guess_on.remove(self.channel.id)
+                            self.guess_on.remove(ctx.channel.id)
                             return
                         else:
                             try:
@@ -424,7 +424,7 @@ class Games(commands.Cog):
                                     await ctx.send(embed=basic_embed(
                                         title="Correct!",
                                         desc=f"You guessed it correct!\n{text}"))
-                                    self.guess_on.remove(self.channel.id)
+                                    self.guess_on.remove(ctx.channel.id)
                                     return
                                 else:
                                     to_send = return_string_for_number(
@@ -434,7 +434,7 @@ class Games(commands.Cog):
                                     if tries == 0:
                                         await ctx.send(f"The number was {number}.")
                                         db.update_score(ctx.author.id, 0)
-                                        self.guess_on.remove(self.channel.id)
+                                        self.guess_on.remove(ctx.channel.id)
                                     break
                             except:
                                 continue
@@ -442,7 +442,7 @@ class Games(commands.Cog):
                         last_time = time.time()
                     except asyncio.TimeoutError:
                         await ctx.send(f"The number was {number}.")
-                        self.guess_on.remove(self.channel.id)
+                        self.guess_on.remove(ctx.channel.id)
                         return
         else:
             await ctx.reply("There's already a game in progress in this channel. Wait for it to finish or, try in other channel.")
