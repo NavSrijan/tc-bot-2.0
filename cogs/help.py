@@ -21,10 +21,10 @@ class Help(commands.Cog):
             blocked_cogs = ["Suggestion"]
             for cog in self.bot.cogs:
                 if cog not in blocked_cogs:
-                    desc += cog + "\n`"
+                    desc += cog + "\n"
                     for cmd in self.bot.get_cog(cog).get_commands():
                         if not cmd.hidden:
-                            desc+=cmd.name+", "
+                            desc += "`" + cmd.name + "` "
                     desc = desc[0:-2]
                     desc += "`\n"
 

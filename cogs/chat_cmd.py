@@ -41,16 +41,20 @@ class Chat_commands(commands.Cog):
     async def highlight(self, ctx, word):
         """Get a DM if someone mentions any word"""
         await ctx.reply(
-            "You won't be getting highligts for long.\nUse $highlight_stop to stop getting highlights",
+            "Use $highlight_stop to stop getting highlights",
             ephemeral=True)
-        self.bot.highlights[ctx.author] = word
+        self.bot.highlights[ctx.author.id] = word
+        save(self.bot.highlights, "variables/highlights.pkl")
 
     @commands.hybrid_command(name="laser")
-    async def laser(self, ctx, user: discord.Member):
+    async def laser(self, ctx, user: discord.Member=None):
         mo = "<:modiji:1011452564195246120>"
         las = "<:l1:1011452560147746939>"
         mol = "<:m1:1011452558444871731>"
         explode = "<a:explode:1011458958046793740>"
+
+        if user is None:
+            user = ctx.author
 
         text = f"{user.mention}" + ' ' * (30) + mo
         msg = await ctx.reply(text)
@@ -122,7 +126,8 @@ class Chat_commands(commands.Cog):
     @commands.hybrid_command(name="highlight_stop", aliases=["hl_s"])
     async def highlight_stop(self, ctx):
         """Stop getting highlights"""
-        self.bot.highlights.pop(ctx.author)
+        self.bot.highlights.pop(ctx.author.id)
+        save(self.bot.highlights, "variables/highlights.pkl")
         await ctx.reply("You won't get highlights now.")
 
     @commands.hybrid_group(name="revive")
@@ -267,7 +272,7 @@ class Chat_commands(commands.Cog):
             allowed_mentions=allowed_mentions)
 
     @commands.hybrid_command(name="avatar", aliases=["av"])
-    async def avatar(self, ctx, user_av: discord.Member):
+    async def avatar(self, ctx, user_av: discord.Member=None):
 
         def display_av(user):
             try:

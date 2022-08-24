@@ -44,7 +44,7 @@ bot = commands.Bot(command_prefix=prefix,
                    intents=intents,
                    status=discord.Status.do_not_disturb,
                    activity=activity)
-bot.highlights = {}
+bot.highlights = load("variables/highlights.pkl")
 bot.config_obj = config_obj
 bot.config = config
 bot.prefix = prefix

@@ -190,6 +190,16 @@ class Database_message_bank():
         else:
             return allUsers
 
+    def get_week_activity(self, user_id):
+        sql = "SELECT extract(dow from date) AS day, SUM(count) AS ganit FROM message_bank WHERE id=%s GROUP BY day ORDER BY ganit;"
+        if self.cursor.closed == True:
+            cursor = self.connect()
+        else:
+            cursor = self.cursor
+        cursor.execute(sql, (user_id, ))
+        data = cursor.fetchall()
+        return data
+
     def insert_new_entry(self, idd, date, count):
         sql = """INSERT INTO {} (id, date, count) VALUES (%s, %s, %s);""".format(
             self.tableName)
@@ -284,3 +294,67 @@ class Database_afk(Database):
         cursor.execute(
             sql, (message.author.id, True, datetime.datetime.utcnow(), text))
         self.closeConnection()
+
+
+class Database_guess(Database):
+    """
+CREATE TABLE "guess_scores" (
+	"id" BIGINT NOT NULL,
+	"score" INT NOT NULL,
+	"played" INT NOT NULL,
+	PRIMARY KEY ("id")
+);
+    """
+
+    def get_lb(self):
+        sql = "SELECT * FROM {} ORDER BY score;"
+        try:
+            if self.cursor.closed is True:
+                cursor = self.connect()
+            else:
+                cursor = self.cursor
+        except:
+            cursor = self.connect()
+        cursor.execute(sql.format(self.tableName))
+        temp = self.cursor.fetchall()
+        return temp
+
+    def get_score(self, idd):
+        sql = "SELECT * FROM {} WHERE id=%s;"
+        try:
+            if self.cursor.closed is True:
+                cursor = self.connect()
+            else:
+                cursor = self.cursor
+        except:
+            cursor = self.connect()
+        cursor.execute(sql.format(self.tableName), (idd, ))
+        temp = self.cursor.fetchall()
+        return temp
+
+    def insert_new_entry(self, idd, score, played=1):
+        sql = """INSERT INTO {} (id, score, played) VALUES (%s, %s, %s);""".format(
+            self.tableName)
+        self.cursor.execute(sql, (idd, score, played))
+        self.conn.commit()
+
+    def update_score(self, idd, score, played=1):
+        sql = """UPDATE {}
+        SET score = score+ %s,
+        played = played + %s
+        WHERE id=%s;
+        """.format(self.tableName)
+
+        try:
+            if self.cursor.closed is True:
+                cursor = self.connect()
+        except:
+            cursor = self.connect()
+
+        cursor.execute(sql, (score, played, idd))
+
+        if cursor.statusmessage == "UPDATE 1":
+            self.conn.commit()
+        else:
+            self.insert_new_entry(idd, score, played=played)
+

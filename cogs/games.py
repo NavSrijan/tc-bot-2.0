@@ -5,7 +5,9 @@ import random
 import time
 
 from discord.ext import commands
+import discord
 from PIL import Image
+from database import Database_guess, DATABASE_URL
 
 from helpers import *
 from typing import Literal
@@ -19,6 +21,7 @@ class Games(commands.Cog):
         self.countries = self.load_countries()
         self.lives = 3
         self.points = 0
+        self.guess_db = Database_guess(DATABASE_URL, "guess_scores")
 
     def load_countries(self, file="assets/random_data/country_data.csv"):
         with open(file, "r") as f:
@@ -354,15 +357,19 @@ class Games(commands.Cog):
 
     @commands.hybrid_command(name='guess')
     async def guess(self, ctx):
-        """Try to guess the number between 1 and 100 in 8 tries."""
+        """Try to guess the number between 1 and 100 in 8 tries.
+        Number of tries left is your score.
+        """
         tries = 8
+        total_tries = tries
         upperLimit = 100
         number = random.randint(0, upperLimit)
+        db = self.guess_db
 
         def check(message):
             if message.content.lower() in ["$skip"]:
                 return True
-            return message.channel == ctx.channel
+            return message.channel == ctx.channel and ctx.author == message.author
             # and message.author == ctx.author
 
         def return_string_for_number(number_to_check):
@@ -390,6 +397,7 @@ class Games(commands.Cog):
 
         await ctx.reply(f"You have {tries} tries to guess the number.")
         await ctx.channel.send("Guess now!")
+        print(number)
 
         while tries != 0:
             total_timeout = 60
@@ -406,9 +414,12 @@ class Games(commands.Cog):
                         try:
                             number_to_check = int(msg.content.lower())
                             if msg.content.lower() == str(number):
+                                db.update_score(ctx.author.id, tries)
+                                scores = db.get_score(ctx.author.id)
+                                text = f"\n**TOTAL SCORE**\n{ctx.author.mention}: `{scores[0][1]}`"
                                 await ctx.send(embed=basic_embed(
                                     title="Correct!",
-                                    desc=f"You guessed it correct!"))
+                                    desc=f"You guessed it correct!\n{text}"))
                                 return
                             else:
                                 to_send = return_string_for_number(
@@ -417,6 +428,7 @@ class Games(commands.Cog):
                                 tries -= 1
                                 if tries == 0:
                                     await ctx.send(f"The number was {number}.")
+                                    db.update_score(ctx.author.id, 0)
                                 break
                         except:
                             continue
@@ -425,6 +437,25 @@ class Games(commands.Cog):
                 except asyncio.TimeoutError:
                     await ctx.send(f"The number was {number}.")
                     return
+
+    @commands.hybrid_command(name="guess_score")
+    async def guess_score(self, ctx):
+        """Get your score for guess game."""
+        score = self.guess_db.get_score(ctx.author.id)
+        await ctx.reply(embed=basic_embed(title=ctx.author.name, desc=f"{ctx.author.mention}: `{score[0][1]}`\nTimes played: `{score[0][2]}`"))
+
+
+    @commands.hybrid_command(name="guess_leaderboard")
+    async def guess_lb(self, ctx):
+        """Get the leaderboard for guess game."""
+        scores = self.guess_db.get_lb()
+        text= ""
+        for i in scores[0:10]:
+            text += f"{self.bot.get_user(i[0]).mention}: `{i[1]}`\n"
+
+        emb = basic_embed(title="Guess lb", desc=text, color=discord.Color.blue())
+        await ctx.reply(embed=emb)
+
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
