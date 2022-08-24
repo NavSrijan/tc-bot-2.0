@@ -105,6 +105,14 @@ class Mod(commands.Cog):
     @commands.hybrid_command(name="ban")
     async def ban(self, ctx, user: discord.Member):
         """Ban a member"""
+        gifs = [
+            "https://tenor.com/view/among-us-ban-among-us-ban-imposter-ban-gif-18884723",
+            "https://tenor.com/view/spongebob-ban-pubg-lite-banned-rainbow-gif-16212382",
+            "https://tenor.com/view/ban-banned-sakura-anime-spray-gif-22585378",
+            "https://tenor.com/view/elmo-fire-ban-syntheticllama-gif-21044291",
+            "https://tenor.com/view/when-your-team-too-good-ban-salt-bae-gif-7580925",
+            "https://tenor.com/view/bane-no-banned-and-you-are-explode-gif-16047504"
+        ]
         if user:
             member = user
         else:
@@ -113,9 +121,7 @@ class Mod(commands.Cog):
         name = member.name
         try:
             await member.ban()
-            await ctx.channel.send(
-                "https://tenor.com/view/bad-mom-grandma-baby-kicking-i-love-children-gif-23173847"
-            )
+            await ctx.channel.send(random.choice(gifs))
             await ctx.reply(f"{name} has been banned.")
         except:
             await ctx.reply("Sorry but, I don't have the permissions.")
@@ -338,7 +344,7 @@ class Mod(commands.Cog):
     @config.command(name="show")
     async def show_config(self, ctx):
         """Displays all the config variables"""
-        config =self.bot.config
+        config = self.bot.config
         desc = ""
         for section in config:
             if section == "name":
@@ -349,16 +355,16 @@ class Mod(commands.Cog):
             elif section == "commands":
                 desc += "\n**commands**\n"
                 for con in config[section]:
-                    desc+="\n"
+                    desc += "\n"
                     for sec_2 in config[section][con]:
                         desc += f"`{sec_2}`: {config[section][con][sec_2]}\n"
             elif type(config[section]) is dict:
                 desc += f"`{section}`\n"
                 for sec_2 in config[section]:
-                    if isinstance(config[section][sec_2], list) :
+                    if isinstance(config[section][sec_2], list):
                         desc += f"{sec_2}\n`"
                         for el in config[section][sec_2]:
-                            desc += el+"\n"
+                            desc += el + "\n"
                         desc += "`"
                     else:
                         desc += f"`{sec_2}`: {config[section][sec_2]}\n"
@@ -375,7 +381,7 @@ class Mod(commands.Cog):
                 group = group_name
                 var = variable
                 value = value
-                
+
                 if isinstance(self.bot.config['commands'][group][var], int):
                     try:
                         value = int(value)
@@ -391,10 +397,10 @@ class Mod(commands.Cog):
             except:
                 await ctx.reply("Syntax error.")
 
-
         else:
-            await ctx.reply("What to change?\nSyntax: $config change <name of group> <variable to change> <value>")
-
+            await ctx.reply(
+                "What to change?\nSyntax: $config change <name of group> <variable to change> <value>"
+            )
 
     @commands.has_permissions(kick_members=True)
     @config.command(name="add_url")
@@ -424,7 +430,6 @@ class Mod(commands.Cog):
         for i in urls:
             text += f"`{i}` \n"
         await ctx.reply(text)
-
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
