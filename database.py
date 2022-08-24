@@ -348,6 +348,8 @@ CREATE TABLE "guess_scores" (
         try:
             if self.cursor.closed is True:
                 cursor = self.connect()
+            else:
+                cursor = self.cursor
         except:
             cursor = self.connect()
 
