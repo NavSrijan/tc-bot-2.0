@@ -297,8 +297,7 @@ class Database_afk(Database):
 
 
 class Database_guess(Database):
-    """
-CREATE TABLE "guess_scores" (
+    """ CREATE TABLE "guess_scores" (
 	"id" BIGINT NOT NULL,
 	"score" INT NOT NULL,
 	"played" INT NOT NULL,
@@ -307,7 +306,7 @@ CREATE TABLE "guess_scores" (
     """
 
     def get_lb(self):
-        sql = "SELECT * FROM {} ORDER BY score;"
+        sql = "SELECT * FROM {} ORDER BY score DESC;"
         try:
             if self.cursor.closed is True:
                 cursor = self.connect()
@@ -359,4 +358,3 @@ CREATE TABLE "guess_scores" (
             self.conn.commit()
         else:
             self.insert_new_entry(idd, score, played=played)
-
