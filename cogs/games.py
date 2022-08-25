@@ -357,13 +357,27 @@ class Games(commands.Cog):
                 break
 
     @commands.hybrid_command(name='guess')
-    async def guess(self, ctx):
+    async def guess(self, ctx, difficulty: Literal["easy", "normal", "hard"]=None):
         """Try to guess the number between 1 and 100 in 8 tries.
         Number of tries left is your score.
         """
         if ctx.channel.id not in self.guess_on:
+            if difficulty is None:
+                await ctx.reply(embed=basic_embed(desc="Choose between `easy`, `normal` and `hard`!```$guess <difficulty>```"))
+            if difficulty == "easy":
+                tries = 12
+                multiplier = 1
+            elif difficulty == "normal":
+                tries = 8
+                multiplier = 2
+            elif difficulty == "hard":
+                multiplier = 4
+                tries = 5
+            else:
+                multiplier= 1
+                tries = 12
+
             self.guess_on.append(ctx.channel.id)
-            tries = 8
             total_tries = tries
             upperLimit = 100
             number = random.randint(0, upperLimit)
@@ -377,26 +391,33 @@ class Games(commands.Cog):
 
             def return_string_for_number(number_to_check):
                 diff = number - number_to_check
-                if diff < 0:
-                    diff = abs(diff)
-                    if diff >= 20:
-                        return "Your guess was too high."
-                    elif diff >= 10:
-                        return "Your guess was high."
-                    elif diff >= 5:
-                        return "Your guess was a little high."
-                    elif diff >= 0:
-                        return "Your guess was very close."
+                if difficulty != "hard":
+                    if diff < 0:
+                        diff = abs(diff)
+                        if diff >= 20:
+                            return "Your guess was too high."
+                        elif diff >= 10:
+                            return "Your guess was high."
+                        elif diff >= 5:
+                            return "Your guess was a little high."
+                        elif diff >= 0:
+                            return "Your guess was very close."
 
-                else:
-                    if diff >= 20:
-                        return "Your guess was too low."
-                    elif diff >= 10:
-                        return "Your guess was low."
-                    elif diff >= 5:
-                        return "Your guess was a little low."
-                    elif diff >= 0:
-                        return "Your guess was very close."
+                    else:
+                        if diff >= 20:
+                            return "Your guess was too low."
+                        elif diff >= 10:
+                            return "Your guess was low."
+                        elif diff >= 5:
+                            return "Your guess was a little low."
+                        elif diff >= 0:
+                            return "Your guess was very close."
+                elif difficulty == "hard":
+                    if diff <0:
+                        return "Your guess was higher than the number."
+                    elif diff>0:
+                        return "Your guess was lower than the number."
+
 
             await ctx.reply(f"You have {tries} tries to guess the number.")
             await ctx.channel.send("Guess now!")
@@ -411,17 +432,17 @@ class Games(commands.Cog):
                                                     check=check,
                                                     timeout=total_timeout)
                         if msg.content == "$end":
-                            await ctx.send(f"The number was {number}.")
+                            await ctx.channel.send(f"The number was {number}.")
                             self.guess_on.remove(ctx.channel.id)
                             return
                         else:
                             try:
                                 number_to_check = int(msg.content.lower())
                                 if msg.content.lower() == str(number):
-                                    db.update_score(ctx.author.id, tries)
+                                    db.update_score(ctx.author.id, tries*multiplier)
                                     scores = db.get_score(ctx.author.id)
                                     text = f"\n**TOTAL SCORE**\n{ctx.author.mention}: `{scores[0][1]}`"
-                                    await ctx.send(embed=basic_embed(
+                                    await ctx.channel.send(embed=basic_embed(
                                         title="Correct!",
                                         desc=f"You guessed it correct!\n{text}"))
                                     self.guess_on.remove(ctx.channel.id)
@@ -432,7 +453,7 @@ class Games(commands.Cog):
                                     await ctx.send(to_send)
                                     tries -= 1
                                     if tries == 0:
-                                        await ctx.send(f"The number was {number}.")
+                                        await ctx.channel.send(f"The number was {number}.")
                                         db.update_score(ctx.author.id, 0)
                                         self.guess_on.remove(ctx.channel.id)
                                     break
@@ -441,7 +462,7 @@ class Games(commands.Cog):
                         total_timeout -= int(time.time() - last_time)
                         last_time = time.time()
                     except asyncio.TimeoutError:
-                        await ctx.send(f"The number was {number}.")
+                        await ctx.channel.send(f"The number was {number}.")
                         self.guess_on.remove(ctx.channel.id)
                         return
         else:
