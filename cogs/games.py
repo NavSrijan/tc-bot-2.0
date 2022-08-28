@@ -481,7 +481,10 @@ class Games(commands.Cog):
         scores = self.guess_db.get_lb()
         text= ""
         for i in scores[0:10]:
-            text += f"{self.bot.get_user(i[0]).mention}: `{i[1]}`\n"
+            try:
+                text += f"{self.bot.get_user(i[0]).mention}: `{i[1]}`\n"
+            except:
+                pass
 
         emb = basic_embed(title="Guess lb", desc=text, color=discord.Color.blue())
         await ctx.reply(embed=emb)
