@@ -421,7 +421,6 @@ class Games(commands.Cog):
 
             await ctx.reply(f"You have {tries} tries to guess the number.")
             await ctx.channel.send("Guess now!")
-            print(number)
 
             while tries != 0:
                 total_timeout = 60
