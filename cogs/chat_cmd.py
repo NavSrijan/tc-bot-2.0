@@ -1,14 +1,17 @@
-from discord.ext import commands
-from discord import AllowedMentions, app_commands
-import discord
-from database import Database_members, DATABASE_URL
-from functions import utc_to_ist, load, save
+import asyncio
 import datetime
 import random
-from helpers import basic_embed
-import asyncio
-from jokeapi import Jokes
 from typing import Literal
+
+import discord
+from discord import AllowedMentions, app_commands
+from discord.ext import commands
+from jokeapi import Jokes
+
+from database import DATABASE_URL, Database_members
+from functions import load, save, utc_to_ist
+from helpers import basic_embed
+import aiohttp
 
 
 class Person():
@@ -40,14 +43,13 @@ class Chat_commands(commands.Cog):
     @commands.hybrid_command(name="highlight", aliases=["hl"])
     async def highlight(self, ctx, word):
         """Get a DM if someone mentions any word"""
-        await ctx.reply(
-            "Use $highlight_stop to stop getting highlights",
-            ephemeral=True)
+        await ctx.reply("Use $highlight_stop to stop getting highlights",
+                        ephemeral=True)
         self.bot.highlights[ctx.author.id] = word
         save(self.bot.highlights, "variables/highlights.pkl")
 
     @commands.hybrid_command(name="laser")
-    async def laser(self, ctx, user: discord.Member=None):
+    async def laser(self, ctx, user: discord.Member = None):
         mo = "<:modiji:1011452564195246120>"
         las = "<:l1:1011452560147746939>"
         mol = "<:m1:1011452558444871731>"
@@ -61,9 +63,9 @@ class Chat_commands(commands.Cog):
 
         for i in range(0, 6):
             await asyncio.sleep(1.5)
-            text = f"{user.mention}" + ' ' * ((6 - i-1)*6) + las * i + mol
+            text = f"{user.mention}" + ' ' * ((6 - i - 1) * 6) + las * i + mol
             await msg.edit(content=text)
-        text = f"{explode}" + ' ' * ((6 - i-1)*6) + las * i + mol
+        text = f"{explode}" + ' ' * ((6 - i - 1) * 6) + las * i + mol
         await msg.edit(content=text)
         await asyncio.sleep(1.5)
         text = f"{explode}" + ' ' * (30) + mo
@@ -272,7 +274,7 @@ class Chat_commands(commands.Cog):
             allowed_mentions=allowed_mentions)
 
     @commands.hybrid_command(name="avatar", aliases=["av"])
-    async def avatar(self, ctx, user_av: discord.Member=None):
+    async def avatar(self, ctx, user_av: discord.Member = None):
 
         def display_av(user):
             try:
@@ -422,6 +424,50 @@ class Chat_commands(commands.Cog):
         slogan = random.choice(slogans)
         await ctx.channel.send(
             embed=basic_embed(title=slogan[0], desc=f"{slogan[1]}"))
+
+    @commands.hybrid_command(name="emojify")
+    async def emojify(self, ctx, text):
+        """Emojify your text"""
+        emojis = {
+            'a': ':a:',
+            'b': ':b:',
+            'c': ':regional_indicator_c:',
+            'd': ':regional_indicator_d:',
+            'e': ':regional_indicator_e:',
+            'f': ':regional_indicator_f:',
+            'g': ':regional_indicator_g:',
+            'h': ':regional_indicator_h:',
+            'i': ':regional_indicator_i:',
+            'j': ':regional_indicator_j:',
+            'k': ':regional_indicator_k:',
+            'l': ':regional_indicator_l:',
+            'm': ':m:',
+            'n': ':regional_indicator_n:',
+            'o': ":o:",
+            'p': ':regional_indicator_p:',
+            'q': ':regional_indicator_q:',
+            'r': ':regional_indicator_r:',
+            's': ':regional_indicator_s:',
+            't': ':regional_indicator_t:',
+            'u': ':regional_indicator_u:',
+            'v': ':regional_indicator_v:',
+            'w': ':regional_indicator_w:',
+            'x': ':x:',
+            'y': ':regional_indicator_y:',
+            'z': ':regional_indicator_z:',
+            '?': ':question:',
+        }
+        words = text.lower().split(" ")
+        final = ""
+        for i in words:
+            word = ""
+            for j in i:
+                try:
+                    word += emojis[j]
+                except:
+                    pass
+            final += word + "     "
+        await ctx.reply(final)
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
