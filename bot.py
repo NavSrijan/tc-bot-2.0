@@ -18,7 +18,7 @@ from config import Config
 ##
 db_2 = Database_message_bank(DATABASE_URL, "message_bank")
 db_afk = Database_afk(DATABASE_URL, "afk")
-MY_GUILD = discord.Object(id=838857215305187328) 
+MY_GUILD = discord.Object(id=864085584691593216) 
 
 
 ##
@@ -26,7 +26,7 @@ MY_GUILD = discord.Object(id=838857215305187328)
 # Cogs to load
 cogs = [
     'chat_cmd', 'welcome', 'counting', 'news', 'mod', 'games', 'help',
-    'image_fun', 'suggestions', 'boosters'
+    'image_fun', 'suggestions', 'boosters', 'music_games'
 ]
 
 intents = discord.Intents.default()
@@ -283,6 +283,8 @@ async def on_message(message: discord.Message):
     if process_messages(message):
         try:
             number_of_words = len(message.content.split(" "))
+            if number_of_words>50:
+                number_of_words = 50
             db_2.update_message(message.author.id, number_of_words)
         except:
             pass
