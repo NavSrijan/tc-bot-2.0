@@ -18,7 +18,7 @@ from helpers import VoteView, VoteViewForEmoji, basic_embed
 ##
 db_2 = Database_message_bank(DATABASE_URL, "message_bank")
 db_afk = Database_afk(DATABASE_URL, "afk")
-MY_GUILD = discord.Object(id=864085584691593216)
+MY_GUILD = discord.Object(id=838857215305187328)
 
 ##
 ##########
