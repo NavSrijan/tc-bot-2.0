@@ -7,26 +7,25 @@ import time
 import discord
 from discord.ext import commands
 
+from config import Config
 from database import (DATABASE_URL, Database_afk, Database_message_bank,
                       Database_suggestions)
 from functions import download_and_return_image, load, save
 from helpers import VoteView, VoteViewForEmoji, basic_embed
-from config import Config
 
 ##########
 # Variables
 ##
 db_2 = Database_message_bank(DATABASE_URL, "message_bank")
 db_afk = Database_afk(DATABASE_URL, "afk")
-MY_GUILD = discord.Object(id=864085584691593216) 
-
+MY_GUILD = discord.Object(id=864085584691593216)
 
 ##
 ##########
 # Cogs to load
 cogs = [
     'chat_cmd', 'welcome', 'counting', 'news', 'mod', 'games', 'help',
-    'image_fun', 'suggestions', 'boosters', 'music_games'
+    'image_fun', 'suggestions', 'boosters'
 ]
 
 intents = discord.Intents.default()
@@ -86,11 +85,13 @@ afk_people = get_afk_people_dict()
 async def on_ready():
     print('We have logged in as {0.user}'.format(bot))
 
+
 @bot.event
 async def setup_hook():
     await load_cogs(bot, cogs)
     bot.tree.copy_global_to(guild=MY_GUILD)
     await bot.tree.sync(guild=MY_GUILD)
+
 
 @bot.command(name="afk")
 async def afk(ctx, *args):
@@ -162,7 +163,8 @@ async def on_message(message: discord.Message):
             if message.channel.id in [
                     957263189320540170, 894987356678000670, 895229974909444096,
                     895025182207524925, 984196485518340136, 895017321037455372,
-                    895221478411350026, 983824068497264670, 1006956616354107472, 973577832116674650, 972708478978261023
+                    895221478411350026, 983824068497264670,
+                    1006956616354107472, 973577832116674650, 972708478978261023
             ]:
                 key_list = list(bot.highlights.keys())
                 pos = val_list.index(i)
@@ -255,22 +257,30 @@ async def on_message(message: discord.Message):
         to_delete = await message.reply("Removed your AFK.")
         await asyncio.sleep(2)
         await to_delete.delete()
-    ## Check if anyone mentions AFK user
+
+    # Check if anyone mentions AFK user
     def return_time_string(td: datetime.timedelta):
-        m, s = divmod(td.seconds, 60)
+        m, s = divmod(td.total_seconds(), 60)
         h, m = divmod(m, 60)
-        if h == 0:
+        d, h = divmod(h, 24)
+        if h == 0 and d == 0:
             return f"{m} mins {s} secs"
-        else:
+        elif d == 0 and h != 0:
             return f"{h} hours {m} mins {s} secs"
+        elif d != 0:
+            return f"{d} days {h} hours {m} mins {s} secs"
 
     for i in message.mentions:
         if i.id in afk_people and not message.content.startswith(
                 "$remove_afk"):
             last_online = afk_people[i.id][1]
             diff = (datetime.datetime.utcnow() - last_online)
+            if i.display_name.startswith("[AFK] "):
+                name_to_display = i.display_name[6:]
+            else:
+                name_to_display = i.display_name
             await message.reply(
-                f"{i.display_name} went AFK {return_time_string(diff)} ago:\n{afk_people[i.id][-1]}"
+                f"{name_to_display} went AFK {return_time_string(diff)} ago:\n`{afk_people[i.id][-1]}`"
             )
 
     def process_messages(message):
@@ -283,7 +293,7 @@ async def on_message(message: discord.Message):
     if process_messages(message):
         try:
             number_of_words = len(message.content.split(" "))
-            if number_of_words>50:
+            if number_of_words > 50:
                 number_of_words = 50
             db_2.update_message(message.author.id, number_of_words)
         except:
