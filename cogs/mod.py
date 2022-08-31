@@ -27,41 +27,45 @@ class Mod(commands.Cog):
 
     @commands.has_permissions(kick_members=True)
     @commands.hybrid_command(name="torture")
-    async def torture(self, ctx, user: discord.Member):
-        """Keep deleting a users message for 60s."""
+    async def torture(self, ctx, user: discord.Member, time_to_delete=60):
+        """Keep deleting a users message for a certain amount of time."""
         if user:
-            await ctx.reply("Starting torture")
+            await ctx.reply("Okay.... :smirk:")
         else:
             await ctx.reply("Mention someone.", ephemeral=True)
             return
 
-        def check(message):
-            return message.author == user
-
-        total_timeout = 60
-        old_time = time.time()
-        while total_timeout > 0:
-            try:
-                msg = await self.bot.wait_for('message',
-                                              check=check,
-                                              timeout=total_timeout)
-                await msg.delete()
-                total_timeout -= +time.time() - old_time
-                old_time = time.time()
-            except:
-                await ctx.reply("Done.")
+        self.bot.to_torture.append(user)
+        total_timeout = time_to_delete
+        await asyncio.sleep(total_timeout)
+        try:
+            self.bot.to_torture.remove(user)
+        except:
+            pass
         await ctx.reply("Done.")
 
     @commands.has_permissions(kick_members=True)
+    @commands.hybrid_command(name="remove_torture")
+    async def remove_torture(self, ctx, user: discord.Member):
+        """Remove a person from torture."""
+        try:
+            self.bot.to_torture.remove(user)
+            await ctx.reply("Done.")
+        except:
+            await ctx.reply("User not found in the torture list.")
+
+    @commands.has_permissions(kick_members=True)
     @commands.hybrid_command(name="lock")
-    async def lock_channel(self, ctx):
+    async def lock_channel(self, ctx, channel: discord.TextChannel = None):
         """
         Locks the channel
         """
-        await ctx.channel.set_permissions(ctx.message.guild.default_role,
-                                          read_messages=True,
-                                          send_messages=False)
-        await ctx.channel.send("The channel has been locked.")
+        if channel is None:
+            channel = ctx.channel
+        await channel.set_permissions(ctx.message.guild.default_role,
+                                      read_messages=True,
+                                      send_messages=False)
+        await channel.send("The channel has been locked.")
 
     @commands.has_permissions(kick_members=True)
     @commands.hybrid_command(name="unlock")

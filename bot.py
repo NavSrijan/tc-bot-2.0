@@ -18,7 +18,8 @@ from helpers import VoteView, VoteViewForEmoji, basic_embed
 ##
 db_2 = Database_message_bank(DATABASE_URL, "message_bank")
 db_afk = Database_afk(DATABASE_URL, "afk")
-MY_GUILD = discord.Object(id=838857215305187328)
+tc_id = 838857215305187328
+MY_GUILD = discord.Object(id=tc_id)
 
 ##
 ##########
@@ -44,6 +45,7 @@ bot = commands.Bot(command_prefix=prefix,
                    status=discord.Status.do_not_disturb,
                    activity=activity)
 bot.highlights = load("variables/highlights.pkl")
+bot.to_torture = []
 bot.config_obj = config_obj
 bot.config = config
 bot.prefix = prefix
@@ -150,6 +152,11 @@ async def on_message(message: discord.Message):
 
     if message.author == bot.user or message.author.bot == True:
         return
+
+    if len(bot.to_torture)>0:
+        if message.author in bot.to_torture:
+            await message.delete()
+            return
 
     r_words = message.content.lower().split(" ")
     for i in r_words:
