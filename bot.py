@@ -287,7 +287,7 @@ async def on_message(message: discord.Message):
             else:
                 name_to_display = i.display_name
             await message.reply(
-                f"{name_to_display} went AFK {return_time_string(diff)} ago:\n`{afk_people[i.id][-1]}`"
+                f"{name_to_display} went AFK {return_time_string(diff)} ago:\n{afk_people[i.id][-1]}"
             )
 
     def process_messages(message):
