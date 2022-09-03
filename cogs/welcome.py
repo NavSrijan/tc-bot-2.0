@@ -36,7 +36,6 @@ class Welcome(commands.Cog):
         message = await self.bot.wait_for('message', check=check, timeout=300)
         await message.add_reaction(tc_emoji)
 
-    #@commands.command(name="hello", aliases=["hi", "greetings", "namaste"])
     @commands.hybrid_command(name="hello")
     async def hello(self, ctx):
         """Say hello to the bot!"""
