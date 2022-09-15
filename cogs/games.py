@@ -8,7 +8,6 @@ from discord.ext import commands
 import discord
 from PIL import Image
 from database import Database_guess, DATABASE_URL
-from functions import load, save
 
 from helpers import *
 from typing import Literal
@@ -33,85 +32,6 @@ class Games(commands.Cog):
             j = i.split(",")
             countries[j[0][1:-1].lower()] = j[1][1:-1].lower()
         return countries
-
-    @commands.hybrid_command(name="guess_dialouge")
-    async def guess_the_actor(self, ctx, number_of_questions: int = 5):
-        questions = number_of_questions
-        time_limit = 60
-        dialouges = load("assets/random_data/dialouges/dialouges.pkl")
-        send = ctx.channel.send
-        await ctx.reply("Starting the game.")
-
-        def check(message):
-            return message.channel == ctx.channel
-
-        points = {}
-
-        def get_points_string(points):
-            desc = ""
-            for key, value in points.items():
-                desc += f"<@{key}>: `{value}`\n"
-            return desc
-
-        for i in range(0, questions):
-            dialouge = random.choice(dialouges)
-            dialouges.remove(dialouge)
-
-            old_time = time.time()
-            timeout = time_limit
-            movie_guessed = False
-            actor_guessed = False
-            await send(f"`{dialouge['content']}`")
-            while True:
-                try:
-                    if actor_guessed and movie_guessed:
-                        emb = basic_embed(
-                            title="Answer",
-                            desc=
-                            f"The movie name was `{dialouge['movie']}` and the actor was `{dialouge['actor']}.`\n\n {get_points_string(points)}"
-                        )
-                        await send(embed=emb)
-                        break
-                    msg = await self.bot.wait_for("message",
-                                                  check=check,
-                                                  timeout=timeout)
-                    if msg.content.lower() == dialouge['movie'].lower(
-                    ) and movie_guessed is False:
-                        if msg.author.id in points:
-                            points[msg.author.id] += 1
-                        else:
-                            points[msg.author.id] = 1
-                        await msg.reply(f"It was indeed `{dialouge['movie']}`")
-                        movie_guessed = True
-                    elif msg.content.lower() == dialouge['actor'].lower(
-                    ) and actor_guessed is False:
-                        if msg.author.id in points:
-                            points[msg.author.id] += 1
-                        else:
-                            points[msg.author.id] = 1
-                        actor_guessed = True
-                        await msg.reply(f"It was indeed `{dialouge['actor']}`")
-                    elif msg.content.lower() == "$skip":
-                        raise Exception
-                    else:
-                        timeout -= (time.time() - old_time)
-                        old_time = time.time()
-                except:
-                    emb = basic_embed(
-                        title="Answer",
-                        desc=
-                        f"The movie name was `{dialouge['movie']}` and the actor was `{dialouge['actor']}.`\n\n {get_points_string(points)}"
-                    )
-                    await send(embed=emb)
-                    break
-
-        points = {
-            k: v
-            for k, v in sorted(points.items(), key=lambda item: item[1], reverse=True)
-        }
-        desc = get_points_string(points)
-        emb = basic_embed(title="Winner!", desc=desc)
-        await send(embed=emb)
 
     @commands.hybrid_command(name="capitals")
     async def country_capital(self, ctx):
@@ -437,18 +357,13 @@ class Games(commands.Cog):
                 break
 
     @commands.hybrid_command(name='guess')
-    async def guess(self,
-                    ctx,
-                    difficulty: Literal["easy", "normal", "hard"] = None):
+    async def guess(self, ctx, difficulty: Literal["easy", "normal", "hard"]=None):
         """Try to guess the number between 1 and 100 in 8 tries.
         Number of tries left is your score.
         """
         if ctx.channel.id not in self.guess_on:
             if difficulty is None:
-                await ctx.reply(embed=basic_embed(
-                    desc=
-                    "Choose between `easy`, `normal` and `hard`!```$guess <difficulty>```"
-                ))
+                await ctx.reply(embed=basic_embed(desc="Choose between `easy`, `normal` and `hard`!```$guess <difficulty>```"))
             if difficulty == "easy":
                 tries = 12
                 multiplier = 1
@@ -456,10 +371,10 @@ class Games(commands.Cog):
                 tries = 8
                 multiplier = 2
             elif difficulty == "hard":
-                multiplier = 10
+                multiplier = 4
                 tries = 5
             else:
-                multiplier = 1
+                multiplier= 1
                 tries = 12
 
             self.guess_on.append(ctx.channel.id)
@@ -498,10 +413,11 @@ class Games(commands.Cog):
                         elif diff >= 0:
                             return "Your guess was very close."
                 elif difficulty == "hard":
-                    if diff < 0:
+                    if diff <0:
                         return "Your guess was higher than the number."
-                    elif diff > 0:
+                    elif diff>0:
                         return "Your guess was lower than the number."
+
 
             await ctx.reply(f"You have {tries} tries to guess the number.")
             await ctx.channel.send("Guess now!")
@@ -512,8 +428,8 @@ class Games(commands.Cog):
                 while True:
                     try:
                         msg = await self.bot.wait_for('message',
-                                                      check=check,
-                                                      timeout=total_timeout)
+                                                    check=check,
+                                                    timeout=total_timeout)
                         if msg.content == "$end":
                             await ctx.channel.send(f"The number was {number}.")
                             self.guess_on.remove(ctx.channel.id)
@@ -522,14 +438,12 @@ class Games(commands.Cog):
                             try:
                                 number_to_check = int(msg.content.lower())
                                 if msg.content.lower() == str(number):
-                                    db.update_score(ctx.author.id,
-                                                    tries * multiplier)
+                                    db.update_score(ctx.author.id, tries*multiplier)
                                     scores = db.get_score(ctx.author.id)
                                     text = f"\n**TOTAL SCORE**\n{ctx.author.mention}: `{scores[0][1]}`"
                                     await ctx.channel.send(embed=basic_embed(
                                         title="Correct!",
-                                        desc=f"You guessed it correct!\n{text}"
-                                    ))
+                                        desc=f"You guessed it correct!\n{text}"))
                                     self.guess_on.remove(ctx.channel.id)
                                     return
                                 else:
@@ -538,8 +452,7 @@ class Games(commands.Cog):
                                     await ctx.send(to_send)
                                     tries -= 1
                                     if tries == 0:
-                                        await ctx.channel.send(
-                                            f"The number was {number}.")
+                                        await ctx.channel.send(f"The number was {number}.")
                                         db.update_score(ctx.author.id, 0)
                                         self.guess_on.remove(ctx.channel.id)
                                     break
@@ -552,35 +465,29 @@ class Games(commands.Cog):
                         self.guess_on.remove(ctx.channel.id)
                         return
         else:
-            await ctx.reply(
-                "There's already a game in progress in this channel. Wait for it to finish or, try in other channel."
-            )
+            await ctx.reply("There's already a game in progress in this channel. Wait for it to finish or, try in other channel.")
 
     @commands.hybrid_command(name="guess_score")
     async def guess_score(self, ctx):
         """Get your score for guess game."""
         score = self.guess_db.get_score(ctx.author.id)
-        await ctx.reply(embed=basic_embed(
-            title=ctx.author.name,
-            desc=
-            f"{ctx.author.mention}: `{score[0][1]}`\nTimes played: `{score[0][2]}`"
-        ))
+        await ctx.reply(embed=basic_embed(title=ctx.author.name, desc=f"{ctx.author.mention}: `{score[0][1]}`\nTimes played: `{score[0][2]}`"))
+
 
     @commands.hybrid_command(name="guess_leaderboard")
     async def guess_lb(self, ctx):
         """Get the leaderboard for guess game."""
         scores = self.guess_db.get_lb()
-        text = ""
+        text= ""
         for i in scores[0:10]:
             try:
                 text += f"{self.bot.get_user(i[0]).mention}: `{i[1]}`\n"
             except:
                 pass
 
-        emb = basic_embed(title="Guess lb",
-                          desc=text,
-                          color=discord.Color.blue())
+        emb = basic_embed(title="Guess lb", desc=text, color=discord.Color.blue())
         await ctx.reply(embed=emb)
+
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
