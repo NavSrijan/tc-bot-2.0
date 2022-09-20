@@ -7,6 +7,8 @@ import re
 
 import discord
 from discord.ext import commands
+import emoji
+import ipdb
 
 from config import Config
 from database_2 import Message_Logs, Afk, Database_suggestions
@@ -302,7 +304,8 @@ async def on_message(message: discord.Message):
             number_of_words = len(message.content.split(" "))
             if number_of_words > 50:
                 number_of_words = 50
-            emojis = re.findall(r"\<:\w*:\d*>|:\w*:", message.content)
+            ipdb.set_trace()
+            emojis = re.findall(r"\<:\w*:\d*>|:\w*:", emoji.demojize(message.content))
             db_message_logs.insert_message(message, number_of_words, emojis)
         except:
             pass
