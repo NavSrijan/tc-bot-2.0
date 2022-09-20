@@ -87,17 +87,17 @@ class Message_Logs(Database):
         super().__init__(tableName)
 
     @_is_connected
-    def insert_message(self, message: discord.Message, word_count):
+    def insert_message(self, message: discord.Message, word_count, emojis):
         query = f"""INSERT INTO {self.tableName}
-        (message_id, user_id, channel_id, time_of_message, content, mentions, word_count)
-        VALUES (%s, %s, %s, %s, %s, %s, %s);
+        (message_id, user_id, channel_id, time_of_message, content, mentions, word_count, emojis)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
         """
         mentions = []
         for i in message.mentions:
             mentions.append(i.id)
         self.cursor.execute(
             query, (message.id, message.author.id, message.channel.id,
-                    message.created_at, message.content, mentions, word_count))
+                    message.created_at, message.content, mentions, word_count, emojis))
 
     @_is_connected
     def get_week_activity(self, user_id):

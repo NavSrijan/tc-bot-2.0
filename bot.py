@@ -3,21 +3,21 @@ import datetime
 import logging
 import os
 import time
+import re
 
 import discord
 from discord.ext import commands
 
 from config import Config
-from database import (DATABASE_URL, Database_afk, Database_message_bank,
-                      Database_suggestions)
+from database_2 import Message_Logs, Afk, Database_suggestions
 from functions import download_and_return_image, load, save
 from helpers import VoteView, VoteViewForEmoji, basic_embed
 
 ##########
 # Variables
 ##
-db_2 = Database_message_bank(DATABASE_URL, "message_bank")
-db_afk = Database_afk(DATABASE_URL, "afk")
+db_message_logs = Message_Logs()
+db_afk = Afk()
 tc_id = 838857215305187328
 MY_GUILD = discord.Object(id=tc_id)
 
@@ -216,7 +216,7 @@ async def on_message(message: discord.Message):
             color=discord.Color.dark_gold())
 
         view = VoteView()
-        db = Database_suggestions(DATABASE_URL, "suggestions")
+        db = Database_suggestions
 
         await message.channel.send(embed=emb, view=view)
         await message.delete()
@@ -243,7 +243,7 @@ async def on_message(message: discord.Message):
         emb.set_image(url="attachment://emojiSuggestion.png")
 
         view = VoteViewForEmoji()
-        db = Database_suggestions(DATABASE_URL, "suggestions")
+        db = Database_suggestions
 
         await message.channel.send(file=img, embed=emb, view=view)
         await message.delete()
@@ -302,7 +302,8 @@ async def on_message(message: discord.Message):
             number_of_words = len(message.content.split(" "))
             if number_of_words > 50:
                 number_of_words = 50
-            db_2.update_message(message.author.id, number_of_words)
+            emojis = re.findall(r"\<:\w*:\d*>|:\w*:", message.content)
+            db_message_logs.insert_message(message, number_of_words, emojis)
         except:
             pass
 
