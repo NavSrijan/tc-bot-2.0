@@ -13,32 +13,15 @@ from functions import load, save, utc_to_ist
 from helpers import basic_embed
 import aiohttp
 
-
-class Person():
-
-    def __init__(self, author, idd=0):
-        if idd == 0:
-            self.id = author.id
-        else:
-            self.id = idd
-        self.revives_available = 3
-        self.last_used = datetime.datetime.now()
-        self.revives_used = 0
-
-
 class Chat_commands(commands.Cog):
     """Contains chat commands"""
 
     def __init__(self, bot):
         self.bot = bot
         self.last_used = None
-        self.vars = self.bot.config['commands']['revive']
-        self.revive_delay = int(self.vars['revive_delay'])
-        self.revives_available = int(self.vars['revives_available'])
-        self.revive_role = int(self.vars['revive_role'])
         self.topics = load("assets/random_data/topics.pkl")
+        self.last_revive_used = None
         self.alreadyDone = []
-        self.one_time_revive_pass = False
 
     @commands.hybrid_command(name="highlight", aliases=["hl"])
     async def highlight(self, ctx, word):
@@ -141,66 +124,28 @@ class Chat_commands(commands.Cog):
     @revive.command(name="chat", aliases=['c', 'ch'])
     async def chat(self, ctx):
         """Revive the chat!"""
-        if ctx.channel.id == int(self.vars['revive_channel']):
-            db = Database_members(DATABASE_URL, "members")
-            p1 = Person(ctx.message.author)
-            msg_time = utc_to_ist(ctx.message.created_at)
+        if ctx.channel.id == self.bot.config['commands']['revive']['revive_channel']:
             if len(self.topics) != 0:
                 topic = random.choice(self.topics)
-                self.alreadyDone.append(
-                    self.topics.pop(self.topics.index(topic)))
+                self.alreadyDone.append(self.topics.pop(self.topics.index(topic)))
             else:
                 self.topics = self.alreadyDone
                 self.alreadyDone = []
                 topic = random.choice(self.topics)
                 self.alreadyDone.append(
-                    self.topics.pop(self.topics.index(topic)))
+                        self.topics.pop(self.topics.index(topic)))
 
-            try:
-                dateLast = load("variables/date_last.pkl")
-            except:
-                dateLast = datetime.datetime.today().date()
-                db.resetRevives()
-                save(dateLast, "variables/date_last.pkl")
-            if dateLast < datetime.datetime.today().date():
-                dateLast = datetime.datetime.today().date()
-                db.resetRevives()
-                save(dateLast, "variables/date_last.pkl")
-
-            # Loading or saving the user
-            try:
-                p1 = (db.fetchUser(p1))
-            except:
-                db.addMember(p1)
-
-            try:
-                self.last_used = load("variables/last_revive_time.pkl")
-                p1.last_used = self.last_used
-            except:
-                self.last_used = utc_to_ist(datetime.datetime.utcnow())
-
-            if (
-                    msg_time - self.last_used
-            ).seconds > self.revive_delay or self.last_used is None or self.one_time_revive_pass is True:
-                self.one_time_revive_pass = False
-                if p1.revives_available != 0:
-                    await ctx.reply(
-                        f"<@&{self.revive_role}> Trying to revive the chat. ||By <@{ctx.author.id}>||\n`{topic}`"
-                    )
-                    save(msg_time, "variables/last_revive_time.pkl")
-                    p1.revives_available -= 1
-                    db.updateMember(p1)
+                if (msg_time - self.last_used).seconds > self.revive_delay or self.last_used is None:
+                    if p1.revives_available != 0:
+                        await ctx.reply(f"<@&{self.bot.config['commands']['revive']['self.revive_role']}> Trying to revive the chat. ||By <@{ctx.author.id}>||\n`{topic}`")
                 else:
-                    await ctx.reply("You have used all your revives today.")
-            else:
-                last = (msg_time - self.last_used).seconds
-                timeLeft = self.revive_delay - last
-                m, s = divmod(timeLeft, 60)
-                await ctx.reply(f"The chat can be revived again in {m}m, {s}s."
-                                )
+                    last = (msg_time - self.last_used).seconds
+                    timeLeft = self.revive_delay - last
+                    m, s = divmod(timeLeft, 60)
+                    await ctx.reply(f"The chat can be revived again in {m}m, {s}s.")
         else:
             await ctx.reply(
-                f"Head over to <#{self.vars['revive_channel']}> to revive the chat."
+                f"Head over to <#{self.bot.config['commands']['revive']['revive_channel']}> to revive the chat."
             )
 
     @commands.hybrid_command(name="rc",
@@ -350,26 +295,6 @@ class Chat_commands(commands.Cog):
             else:
                 await ctx.reply(embed=display_av(ctx.message.author))
 
-    @commands.has_permissions(kick_members=True)
-    @commands.hybrid_command(name="show_revives")
-    async def show_revives(self, ctx):
-        """Shows the number of revives each person has left."""
-        db = Database_members(DATABASE_URL, "members")
-
-        allowed_mentions = AllowedMentions(
-            users=False,  # Whether to ping individual user @mentions
-            everyone=False,  # Whether to ping @everyone or @here mentions
-            roles=False,  # Whether to ping role @mentions
-            replied_user=False,  # Whether to ping on replies to messages
-        )
-
-        finalMsg = """"""
-        chunk = "<@{}>: {}, {}"
-        all = db.viewAllUsers()
-
-        for i in all:
-            finalMsg += chunk.format(i[0], i[1], i[3]) + "\n"
-        await ctx.reply(finalMsg, allowed_mentions=allowed_mentions)
 
     @commands.hybrid_command(name="state", hidden=True)
     async def state(self, ctx, state):

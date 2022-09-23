@@ -2,6 +2,7 @@ from discord.ext import commands
 import discord
 from discord import AllowedMentions, Embed
 from database import Database_message_bank, DATABASE_URL
+from database_2 import Message_Logs
 import os
 from helpers import send_image
 from PIL import ImageFont, ImageDraw, Image
@@ -25,7 +26,7 @@ class Counting(commands.Cog):
         """Know which day of the week you're most active!"""
         if not user:
             user = ctx.author
-        db = Database_message_bank(DATABASE_URL, "message_bank")
+        db = Message_Logs()
         data = db.get_week_activity(user.id)
 
         colors = [
@@ -63,7 +64,7 @@ class Counting(commands.Cog):
     @commands.hybrid_command(name="lb", aliases=["leaderboard"])
     async def lb(self, ctx):
         """Get the lb for the day"""
-        db = Database_message_bank(DATABASE_URL, "message_bank")
+        db = Message_Logs()
 
         allowed_mentions = AllowedMentions(
             users=False,  # Whether to ping individual user @mentions
@@ -73,14 +74,14 @@ class Counting(commands.Cog):
         )
 
         #await ctx.channel.send(db.get_data(num=10), allowed_mentions=allowed_mentions)
-        await ctx.channel.send(db.get_data(num=10))
+        await ctx.channel.send(db.lb_day(num=10))
 
     @commands.has_permissions(kick_members=True)
     @commands.hybrid_command(
         name="lb_week", aliases=["leaderboard_week", "leaderboard_w", "lb_w"])
     async def lb_week(self, ctx, number_of_entries: int = 10):
         """Get the lb for the week."""
-        db = Database_message_bank(DATABASE_URL, "message_bank")
+        db = Message_Logs()
 
         allowed_mentions = AllowedMentions(
             users=False,  # Whether to ping individual user @mentions
@@ -90,15 +91,15 @@ class Counting(commands.Cog):
         )
 
         #await ctx.channel.send(db.get_week_data(), allowed_mentions=allowed_mentions)
-        await ctx.reply(db.get_week_data(num=number_of_entries))
+        await ctx.reply(db.lb_week(num=number_of_entries))
 
     @commands.has_permissions(kick_members=True)
     @commands.hybrid_command(name="lb_week_embed")
     async def lb_week_embed(self, ctx):
         """Get an embed with the weekly lb"""
-        db = Database_message_bank(DATABASE_URL, "message_bank")
+        db = Message_Logs()
 
-        all_users = db.get_week_data(to_send=False)
+        all_users = db.lb_week(to_send=False)
 
         j = 1
         desc = ""

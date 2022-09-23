@@ -304,7 +304,6 @@ async def on_message(message: discord.Message):
             number_of_words = len(message.content.split(" "))
             if number_of_words > 50:
                 number_of_words = 50
-            ipdb.set_trace()
             emojis = re.findall(r"\<:\w*:\d*>|:\w*:", emoji.demojize(message.content))
             db_message_logs.insert_message(message, number_of_words, emojis)
         except:

@@ -95,9 +95,10 @@ class Message_Logs(Database):
         mentions = []
         for i in message.mentions:
             mentions.append(i.id)
-        self.cursor.execute(
-            query, (message.id, message.author.id, message.channel.id,
-                    message.created_at, message.content, mentions, word_count, emojis))
+        self.cursor.execute(query,
+                            (message.id, message.author.id, message.channel.id,
+                             message.created_at, message.content, mentions,
+                             word_count, emojis))
 
     @_is_connected
     def get_week_activity(self, user_id):
@@ -191,11 +192,26 @@ class Message_Logs(Database):
         return mentions
 
     @_is_connected
+    def most_used_emojis_user(self, user_id):
+        """Returns which emojis a user uses."""
+        query = f"select unnest(emojis) as men, count(message_id) AS jj from {self.tableName} WHERE user_id=%s GROUP BY men ORDER BY jj DESC;"
+        mentions = self.view_query(query, values=(user_id, ))
+        return mentions
+
+    @_is_connected
+    def most_used_emojis_server(self):
+        """Returns which emojis are being used the most."""
+        query = f"select unnest(emojis) as men, count(message_id) AS jj from {self.tableName} GROUP BY men ORDER BY jj DESC;"
+        mentions = self.view_query(query)
+        return mentions
+
+    @_is_connected
     def search_messages(self, string_to_search):
         """Returns message IDs of messages with certain string."""
         query = f"SELECT message_id FROM {self.tableName} WHERE position(%s in content)>0 ORDER BY time_of_message DESC;"
         mentions = self.view_query(query, values=(string_to_search, ))
         return mentions
+
 
 class Afk(Database):
     """
@@ -306,4 +322,3 @@ class Database_guess(Database):
 
 
 db = Message_Logs()
-

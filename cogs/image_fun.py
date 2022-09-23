@@ -1,6 +1,6 @@
 from discord.ext import commands
 import discord
-from database import Database_message_bank, DATABASE_URL
+from database_2 import Message_Logs
 from helpers import *
 from PIL import Image, ImageFont, ImageDraw
 import os
@@ -269,15 +269,14 @@ class ImageFun(commands.Cog):
         syntax: $lb_image <days_to_subtract>
         """
         font_to_use = "assets/fonts/B612Mono-Bold.ttf"
-        db = Database_message_bank(DATABASE_URL, "message_bank")
+        db = Message_Logs()
         await ctx.reply("Starting the process.", ephemeral=True)
 
         try:
             date_to_subtract = int(offset_by_days)
-            lb = db.get_week_data(to_send=False,
-                                  date_to_subtract=date_to_subtract)
+            lb = db.lb_week(to_send=False, date_to_subtract=date_to_subtract)
         except:
-            lb = db.get_week_data(to_send=False)
+            lb = db.lb_week(to_send=False)
 
         items_to_pop = []
         for i in lb:
