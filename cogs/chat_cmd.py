@@ -125,6 +125,7 @@ class Chat_commands(commands.Cog):
     async def chat(self, ctx):
         """Revive the chat!"""
         if ctx.channel.id == self.bot.config['commands']['revive']['revive_channel']:
+            msg_time = ctx.message.created_at
             if len(self.topics) != 0:
                 topic = random.choice(self.topics)
                 self.alreadyDone.append(self.topics.pop(self.topics.index(topic)))
@@ -132,17 +133,15 @@ class Chat_commands(commands.Cog):
                 self.topics = self.alreadyDone
                 self.alreadyDone = []
                 topic = random.choice(self.topics)
-                self.alreadyDone.append(
-                        self.topics.pop(self.topics.index(topic)))
+                self.alreadyDone.append(self.topics.pop(self.topics.index(topic)))
 
-                if (msg_time - self.last_used).seconds > self.revive_delay or self.last_used is None:
-                    if p1.revives_available != 0:
-                        await ctx.reply(f"<@&{self.bot.config['commands']['revive']['self.revive_role']}> Trying to revive the chat. ||By <@{ctx.author.id}>||\n`{topic}`")
-                else:
-                    last = (msg_time - self.last_used).seconds
-                    timeLeft = self.revive_delay - last
-                    m, s = divmod(timeLeft, 60)
-                    await ctx.reply(f"The chat can be revived again in {m}m, {s}s.")
+            if self.last_used is None or (msg_time - self.last_used).seconds > self.revive_delay:
+                await ctx.reply(f"<@&{self.bot.config['commands']['revive']['revive_role']}> Trying to revive the chat. ||By <@{ctx.author.id}>||\n`{topic}`")
+            else:
+                last = (msg_time - self.last_used).seconds
+                timeLeft = self.revive_delay - last
+                m, s = divmod(timeLeft, 60)
+                await ctx.reply(f"The chat can be revived again in {m}m, {s}s.")
         else:
             await ctx.reply(
                 f"Head over to <#{self.bot.config['commands']['revive']['revive_channel']}> to revive the chat."
