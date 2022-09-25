@@ -121,7 +121,7 @@ class Chat_commands(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send("Not a valid command")
 
-    @revive.command(name="chat", aliases=['c', 'ch'])
+    @revive.command(name="chat", aliases=['c', 'ch'], enabled=False)
     async def chat(self, ctx):
         """Revive the chat!"""
         if ctx.channel.id == self.bot.config['commands']['revive']['revive_channel']:
