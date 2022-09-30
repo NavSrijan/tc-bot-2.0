@@ -49,6 +49,7 @@ bot = commands.Bot(command_prefix=prefix,
 bot.highlights = load("variables/highlights.pkl")
 bot.to_torture = []
 bot.config_obj = config_obj
+bot.message_logs = Message_Logs()
 bot.config = config
 bot.prefix = prefix
 

@@ -13,6 +13,7 @@ from functions import load, save, utc_to_ist
 from helpers import basic_embed
 import aiohttp
 
+
 class Chat_commands(commands.Cog):
     """Contains chat commands"""
 
@@ -115,7 +116,7 @@ class Chat_commands(commands.Cog):
         save(self.bot.highlights, "variables/highlights.pkl")
         await ctx.reply("You won't get highlights now.")
 
-    @commands.hybrid_group(name="revive")
+    @commands.hybrid_group(name="revive", enabled=False)
     async def revive(self, ctx):
         """Commands regarding revive chat"""
         if ctx.invoked_subcommand is None:
@@ -124,24 +125,31 @@ class Chat_commands(commands.Cog):
     @revive.command(name="chat", aliases=['c', 'ch'], enabled=False)
     async def chat(self, ctx):
         """Revive the chat!"""
-        if ctx.channel.id == self.bot.config['commands']['revive']['revive_channel']:
+        if ctx.channel.id == self.bot.config['commands']['revive'][
+                'revive_channel']:
             msg_time = ctx.message.created_at
             if len(self.topics) != 0:
                 topic = random.choice(self.topics)
-                self.alreadyDone.append(self.topics.pop(self.topics.index(topic)))
+                self.alreadyDone.append(
+                    self.topics.pop(self.topics.index(topic)))
             else:
                 self.topics = self.alreadyDone
                 self.alreadyDone = []
                 topic = random.choice(self.topics)
-                self.alreadyDone.append(self.topics.pop(self.topics.index(topic)))
+                self.alreadyDone.append(
+                    self.topics.pop(self.topics.index(topic)))
 
-            if self.last_used is None or (msg_time - self.last_used).seconds > self.revive_delay:
-                await ctx.reply(f"<@&{self.bot.config['commands']['revive']['revive_role']}> Trying to revive the chat. ||By <@{ctx.author.id}>||\n`{topic}`")
+            if self.last_used is None or (
+                    msg_time - self.last_used).seconds > self.revive_delay:
+                await ctx.reply(
+                    f"<@&{self.bot.config['commands']['revive']['revive_role']}> Trying to revive the chat. ||By <@{ctx.author.id}>||\n`{topic}`"
+                )
             else:
                 last = (msg_time - self.last_used).seconds
                 timeLeft = self.revive_delay - last
                 m, s = divmod(timeLeft, 60)
-                await ctx.reply(f"The chat can be revived again in {m}m, {s}s.")
+                await ctx.reply(f"The chat can be revived again in {m}m, {s}s."
+                                )
         else:
             await ctx.reply(
                 f"Head over to <#{self.bot.config['commands']['revive']['revive_channel']}> to revive the chat."
@@ -149,7 +157,8 @@ class Chat_commands(commands.Cog):
 
     @commands.hybrid_command(name="rc",
                              aliases=["revivechat", "revive_chat", "rev_chat"],
-                             hidden=True)
+                             hidden=True,
+                             enabled=False)
     async def rc(self, ctx):
         """Alias for revive_chat"""
         chat_command = self.bot.get_command('revive').all_commands['chat']
@@ -294,10 +303,22 @@ class Chat_commands(commands.Cog):
             else:
                 await ctx.reply(embed=display_av(ctx.message.author))
 
-
     @commands.hybrid_command(name="state", hidden=True)
     async def state(self, ctx, state):
         """Stereotypes, TBD"""
+        pass
+
+    @commands.hybrid_command(name="most_used_emojis")
+    async def most_used_emojis(self, ctx, user: discord.Member = None):
+        """Which emojis do you use the most?"""
+        if user is None:
+            user = ctx.author
+        emojis = self.bot.message_logs.most_used_emojis_user(user.id)
+        ll = ""
+        for i in emojis[0:10]:
+            ll += f"{i[0]} : {i[1]}\n"
+        emb = basic_embed(title=ctx.author.display_name, desc=f"Your most used emojis are:\n{ll}")
+        await ctx.reply(embed=emb)
         pass
 
     @commands.hybrid_command(name="slogan", aliases=["india"])

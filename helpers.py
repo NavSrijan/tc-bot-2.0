@@ -198,7 +198,7 @@ class VoteViewForEmoji(discord.ui.View):
 def basic_embed(title="",
                 desc="",
                 color=discord.Color.green(),
-                fields={},
+                fields=[],
                 footer=None,
                 author=None,
                 image_url=None,
@@ -220,7 +220,7 @@ def basic_embed(title="",
 
     if len(fields) > 0:
         for i in fields:
-            emb.add_field(i, fields[i])
+            emb.add_field(i[0], i[1])
 
     return emb
 
