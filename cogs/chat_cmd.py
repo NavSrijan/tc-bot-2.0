@@ -7,6 +7,8 @@ import discord
 from discord import AllowedMentions, app_commands
 from discord.ext import commands
 from jokeapi import Jokes
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
 
 from database import DATABASE_URL, Database_members
 from functions import load, save, utc_to_ist
@@ -23,6 +25,32 @@ class Chat_commands(commands.Cog):
         self.topics = load("assets/random_data/topics.pkl")
         self.last_revive_used = None
         self.alreadyDone = []
+
+    @commands.hybrid_command(name="wordcloud", aliases=["wc"])
+    async def word_cloud(self, ctx, user: discord.Member = None):
+        """Generates a word cloud"""
+        if user is None:
+            user = ctx.author
+        messages = self.bot.message_logs.fetch_messages(user.id)
+        ll = []
+        for i in messages:
+            k = i[0]
+            if k.startswith("http"):
+                continue
+            ll.append(k.lower())
+        text = " ".join(ll)
+        wordcloud = WordCloud(
+            width=1080,
+            height=1080,
+            background_color='white',
+        ).generate(text)
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis("off")
+        plt.tight_layout(pad = 0)
+        plt.savefig("wc.png", dpi=300)
+        # plt.show()
+        file = discord.File(fp='wc.png', filename='wc.png')
+        await ctx.reply(file=file)
 
     @commands.hybrid_command(name="highlight", aliases=["hl"])
     async def highlight(self, ctx, word):
@@ -317,7 +345,8 @@ class Chat_commands(commands.Cog):
         ll = ""
         for i in emojis[0:10]:
             ll += f"{i[0]} : {i[1]}\n"
-        emb = basic_embed(title=ctx.author.display_name, desc=f"Your most used emojis are:\n{ll}")
+        emb = basic_embed(title=ctx.author.display_name,
+                          desc=f"Your most used emojis are:\n{ll}")
         await ctx.reply(embed=emb)
         pass
 

@@ -206,6 +206,13 @@ class Message_Logs(Database):
         return mentions
 
     @_is_connected
+    def fetch_messages(self, user_id, n=10000):
+        """Fetch n number of messages of a user."""
+        query = f"select content from {self.tableName} where user_id=%s ORDER BY time_of_message DESC LIMIT {n};"
+        result = self.view_query(query, values=(user_id, ))
+        return result
+
+    @_is_connected
     def search_messages(self, string_to_search):
         """Returns message IDs of messages with certain string."""
         query = f"SELECT message_id FROM {self.tableName} WHERE position(%s in content)>0 ORDER BY time_of_message DESC;"
