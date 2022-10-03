@@ -345,7 +345,7 @@ class Chat_commands(commands.Cog):
         ll = ""
         for i in emojis[0:10]:
             ll += f"{i[0]} : {i[1]}\n"
-        emb = basic_embed(title=ctx.author.display_name,
+        emb = basic_embed(title=user.display_name,
                           desc=f"Your most used emojis are:\n{ll}")
         await ctx.reply(embed=emb)
         pass
