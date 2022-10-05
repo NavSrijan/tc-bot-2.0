@@ -99,6 +99,7 @@ async def setup_hook():
 
 
 @bot.command(name="afk")
+@commands.cooldown(1, 32)
 async def afk(ctx, *args):
     message = ctx.message
     role_required = [
@@ -125,6 +126,15 @@ async def afk(ctx, *args):
             ]
             return
     await ctx.reply("You can't use this. Level up first!")
+
+
+@afk.error
+async def afk_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown):
+        em = basic_embed(title="Tham ja bhai!",
+                         desc=f"Try again in {error.retry_after:.2f}s.",
+                         color=discord.Color.fuchsia())
+        await ctx.send(embed=em)
 
 
 @commands.has_permissions(kick_members=True)
@@ -156,7 +166,7 @@ async def on_message(message: discord.Message):
     if message.author == bot.user or message.author.bot == True:
         return
 
-    if len(bot.to_torture)>0:
+    if len(bot.to_torture) > 0:
         if message.author in bot.to_torture:
             await message.delete()
             return
@@ -305,7 +315,8 @@ async def on_message(message: discord.Message):
             number_of_words = len(message.content.split(" "))
             if number_of_words > 50:
                 number_of_words = 50
-            emojis = re.findall(r"\<:\w*:\d*>|:\w*:", emoji.demojize(message.content))
+            emojis = re.findall(r"\<:\w*:\d*>|:\w*:",
+                                emoji.demojize(message.content))
             db_message_logs.insert_message(message, number_of_words, emojis)
         except:
             pass
@@ -321,7 +332,7 @@ bot.remove_command('help')
 
 async def main():
     async with bot:
-        await bot.start(os.environ["token"])
+        await bot.start(os.environ["tc_token"])
 
 
 asyncio.run(main())
