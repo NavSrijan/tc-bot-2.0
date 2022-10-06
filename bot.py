@@ -99,7 +99,7 @@ async def setup_hook():
 
 
 @bot.command(name="afk")
-@commands.cooldown(1, 32)
+@commands.cooldown(1, 32, commands.BucketType.user)
 async def afk(ctx, *args):
     message = ctx.message
     role_required = [
