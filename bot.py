@@ -299,9 +299,14 @@ async def on_message(message: discord.Message):
                 name_to_display = i.display_name[6:]
             else:
                 name_to_display = i.display_name
-            await message.reply(
-                f"{name_to_display} went AFK {return_time_string(diff)} ago:\n{afk_people[i.id][-1]}"
+            allowed_mentions = AllowedMentions(
+                users=False,  # Whether to ping individual user @mentions
+                everyone=False,  # Whether to ping @everyone or @here mentions
+                roles=False,  # Whether to ping role @mentions
+                replied_user=True,  # Whether to ping on replies to messages
             )
+            await message.reply(
+                f"{name_to_display} went AFK {return_time_string(diff)} ago:\n{afk_people[i.id][-1]}", allowed_mentions=allowed_mentions)
 
     def process_messages(message):
         to_not_count = ["owo", "pls"]
