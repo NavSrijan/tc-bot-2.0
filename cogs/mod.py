@@ -45,6 +45,13 @@ class Mod(commands.Cog):
         await ctx.reply("Done.")
 
     @commands.has_permissions(kick_members=True)
+    @commands.hybrid_command(name="message")
+    async def message_user_text_in_channel(self, ctx, text: str, channel: discord.TextChannel):
+        """Message in a specific channel."""
+        await ctx.reply("Done.", ephemeral=True)
+        await channel.send(text)
+
+    @commands.has_permissions(kick_members=True)
     @commands.hybrid_command(name="remove_torture")
     async def remove_torture(self, ctx, user: discord.Member):
         """Remove a person from torture."""
