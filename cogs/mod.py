@@ -368,7 +368,12 @@ class Mod(commands.Cog):
                 for con in config[section]:
                     desc += "\n"
                     for sec_2 in config[section][con]:
-                        desc += f"`{sec_2}`: {config[section][con][sec_2]}\n"
+                        ans = config[section][con][sec_2]
+                        if "_role" in sec_2:
+                            ans = ctx.guild.get_role(ans)
+                        elif "_channel" in sec_2:
+                            ans = ctx.guild.get_channel_or_thread(ans)
+                        desc += f"`{sec_2}`: {ans}\n"
             elif type(config[section]) is dict:
                 desc += f"`{section}`\n"
                 for sec_2 in config[section]:

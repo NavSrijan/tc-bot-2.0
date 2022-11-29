@@ -46,7 +46,7 @@ class Chat_commands(commands.Cog):
         ).generate(text)
         plt.imshow(wordcloud, interpolation='bilinear')
         plt.axis("off")
-        plt.tight_layout(pad = 0)
+        plt.tight_layout(pad=0)
         plt.savefig("wc.png", dpi=300)
         # plt.show()
         file = discord.File(fp='wc.png', filename='wc.png')
