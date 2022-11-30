@@ -12,7 +12,7 @@ import ipdb
 
 from config import Config
 from database_2 import Message_Logs, Afk, Database_suggestions
-from functions import download_and_return_image, load, save
+from functions import download_and_return_image, load, save, utc_to_ist
 from helpers import VoteView, VoteViewForEmoji, basic_embed
 
 ##########
@@ -279,34 +279,22 @@ async def on_message(message: discord.Message):
         await to_delete.delete()
 
     # Check if anyone mentions AFK user
-    def return_time_string(td: datetime.timedelta):
-        m, s = divmod(td.total_seconds(), 60)
-        h, m = divmod(m, 60)
-        d, h = divmod(h, 24)
-        if h == 0 and d == 0:
-            return f"{m} mins {s} secs"
-        elif d == 0 and h != 0:
-            return f"{h} hours {m} mins {s} secs"
-        elif d != 0:
-            return f"{d} days {h} hours {m} mins {s} secs"
-
     for i in message.mentions:
         if i.id in afk_people and not message.content.startswith(
                 "$remove_afk"):
-            last_online = afk_people[i.id][1]
-            diff = (datetime.datetime.utcnow() - last_online)
+            last_online = utc_to_ist(afk_people[i.id][1])
             if i.display_name.startswith("[AFK] "):
                 name_to_display = i.display_name[6:]
             else:
                 name_to_display = i.display_name
-            allowed_mentions = AllowedMentions(
+            allowed_mentions = discord.AllowedMentions(
                 users=False,  # Whether to ping individual user @mentions
                 everyone=False,  # Whether to ping @everyone or @here mentions
                 roles=False,  # Whether to ping role @mentions
                 replied_user=True,  # Whether to ping on replies to messages
             )
             await message.reply(
-                f"{name_to_display} went AFK {return_time_string(diff)} ago:\n{afk_people[i.id][-1]}", allowed_mentions=allowed_mentions)
+                f"{name_to_display} went AFK {discord.utils.format_dt(last_online, style='R')} ago:\n{afk_people[i.id][-1]}", allowed_mentions=allowed_mentions)
 
     def process_messages(message):
         to_not_count = ["owo", "pls"]
