@@ -319,6 +319,11 @@ async def on_message(message: discord.Message):
     except Exception as e:
         print(e)
 
+@bot.event
+async def on_member_update(before, after):
+    if "whistler" in after.nick.lower() and after.id != 302253506947973130:
+        await after.edit(nick="gay")
+
 
 bot.remove_command('help')
 
