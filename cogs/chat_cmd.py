@@ -11,7 +11,7 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
 from database import DATABASE_URL, Database_members
-from functions import load, save, utc_to_ist
+from functions import load, save, utc_to_ist, MorseCode
 from helpers import basic_embed
 import aiohttp
 
@@ -52,7 +52,7 @@ class Chat_commands(commands.Cog):
         file = discord.File(fp='wc.png', filename='wc.png')
         await ctx.reply(file=file)
 
-    @commands.hybrid_command(name="highlight", aliases=["hl"])
+    @commands.hybrid_command(name="highlight", aliases=["hl"], enabled=False)
     async def highlight(self, ctx, word):
         """Get a DM if someone mentions any word"""
         await ctx.reply("Use $highlight_stop to stop getting highlights",
@@ -143,6 +143,22 @@ class Chat_commands(commands.Cog):
         self.bot.highlights.pop(ctx.author.id)
         save(self.bot.highlights, "variables/highlights.pkl")
         await ctx.reply("You won't get highlights now.")
+
+    @commands.hybrid_group(name="morse")
+    async def morse(self, ctx):
+        """Commands regarding Morse code"""
+        if ctx.invoked_subcommand is None:
+            await ctx.reply("Not a valid command", delete_after=5)
+
+    @morse.command(name="encrypt")
+    async def encrypt_morse(self, ctx, text):
+        mor = MorseCode()
+        await ctx.reply(mor.encrypt(text))
+
+    @morse.command(name="decrypt")
+    async def decrypt_morse(self, ctx, text):
+        mor = MorseCode()
+        await ctx.reply(mor.decrypt(text))
 
     @commands.hybrid_group(name="revive", enabled=False)
     async def revive(self, ctx):
