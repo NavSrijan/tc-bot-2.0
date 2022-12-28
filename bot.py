@@ -12,7 +12,7 @@ import emoji
 import ipdb
 
 from config import Config
-from database_2 import Message_Logs, Afk, Database_suggestions, Command_Logs
+from database_2 import Message_Logs, Afk, Database_suggestions, Command_Logs, Voice_Logs
 from functions import download_and_return_image, load, save, utc_to_ist
 from helpers import VoteView, VoteViewForEmoji, basic_embed
 
@@ -21,6 +21,7 @@ from helpers import VoteView, VoteViewForEmoji, basic_embed
 ##
 db_message_logs = Message_Logs()
 db_command_logs = Command_Logs()
+db_voice_logs = Voice_Logs()
 db_afk = Afk()
 tc_id = 838857215305187328
 MY_GUILD = discord.Object(id=tc_id)
@@ -337,6 +338,17 @@ async def on_interaction(interaction):
     except:
         arguments = json.dumps({})
     db_command_logs.insert_command(interaction, interaction.id, interaction.data['name'], arguments, interaction.user)
+
+@bot.event
+async def on_voice_state_update(member, before, after):
+    if after.channel is None and before.channel:
+        state = 0
+        channel_id = before.channel.id
+    elif before.channel is None and after.channel:
+        state = 1
+        channel_id = after.channel.id
+    db_voice_logs.insert_command(member.id, channel_id, after, state)
+
 
 @bot.event
 async def on_member_update(before, after):

@@ -354,5 +354,37 @@ class Command_Logs(Database):
         query = f"""INSERT INTO {self.tableName} (message_id, user_id, command, arguments, time_of_command) VALUES(%s, %s, %s, %s, %s);"""
         self.cursor.execute(query, (message_id, user.id, command, args, message.created_at))
 
+class Voice_Logs(Database):
+    """
+    CREATE TABLE "voice_logs" (
+	"id" SERIAL,
+	"user_id" BIGINT,
+	"channel_id" BIGINT,
+	"deaf" BOOLEAN,
+	"mute" BOOLEAN,
+	"self_mute" BOOLEAN,
+	"self_deaf" BOOLEAN,
+	"self_stream" BOOLEAN,
+	"self_video" BOOLEAN,
+	"afk" BOOLEAN,
+	"time_of_update" TIMESTAMP
+);
+    """
+
+    def __init__(self):
+        tableName = "voice_logs"
+        super().__init__(tableName)
+
+    @_is_connected
+    def insert_command(self, member_id, channel_id, voice_state, event):
+        """
+        event
+        0: leave
+        1: join
+        """
+        query = f"""INSERT INTO {self.tableName} (user_id, channel_id, event, deaf, mute, self_mute, self_deaf, self_stream, self_video, afk, time_of_update) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"""
+        self.cursor.execute(query, (member_id, channel_id, event, voice_state.deaf, voice_state.mute, voice_state.self_mute, voice_state.self_deaf, voice_state.self_stream, voice_state.self_video, voice_state.afk, datetime.datetime.now()))
+
+
 
 db = Message_Logs()
