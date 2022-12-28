@@ -3,6 +3,7 @@ import datetime
 import logging
 import os
 import time
+import json
 import re
 
 import discord
@@ -11,7 +12,7 @@ import emoji
 import ipdb
 
 from config import Config
-from database_2 import Message_Logs, Afk, Database_suggestions
+from database_2 import Message_Logs, Afk, Database_suggestions, Command_Logs
 from functions import download_and_return_image, load, save, utc_to_ist
 from helpers import VoteView, VoteViewForEmoji, basic_embed
 
@@ -19,6 +20,7 @@ from helpers import VoteView, VoteViewForEmoji, basic_embed
 # Variables
 ##
 db_message_logs = Message_Logs()
+db_command_logs = Command_Logs()
 db_afk = Afk()
 tc_id = 838857215305187328
 MY_GUILD = discord.Object(id=tc_id)
@@ -315,9 +317,26 @@ async def on_message(message: discord.Message):
             pass
 
     try:
+        ctx = await bot.get_context(message)
+        if ctx.invoked_with:
+            ments = ctx.message.content[len(ctx.prefix)+len(ctx.invoked_with):].lstrip().split(" ")
+            arguments = {}
+            for i, j in enumerate(ments):
+                arguments[i] = j
+            arguments = json.dumps(arguments)
+            db_command_logs.insert_command(message, message.id, ctx.command.name, arguments, message.author)
+
         await bot.process_commands(message)
     except Exception as e:
         print(e)
+
+@bot.event
+async def on_interaction(interaction):
+    try:
+        arguments = json.dumps(interaction.data['options'][0])
+    except:
+        arguments = json.dumps({})
+    db_command_logs.insert_command(interaction, interaction.id, interaction.data['name'], arguments, interaction.user)
 
 @bot.event
 async def on_member_update(before, after):

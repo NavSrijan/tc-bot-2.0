@@ -2,7 +2,6 @@ import datetime
 import os
 
 import discord
-import ipdb
 import psycopg2
 import psycopg2.extras
 
@@ -175,7 +174,14 @@ class Message_Logs(Database):
         """Average words used by a user in his messages."""
         query = f"select AVG(word_count) from {self.tableName} WHERE user_id=%s;"
         count = self.view_query(query, values=(user_id, ))
-        return count
+        return count[0][0]
+
+    @_is_connected
+    def mentioned_user(self, user_id, u2):
+        """Returns who a particular user mentions."""
+        query = f"select count(message_id) from {self.tableName} WHERE user_id=%s and %s=ANY(mentions);"
+        mentions = self.view_query(query, values=(user_id, u2))
+        return mentions[0][0]
 
     @_is_connected
     def mentioned(self, user_id):
@@ -326,6 +332,27 @@ class Database_guess(Database):
             pass
         else:
             self.insert_new_entry(idd, score, played=played)
+
+
+class Command_Logs(Database):
+    """
+    CREATE TABLE "command_logs" (
+	"id" serial primary key,
+	"user_id" BIGINT,
+	"command" TEXT,
+	"arguments" JSON,
+	"time_of_command" TIMESTAMP
+);
+    """
+
+    def __init__(self):
+        tableName = "command_logs"
+        super().__init__(tableName)
+
+    @_is_connected
+    def insert_command(self, message, message_id, command, args, user):
+        query = f"""INSERT INTO {self.tableName} (message_id, user_id, command, arguments, time_of_command) VALUES(%s, %s, %s, %s, %s);"""
+        self.cursor.execute(query, (message_id, user.id, command, args, message.created_at))
 
 
 db = Message_Logs()
