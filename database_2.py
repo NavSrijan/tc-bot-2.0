@@ -298,6 +298,9 @@ class Database_guess(Database):
 );
     """
 
+    def __init__(self):
+        tableName = "guess_scores"
+        super().__init__(tableName)
     @_is_connected
     def get_lb(self):
         sql = "SELECT * FROM {} ORDER BY score DESC;"

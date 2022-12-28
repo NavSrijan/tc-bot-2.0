@@ -7,7 +7,7 @@ import time
 from discord.ext import commands
 import discord
 from PIL import Image
-from database import Database_guess, DATABASE_URL
+from database_2 import Database_guess
 
 from helpers import *
 from typing import Literal
@@ -21,7 +21,7 @@ class Games(commands.Cog):
         self.countries = self.load_countries()
         self.lives = 3
         self.points = 0
-        self.guess_db = Database_guess(DATABASE_URL, "guess_scores")
+        self.guess_db = Database_guess()
         self.guess_on = []
 
     def load_countries(self, file="assets/random_data/country_data.csv"):
