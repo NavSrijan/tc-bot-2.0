@@ -297,7 +297,8 @@ async def on_message(message: discord.Message):
                 replied_user=True,  # Whether to ping on replies to messages
             )
             await message.reply(
-                f"{name_to_display} went AFK {discord.utils.format_dt(last_online, style='R')} ago:\n{afk_people[i.id][-1]}", allowed_mentions=allowed_mentions)
+                f"{name_to_display} went AFK {discord.utils.format_dt(last_online, style='R')} ago:\n{afk_people[i.id][-1]}",
+                allowed_mentions=allowed_mentions)
 
     def process_messages(message):
         to_not_count = ["owo", "pls"]
@@ -320,16 +321,21 @@ async def on_message(message: discord.Message):
     try:
         ctx = await bot.get_context(message)
         if ctx.invoked_with:
-            ments = ctx.message.content[len(ctx.prefix)+len(ctx.invoked_with):].lstrip().split(" ")
+            ments = ctx.message.content[len(ctx.prefix) +
+                                        len(ctx.invoked_with):].lstrip().split(
+                                            " ")
             arguments = {}
             for i, j in enumerate(ments):
                 arguments[i] = j
             arguments = json.dumps(arguments)
-            db_command_logs.insert_command(message, message.id, ctx.command.name, arguments, message.author)
+            db_command_logs.insert_command(message, message.id,
+                                           ctx.command.name, arguments,
+                                           message.author)
 
         await bot.process_commands(message)
     except Exception as e:
         print(e)
+
 
 @bot.event
 async def on_interaction(interaction):
@@ -337,17 +343,25 @@ async def on_interaction(interaction):
         arguments = json.dumps(interaction.data['options'][0])
     except:
         arguments = json.dumps({})
-    db_command_logs.insert_command(interaction, interaction.id, interaction.data['name'], arguments, interaction.user)
+    db_command_logs.insert_command(interaction, interaction.id,
+                                   interaction.data['name'], arguments,
+                                   interaction.user)
+
 
 @bot.event
 async def on_voice_state_update(member, before, after):
     if after.channel is None and before.channel:
         state = 0
         channel_id = before.channel.id
+        data = db_voice_logs.fetch_last_state(member.id)
+        time_of_join = data[11]
+        time_spent = (datetime.datetime.now() - time_of_join).seconds
     elif before.channel is None and after.channel:
         state = 1
         channel_id = after.channel.id
-    db_voice_logs.insert_command(member.id, channel_id, after, state)
+        time_spent = 0
+    db_voice_logs.insert_command(member.id, channel_id, after, state,
+                                 time_spent)
 
 
 @bot.event

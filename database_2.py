@@ -301,6 +301,7 @@ class Database_guess(Database):
     def __init__(self):
         tableName = "guess_scores"
         super().__init__(tableName)
+
     @_is_connected
     def get_lb(self):
         sql = "SELECT * FROM {} ORDER BY score DESC;"
@@ -355,14 +356,17 @@ class Command_Logs(Database):
     @_is_connected
     def insert_command(self, message, message_id, command, args, user):
         query = f"""INSERT INTO {self.tableName} (message_id, user_id, command, arguments, time_of_command) VALUES(%s, %s, %s, %s, %s);"""
-        self.cursor.execute(query, (message_id, user.id, command, args, message.created_at))
+        self.cursor.execute(
+            query, (message_id, user.id, command, args, message.created_at))
+
 
 class Voice_Logs(Database):
     """
-    CREATE TABLE "voice_logs" (
+CREATE TABLE "voice_logs" (
 	"id" SERIAL,
 	"user_id" BIGINT,
 	"channel_id" BIGINT,
+	"event" INT,
 	"deaf" BOOLEAN,
 	"mute" BOOLEAN,
 	"self_mute" BOOLEAN,
@@ -370,7 +374,8 @@ class Voice_Logs(Database):
 	"self_stream" BOOLEAN,
 	"self_video" BOOLEAN,
 	"afk" BOOLEAN,
-	"time_of_update" TIMESTAMP
+	"time_of_update" TIMESTAMP,
+	"time_spent" INT
 );
     """
 
@@ -379,15 +384,26 @@ class Voice_Logs(Database):
         super().__init__(tableName)
 
     @_is_connected
-    def insert_command(self, member_id, channel_id, voice_state, event):
+    def fetch_last_state(self, user_id):
+        query = f"SELECT * FROM {self.tableName} WHERE user_id=%s ORDER BY time_of_update DESC LIMIT 1;"
+        data = self.view_query(query, (user_id, ))
+        return data[0]
+
+
+    @_is_connected
+    def insert_command(self, member_id, channel_id, voice_state, event, time_spent):
         """
         event
         0: leave
         1: join
         """
-        query = f"""INSERT INTO {self.tableName} (user_id, channel_id, event, deaf, mute, self_mute, self_deaf, self_stream, self_video, afk, time_of_update) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"""
-        self.cursor.execute(query, (member_id, channel_id, event, voice_state.deaf, voice_state.mute, voice_state.self_mute, voice_state.self_deaf, voice_state.self_stream, voice_state.self_video, voice_state.afk, datetime.datetime.now()))
-
+        query = f"""INSERT INTO {self.tableName} (user_id, channel_id, event, deaf, mute, self_mute, self_deaf, self_stream, self_video, afk, time_of_update, time_spent) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"""
+        self.cursor.execute(
+            query,
+            (member_id, channel_id, event, voice_state.deaf, voice_state.mute,
+             voice_state.self_mute, voice_state.self_deaf,
+             voice_state.self_stream, voice_state.self_video, voice_state.afk,
+             datetime.datetime.now(), time_spent))
 
 
 db = Message_Logs()
