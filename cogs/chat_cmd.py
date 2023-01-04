@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import random
 from typing import Literal
+import ipdb
 
 import discord
 from discord import AllowedMentions, app_commands
@@ -11,8 +12,9 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
 from database import DATABASE_URL, Database_members
+from database_2 import Message_Logs, Synergy
 from functions import load, save, utc_to_ist, MorseCode
-from helpers import basic_embed
+from helpers import basic_embed, get_percentage_image
 import aiohttp
 
 
@@ -25,6 +27,105 @@ class Chat_commands(commands.Cog):
         self.topics = load("assets/random_data/topics.pkl")
         self.last_revive_used = None
         self.alreadyDone = []
+
+    @commands.cooldown(1, 15, commands.BucketType.user)
+    @commands.hybrid_command(name="synergy", aliases=['syn'])
+    async def synergy(self,
+                      ctx,
+                      user1: discord.Member = None,
+                      user2: discord.Member = None):
+
+        ml = Message_Logs()
+        if user1 is None:
+            user1 = ctx.author
+            random_user_id = random.choice(ml.random_active_user())[0]
+            user2 = ctx.bot.get_user(random_user_id)
+        elif user1 is not None and user2 is None:
+            user2, user1 = user1, ctx.author
+        tries = 0
+        while True:
+            try:
+                if tries>5:
+                    return
+                tries+=1
+                syn = Synergy(user1.id, user2.id)
+                break
+            except:
+                random_user_id = random.choice(ml.random_active_user())[0]
+                user2 = ctx.bot.get_user(random_user_id)
+        emb = discord.Embed(color=discord.Color.from_str("#e81538"), title=user1.name[:3] + user2.name[-3:], description=f"Wanna see how {user1.mention}'s 'synergy with {user2.mention} is?\nHere we go!")
+
+        try:
+            av_1 = user1.avatar.url
+        except:
+            av_1 = user1.default_avatar.url
+        try:
+            av_2 = user2.avatar.url
+        except:
+            av_2 = user2.default_avatar.url
+
+        emb.set_thumbnail(url=av_1)
+
+        file, filename = get_percentage_image(round(syn.final_score))
+        msg = await ctx.message.reply(embed=emb)
+
+        common_words = ", ". join(syn.step_1_data['words'])
+
+        common_emojis_final = []
+        for i in syn.step_4_data['common_emojis']:
+            common_emojis_final.append(i[0])
+
+        desc_1 = f"""
+
+        >>> Your use of words are `{round(syn.step_1_data['score'], 2)}%` similar.
+        Most common words used by both are: `{common_words}`
+
+
+        """
+        desc_2 = f"""
+        You are active together `{round(syn.step_2_data['score'], 2)}%` of the times.
+        Common Hours: `{" ,".join(str(x) for x in syn.step_2_data['common_hours'])}`
+        Common Days : `{" ,".join(str(x) for x in syn.step_2_data['common_days'])}`. 
+
+
+        """
+        desc_3 = f"""
+        Your mention score is `{round(syn.step_3_data['score'], 2)}%`.
+        This shows how much you guys mention each other.
+
+
+        """
+        desc_4 = f"""
+        You use `{round(syn.step_4_data['score'], 2)}%` of the emojis which are same.
+        Common emojis: {" ".join(common_emojis_final[:6])}
+
+
+        """
+        desc_5 = f"""
+        Your `{round(syn.step_5_data['score'], 2)}%` of the messages are of similar length.
+
+
+        """
+        desc_6 = f"""
+        YOUR FINAL SCORE IS
+        """
+
+        descs = [desc_1, desc_2, desc_3, desc_4, desc_5]
+
+        for i in descs:
+            await asyncio.sleep(1)
+
+            emb.description += i
+            await msg.edit(embed=emb)
+
+        if syn.final_score<30:
+            emb.color = discord.Color.from_str("#3da813")
+            await msg.edit(embed=emb)
+
+
+        await ctx.send(file=file)
+
+        del ml
 
     @commands.hybrid_command(name="wordcloud", aliases=["wc"])
     async def word_cloud(self, ctx, user: discord.Member = None):
@@ -287,7 +388,7 @@ class Chat_commands(commands.Cog):
                 a = "✅"
                 b = "❌"
                 msg = await ctx.reply(
-                    f"{user_o.mention} Do you wish for your pfp to be enlarged?"
+                    f"{user_o.mention} Do you wish for your avatar to be enlarged?"
                 )
                 await msg.add_reaction(a)
                 await msg.add_reaction(b)
@@ -309,7 +410,7 @@ class Chat_commands(commands.Cog):
                     await msg.clear_reactions()
                     await msg.edit(
                         content=
-                        "The user does not want their pfp to be displayed.")
+                        "The user does not want their avatar to be displayed.")
 
             else:
                 await ctx.reply(embed=display_av(ctx.message.author))
@@ -320,7 +421,7 @@ class Chat_commands(commands.Cog):
                 a = "✅"
                 b = "❌"
                 msg = await ctx.reply(
-                    f"{user_o.mention} Do you wish for your pfp to be enlarged?"
+                    f"{user_o.mention} Do you wish for your avatar to be enlarged?"
                 )
                 await msg.add_reaction(a)
                 await msg.add_reaction(b)
@@ -342,7 +443,7 @@ class Chat_commands(commands.Cog):
                     await msg.clear_reactions()
                     await msg.edit(
                         content=
-                        "The user does not want their pfp to be displayed.")
+                        "The user does not want their avatar to be displayed.")
 
             else:
                 await ctx.reply(embed=display_av(ctx.message.author))

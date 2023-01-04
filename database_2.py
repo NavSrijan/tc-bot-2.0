@@ -1,5 +1,6 @@
 import datetime
 import os
+from collections import Counter, OrderedDict
 
 import discord
 import psycopg2
@@ -219,6 +220,14 @@ class Message_Logs(Database):
         return result
 
     @_is_connected
+    def random_active_user(self, days=7):
+        """Fetch a random active user."""
+        query = f"SELECT DISTINCT user_id FROM {self.tableName} WHERE time_of_message>(now() -INTERVAL '{days} DAY');"
+        result = self.view_query(query)
+        return result
+    
+
+    @_is_connected
     def search_messages(self, string_to_search):
         """Returns message IDs of messages with certain string."""
         query = f"SELECT message_id FROM {self.tableName} WHERE position(%s in content)>0 ORDER BY time_of_message DESC;"
@@ -405,5 +414,202 @@ CREATE TABLE "voice_logs" (
              voice_state.self_stream, voice_state.self_video, voice_state.afk,
              datetime.datetime.now(), time_spent))
 
+
+class Synergy():
+
+    def __init__(self, u1, u2):
+        self.u1 = u1
+        self.u2 = u2
+        self.ml = Message_Logs()
+
+        #Executing steps
+        self.step_1()
+        self.step_2()
+        self.step_3()
+        self.step_4()
+        self.step_5()
+
+        self.finalize_data()
+
+    def split_words(self, messages):
+        ll = []
+        not_these_words = [
+            "is", "the", "a", "an", "was", "there", "their", "i"
+        ]
+        not_these_words = []
+        for i in messages:
+            k = i[0]
+            if k.startswith("http"):
+                continue
+            ss = k.split()
+            for j in ss:
+                if j.lower() not in not_these_words:
+                    ll.append(j.lower())
+        return ll
+
+    def step_1(self):
+        """
+        Find the common words used by both.
+        """
+
+        # Prepare the data set
+        user1 = self.ml.fetch_messages(self.u1, n=1000)
+        user2 = self.ml.fetch_messages(self.u2, n=1000)
+        self.u1_words = self.split_words(user1)
+        self.u2_words = self.split_words(user2)
+
+        total = 30
+        u1 = Counter(self.u1_words).most_common()[:total]
+        u2 = Counter(self.u2_words).most_common()[:total]
+
+        ll = [[], []]
+        p = 0
+        for k in [u1, u2]:
+            for i in k:
+                ll[p].append(i[0])
+            p += 1
+
+        u1_l, u2_l = ll
+
+        # Now finding the intersection
+        final_dataset = set(u1_l) & set(u2_l)
+
+        # Generating a percentage
+        total_to_consider = 0.6 * total
+        final = (len(final_dataset) * 100) / total_to_consider
+        if final > 100:
+            final = 100
+
+        self.step_1_data = {'score': final, 'words': final_dataset}
+        return self.step_1_data
+
+    def step_2(self):
+        """
+        Calculating the common hours in the day.
+        """
+        u1 = self.ml.user_message_distribution(self.u1)
+        u2 = self.ml.user_message_distribution(self.u2)
+        u1 = sorted(u1, key=lambda x: x[0], reverse=True)
+        u2 = sorted(u2, key=lambda x: x[0], reverse=True)
+
+        res = [[], []]
+        p = 0
+        # Convert the times provided in a suitable format.
+        for i in [u1, u2]:
+            for j in i:
+                res[p].append(j[1])
+            p += 1
+        u11, u22 = res
+
+        # Getting the common hours between the two parties
+        total = 5
+        common_hours = set(u11[:total]) & set(u22[:total])
+        percentage_hours = len(common_hours) * 100 / (total)
+
+        data1 = self.ml.get_week_activity(self.u1)[:3]
+        data2 = self.ml.get_week_activity(self.u2)[:3]
+
+        days = [
+            "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
+            "Saturday"
+        ]
+
+        res = [[], []]
+        p = 0
+        for i in [data1, data2]:
+            for j in i:
+                res[p].append(days[int(j[0])])
+            p += 1
+        data1, data2 = res
+        total = 3
+        common_days = set(data1) & set(data2)
+        percentage_day = len(common_days) * 100 / (total)
+
+        self.step_2_data = {
+            'score': (percentage_day + percentage_hours) / 2,
+            'score_hours': percentage_hours,
+            'common_hours': list(common_hours),
+            'score_days': percentage_day,
+            'common_days': list(common_days),
+            'top_hour_1': u11[0],
+            'top_hour_2': u22[0],
+            'top_day_1': data1[0],
+            'top_day_2': data2[0]
+        }
+
+    def step_3(self):
+        """
+        Mention and Mentioned by ratio
+        """
+        u2_men_by_u1 = self.ml.mentioned_user(self.u1, self.u2)
+        u1_men_by_u2 = self.ml.mentioned_user(self.u2, self.u1)
+        ll = [u2_men_by_u1, u1_men_by_u2]
+
+        a, b = min(ll), max(ll)
+
+        score = (a / b) * 100
+        self.step_3_data = {
+            'score': score,
+            'u2_men_by_u1': u2_men_by_u1,
+            'u1_men_by_u2': u1_men_by_u2
+        }
+
+    def step_4(self):
+        """
+        Emoji matcher
+        """
+        u1 = self.ml.most_used_emojis_user(self.u1)
+        u2 = self.ml.most_used_emojis_user(self.u2)
+
+        common_emojis = []
+
+        for index, emoji in enumerate(u1[:20]):
+            for index_2, emoji_2 in enumerate(u2[:20]):
+                if emoji[0] == emoji_2[0]:
+                    common_emojis.append((emoji[0], emoji[1], emoji_2[1]))
+
+        def similarity_percentage(a, b):
+            ll = [a, b]
+            a = min(ll)
+            b = max(ll)
+
+            return (a / b) * 100
+
+        total_percentage = 0
+
+        for i in common_emojis:
+            total_percentage += similarity_percentage(i[1], i[2])
+
+        total_percentage = total_percentage / len(common_emojis)
+
+        self.step_4_data = {
+            'score': total_percentage,
+            'u1_emojis': u1,
+            'u2_emojis': u2,
+            'common_emojis': common_emojis
+        }
+        return self.step_4_data
+
+    def step_5(self):
+        """
+        Avg. length of a message.
+        """
+        u1 = self.ml.average_word_count(self.u1)
+        u2 = self.ml.average_word_count(self.u2)
+
+        diff = abs(u1-u2)
+        mean = (u1+u2)/2
+        percent = 100-diff*100/mean
+
+        self.step_5_data = {'score': float(percent), 'difference': float(diff), 'u1_wc':float(u1), 'u2_wc':float(u2)}
+
+    def finalize_data(self):
+        score1 = self.step_1_data['score']
+        score2 = self.step_2_data['score']
+        score3 = self.step_3_data['score']
+        score4 = self.step_4_data['score']
+        score5 = self.step_5_data['score']
+
+        self.final_score = (score1 + score2 + score3 + score4 + score5)/5
 
 db = Message_Logs()

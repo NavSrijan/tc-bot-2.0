@@ -278,3 +278,23 @@ def send_image(base, name="modiji.png"):
         image_binary.seek(0)
         file = discord.File(fp=image_binary, filename=name)
         return file
+
+
+def get_percentage_image(per):
+    base = Image.open(f'assets/images/Synergy/percentage_bg.png')
+
+    font_to_use = "assets/fonts/B612Mono-Bold.ttf"
+    font_to_use = ImageFont.truetype(font_to_use, 80)
+
+    ImageDraw.Draw(base).text((145, 100),
+                              str(per),
+                              'rgb(0,0,0)',
+                              font=font_to_use,
+                              spacing=10)
+    with BytesIO() as image_binary:
+        base.save(image_binary, 'PNG')
+        image_binary.seek(0)
+        filename="image_percentage_synergy.png"
+        file = discord.File(fp=image_binary, filename=filename)
+        return file, filename
+    return file
