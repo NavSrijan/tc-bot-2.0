@@ -350,6 +350,8 @@ async def on_interaction(interaction):
 
 @bot.event
 async def on_voice_state_update(member, before, after):
+    if member.bot:
+        return
     if after.channel is None and before.channel:
         state = 0
         channel_id = before.channel.id
