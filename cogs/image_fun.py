@@ -1,6 +1,6 @@
 from discord.ext import commands
 import discord
-from database_2 import Message_Logs
+from database_2 import Message_Logs, Voice_Logs
 from helpers import *
 from PIL import Image, ImageFont, ImageDraw
 import os
@@ -274,17 +274,25 @@ class ImageFun(commands.Cog):
 
         try:
             date_to_subtract = int(offset_by_days)
-            lb = db.lb_week(to_send=False, date_to_subtract=date_to_subtract)
+            lb = db.lb_week_combined(date_to_subtract=date_to_subtract)
         except:
-            lb = db.lb_week(to_send=False)
+            lb = db.lb_week_combined()
 
+        def check_role(user, roles_to_check: list):
+            """Returns True if any user has any roles mentioned in roles_to_check."""
+            for i in user.roles:
+                if i.id in roles_to_check:
+                    return True
+            return False
         items_to_pop = []
         for i in lb:
-            if i[0] in [
-                    908309845634089001, 674289303374790666, 302253506947973130,
-                    775964252783640586, 681918482681823255
-            ]:
+            try:
+                user = ctx.guild.get_member(i[0])
+                if check_role(user, [893950378431877131, 839010251868078101, 1052810623509082122, 1052810645080379423, 970902786638250034]):
+                    items_to_pop.append(i)
+            except:
                 items_to_pop.append(i)
+                continue
         for i in items_to_pop:
             lb.remove(i)
 

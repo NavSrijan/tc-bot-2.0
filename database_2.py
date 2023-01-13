@@ -145,8 +145,9 @@ class Message_Logs(Database):
 
     @_is_connected
     def lb_week(self, date_to_subtract=0, to_send=True, num=10):
-        """Get the leaderboard for the day."""
-        query = f"SELECT user_id, sum(word_count) FROM message_logs WHERE time_of_message BETWEEN (current_date-{date_to_subtract} - CAST(EXTRACT(DOW FROM current_date-{date_to_subtract}) AS int)) and current_date GROUP BY user_id ORDER BY SUM(word_count) DESC;"
+        """Get the leaderboard for the week."""
+
+        query = f"SELECT user_id, sum(word_count) FROM message_logs WHERE time_of_message BETWEEN (current_date-{date_to_subtract} - CAST(EXTRACT(DOW FROM current_date-{date_to_subtract}) AS int)) and current_date+1 GROUP BY user_id ORDER BY SUM(word_count) DESC;"
         allUsers = self.view_query(query, values=(date_to_subtract, ))
         if to_send is True:
             finalMsg = ''''''
@@ -162,6 +163,42 @@ class Message_Logs(Database):
                 return finalMsg
         else:
             return allUsers
+
+    @_is_connected
+    def lb_week_combined(self, date_to_subtract=0):
+        """Get combined lb of both voice and message logs"""
+        query = """
+        SELECT COALESCE(ml.user_id, vl.user_id), CAST(0.3*COALESCE(vl.ts,0)+COALESCE(ml.wc,0) AS INT) AS ss
+            FROM (
+            SELECT 
+                user_id, sum(time_spent) as ts
+            FROM 
+                voice_logs
+            WHERE 
+                time_of_update 
+                BETWEEN (current_date-0 - CAST(EXTRACT(DOW FROM current_date-0) AS int)) 
+                and
+                current_date +1
+            GROUP BY 
+                user_id 
+            ) AS vl
+            FULL OUTER JOIN 
+            (SELECT 
+                user_id, sum(word_count) as wc
+            FROM 
+                message_logs
+            WHERE 
+                time_of_message 
+                BETWEEN (current_date-0 - CAST(EXTRACT(DOW FROM current_date-0) AS int)) 
+                and
+                current_date +1
+            GROUP BY 
+                user_id 
+            ) ml ON ml.user_id=vl.user_id
+            ORDER BY ss DESC
+        """
+        allUsers = self.view_query(query, values=(date_to_subtract, ))
+        return allUsers
 
     @_is_connected
     def average_character_count(self, user_id):
@@ -225,7 +262,6 @@ class Message_Logs(Database):
         query = f"SELECT DISTINCT user_id FROM {self.tableName} WHERE time_of_message>(now() -INTERVAL '{days} DAY');"
         result = self.view_query(query)
         return result
-    
 
     @_is_connected
     def search_messages(self, string_to_search):
@@ -398,7 +434,6 @@ CREATE TABLE "voice_logs" (
         data = self.view_query(query, (user_id, ))
         return data[0]
 
-
     @_is_connected
     def insert_command(self, member_id, channel_id, voice_state, event, time_spent):
         """
@@ -413,6 +448,14 @@ CREATE TABLE "voice_logs" (
              voice_state.self_mute, voice_state.self_deaf,
              voice_state.self_stream, voice_state.self_video, voice_state.afk,
              datetime.datetime.now(), time_spent))
+
+    @_is_connected
+    def lb_week(self, date_to_subtract=0):
+        """Get the leaderboard for the week."""
+
+        query = f"SELECT user_id, sum(time_spent) FROM voice_logs WHERE time_of_update BETWEEN (current_date-{date_to_subtract} - CAST(EXTRACT(DOW FROM current_date-{date_to_subtract}) AS int)) and current_date+1 GROUP BY user_id ORDER BY SUM(time_spent) DESC;"
+        allUsers = self.view_query(query, values=(date_to_subtract, ))
+        return allUsers
 
 
 class Synergy():
