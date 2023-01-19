@@ -12,7 +12,7 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
 from database import DATABASE_URL, Database_members
-from database_2 import Message_Logs, Synergy
+from database_2 import Message_Logs, Synergy, Birthday
 from functions import load, save, utc_to_ist, MorseCode
 from helpers import basic_embed, get_percentage_image
 import aiohttp
@@ -45,15 +45,20 @@ class Chat_commands(commands.Cog):
         tries = 0
         while True:
             try:
-                if tries>5:
+                if tries > 5:
                     return
-                tries+=1
+                tries += 1
                 syn = Synergy(user1.id, user2.id)
                 break
             except:
                 random_user_id = random.choice(ml.random_active_user())[0]
                 user2 = ctx.bot.get_user(random_user_id)
-        emb = discord.Embed(color=discord.Color.from_str("#e81538"), title=user1.name[:3] + user2.name[-3:], description=f"Wanna see how {user1.mention}'s 'synergy with {user2.mention} is?\nHere we go!")
+        emb = discord.Embed(
+            color=discord.Color.from_str("#e81538"),
+            title=user1.name[:3] + user2.name[-3:],
+            description=
+            f"Wanna see how {user1.mention}'s 'synergy with {user2.mention} is?\nHere we go!"
+        )
 
         try:
             av_1 = user1.avatar.url
@@ -69,7 +74,7 @@ class Chat_commands(commands.Cog):
         file, filename = get_percentage_image(round(syn.final_score))
         msg = await ctx.message.reply(embed=emb)
 
-        common_words = ", ". join(syn.step_1_data['words'])
+        common_words = ", ".join(syn.step_1_data['words'])
 
         common_emojis_final = []
         for i in syn.step_4_data['common_emojis']:
@@ -118,10 +123,9 @@ class Chat_commands(commands.Cog):
             emb.description += i
             await msg.edit(embed=emb)
 
-        if syn.final_score<30:
+        if syn.final_score < 30:
             emb.color = discord.Color.from_str("#3da813")
             await msg.edit(embed=emb)
-
 
         await ctx.send(file=file)
 
@@ -130,6 +134,7 @@ class Chat_commands(commands.Cog):
     @commands.hybrid_command(name="wordcloud", aliases=["wc"])
     async def word_cloud(self, ctx, user: discord.Member = None):
         """Generates a word cloud"""
+        # select unnest(string_to_array(content, ' ')) AS parts, COUNT(*) AS cnt from message_logs WHERE user_id= GROUP BY parts ORDER BY cnt DESC;
         if user is None:
             user = ctx.author
         messages = self.bot.message_logs.fetch_messages(user.id)
@@ -559,6 +564,30 @@ class Chat_commands(commands.Cog):
                     pass
             final += word + "     "
         await ctx.reply(final)
+
+    @commands.hybrid_group(name="birthday")
+    async def birthday(self, ctx):
+        """Commands regarding Birthdays"""
+        if ctx.invoked_subcommand is None:
+            await ctx.send("Not a valid command")
+
+    @birthday.command(name="add")
+    async def add_birthday(self, ctx, date):
+        """Stores bday in the db."""
+        # DD-MM-YYYY
+        date_format = "%d/%m/%Y"
+        try:
+            date_final = datetime.datetime.strptime(date, date_format)
+        except:
+            await ctx.reply("Enter date in the format: DD/MM/YYYY", ephemeral=True)
+            return
+        bday = Birthday()
+        bday.insert_command(ctx.message.author.id, date_final)
+        bday.closeConnection()
+        del bday
+        await ctx.reply(f"Your birthdate has been set as: ||{date_final.strftime('%d/%m/%Y')}||.")
+
+
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):

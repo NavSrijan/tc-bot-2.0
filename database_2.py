@@ -457,6 +457,40 @@ CREATE TABLE "voice_logs" (
         allUsers = self.view_query(query, values=(date_to_subtract, ))
         return allUsers
 
+class Birthday(Database):
+    """
+    CREATE TABLE "birthday" (
+        "user_id" BIGINT NOT NULL,
+        "birthdate" DATE NOT NULL,
+        PRIMARY KEY ("user_id")
+    );
+    """
+
+    def __init__(self):
+        tableName = "birthday"
+        super().__init__(tableName)
+
+    @_is_connected
+    def insert_command(self, user_id, birthdate):
+        query = f"""INSERT INTO {self.tableName} (user_id, birthdate) VALUES(%s, %s) ON CONFLICT (user_id) DO UPDATE SET birthdate=%s;"""
+        self.cursor.execute(
+            query, (user_id, birthdate, birthdate))
+
+    @_is_connected
+    def get_todays_birthdays(self):
+        query = f"SELECT * FROM {self.tableName} WHERE to_char(birthdate, 'DD-MM')=to_char(NOW(), 'DD-MM');"
+        vals = self.view_query(query)
+        return vals
+
+    @_is_connected
+    def get_upcoming_birthdays(self, n=10):
+        query = f""
+
+    @_is_connected
+    def get_age(self, user_id):
+        query = f""
+
+
 
 class Synergy():
 
