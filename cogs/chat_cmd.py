@@ -157,6 +157,12 @@ class Chat_commands(commands.Cog):
         # plt.show()
         file = discord.File(fp='wc.png', filename='wc.png')
         await ctx.reply(file=file)
+        
+    @commands.hybrid_command(name="line_equation")
+    async def line_equation(self, ctx, x1:int, y1:int, x2:int, y2:int):
+        slope = (y2-y1)/(x2-x1)
+        eq = f"**(y-{y1})={slope}*(x-{x1})**"
+        await ctx.reply(f"The equation of the line is {eq}")
 
     @commands.hybrid_command(name="highlight", aliases=["hl"], enabled=False)
     async def highlight(self, ctx, word):
