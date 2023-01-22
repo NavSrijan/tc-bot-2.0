@@ -383,11 +383,15 @@ class Chat_commands(commands.Cog):
             allowed_mentions=allowed_mentions)
 
     @commands.hybrid_command(name="avatar", aliases=["av"])
-    async def avatar(self, ctx, user_av: discord.Member = None):
+    async def avatar(self, ctx, user_av: discord.Member = None, pfp: Literal["server", "default"]="server"):
+        """View the avatar of a person. $avatar [user] {server/default}"""
 
         def display_av(user):
             try:
-                av = user.display_avatar.url
+                if pfp=="server":
+                    av = user.display_avatar.url
+                else:
+                    av = user.avatar.url
             except:
                 av = user.default_avatar.url
             emb = basic_embed(title=user.name, image_url=av)
