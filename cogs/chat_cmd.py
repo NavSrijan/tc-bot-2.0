@@ -387,7 +387,7 @@ class Chat_commands(commands.Cog):
 
         def display_av(user):
             try:
-                av = user.avatar.url
+                av = user.display_avatar.url
             except:
                 av = user.default_avatar.url
             emb = basic_embed(title=user.name, image_url=av)
