@@ -6,6 +6,7 @@ import time
 from helpers import basic_embed
 import random
 import asyncio
+import ipdb
 
 
 class Mod(commands.Cog):
@@ -46,7 +47,8 @@ class Mod(commands.Cog):
 
     @commands.has_permissions(kick_members=True)
     @commands.hybrid_command(name="message")
-    async def message_user_text_in_channel(self, ctx, text: str, channel: discord.TextChannel):
+    async def message_user_text_in_channel(self, ctx, text: str,
+                                           channel: discord.TextChannel):
         """Message in a specific channel."""
         await ctx.reply("Done.", ephemeral=True)
         await channel.send(text)
@@ -292,7 +294,6 @@ class Mod(commands.Cog):
             for i in members:
                 try:
                     await i.add_roles(role)
-                    print(i.name)
                     await asyncio.sleep(0.5)
                 except Exception as e:
                     print(e)
@@ -328,7 +329,6 @@ class Mod(commands.Cog):
         try:
             for i in members:
                 await i.remove_roles(role)
-                print(i.name)
                 await asyncio.sleep(1)
         except:
             await ctx.channel.send("Permission missing.")
@@ -417,6 +417,48 @@ class Mod(commands.Cog):
             await ctx.reply(
                 "What to change?\nSyntax: $config change <name of group> <variable to change> <value>"
             )
+
+    @commands.has_permissions(kick_members=True)
+    @config.command(name="view_roles_of_a_command")
+    async def view_roles_of_a_command(self, ctx, command_name):
+        """View details about allowed roles for a command."""
+        cmd = self.bot.config_obj.view_command_role(command_name)
+        text = ""
+        for i in cmd:
+            text += f"<@&{i}>"
+        await ctx.reply(text)
+
+    @commands.has_permissions(kick_members=True)
+    @config.command(name="view_all_commands_with_roles")
+    async def view_all_commands_with_roles(self, ctx):
+        """View all available commands"""
+        cmd = self.bot.config_obj.view_all_commands_with_roles()
+        text = ""
+        for i in cmd:
+            text += (i)
+        await ctx.reply(text)
+
+    @commands.has_permissions(kick_members=True)
+    @config.command(name="add_role_to_command")
+    async def add_role_to_command(self, ctx, command_name, role_to_add):
+        """Add a role to the whitelist of any command or similar variables"""
+        try:
+            self.bot.config_obj.store_role(command_name, int(role_to_add))
+            await ctx.reply("Successfully added the role.")
+        except:
+            await ctx.reply("Couldn't complete the request.")
+
+    @commands.has_permissions(kick_members=True)
+    @config.command(name="remove_role_from_command")
+    async def remove_role_from_command(self, ctx, command_name,
+                                       role_to_remove):
+        """Add a role to remove the whitelist of any command or similar variables"""
+        ipdb.set_trace()
+        try:
+            self.bot.config_obj.remove_role(command_name, int(role_to_remove))
+            await ctx.reply("Successfully removed the role.")
+        except:
+            await ctx.reply("Couldn't complete the request.")
 
     @commands.has_permissions(kick_members=True)
     @config.command(name="add_url")

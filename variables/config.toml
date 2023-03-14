@@ -4,11 +4,14 @@ name = "Test"
 prefix = "$"
 
 [blocked_urls]
-urls = [ "https://media.discordapp.net/attachments", "https://cdn.discordapp.com/attachments", "https://imgur.com", "https://i.imgur.com", "https://images-ext-1.discordapp.net/external", "https://www.reddit.com/", "https://www.youtube.com/", "https://youtu.be/", "https://bit.ly/",]
+urls = [ "https://media.discordapp.net/attachments", "https://cdn.discordapp.com/attachments", "https://imgur.com", "https://i.imgur.com", "https://images-ext-1.discordapp.net/external", "https://www.reddit.com/", "https://www.youtube.com/", "https://youtu.be/", "https://bit.ly/", "https://www.youtu.be/",]
+
+[roles_list]
+roles_allowed_to_send_images = [1005791027933753364, 1005791066257096705, 1005791107713601576, 1005791150629720155, 1005791187652841512, 1005791239490261092, 1005791278199488564, 1005791286571315240, 1005791355357904946, 998303854925975734, 960932026549174272, 988445679426867200, 975456077623746590, 970902786638250034, 893950378431877131, 1070987643472576562]
 
 [commands.revive]
 name = "revive"
-revive_channel = 957263189320540170
+revive_channel = 973577832116674650
 revives_available = 3
 revive_role = 957743867111817287
 revive_delay = 1800

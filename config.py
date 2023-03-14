@@ -1,4 +1,6 @@
 import toml
+import ipdb
+
 
 class Config():
 
@@ -27,3 +29,39 @@ class Config():
         self.config['blocked_urls']['urls'] = urls
         self.dump_config()
         return urls
+
+    def view_all_commands_with_roles(self):
+        """Returns all the commands which have roles restriction."""
+        try:
+            return self.config['roles_list']
+        except:
+            return "There was some error."
+
+    def view_command_role(self, command_name: str):
+        """Returns all the roles allowed under a command."""
+        try:
+            return self.config['roles_list'][command_name]
+        except:
+            return "Couldn't find the command."
+
+    def store_role(self, command_name: str, role_to_add: int):
+        try:
+            self.config['roles_list']
+        except:
+            self.config.update({'roles_list': {}})
+
+        try:
+            if role_to_add not in self.config['roles_list'][command_name]:
+                self.config['roles_list'][command_name].append(role_to_add)
+            else:
+                pass
+        except:
+            self.config['roles_list'].update({command_name: role_to_add})
+
+        self.dump_config()
+        return role_to_add
+
+    def remove_role(self, command_name, role_to_remove):
+        roles = self.config['roles_list'][command_name].remove(role_to_remove)
+        self.dump_config()
+        return roles

@@ -204,11 +204,7 @@ async def on_message(message: discord.Message):
         895221352267677697, 983791675874877500, 895221241412198410,
         983787831476490291, 895014066853117983
     ]
-    roles_allowed_to_send_images = [
-        960932026549174272, 998303854925975734, 893950378431877131,
-        970902786638250034, 839010251868078101, 975456077623746590,
-        977217186928160828
-    ]
+    roles_allowed_to_send_images = bot.config['roles_list']['roles_allowed_to_send_images']
     if message.channel.id not in channels_with_image_access:
         to_pass = True
         for k in message.author.roles:
