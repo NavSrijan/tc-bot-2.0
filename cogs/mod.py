@@ -453,7 +453,6 @@ class Mod(commands.Cog):
     async def remove_role_from_command(self, ctx, command_name,
                                        role_to_remove):
         """Add a role to remove the whitelist of any command or similar variables"""
-        ipdb.set_trace()
         try:
             self.bot.config_obj.remove_role(command_name, int(role_to_remove))
             await ctx.reply("Successfully removed the role.")
