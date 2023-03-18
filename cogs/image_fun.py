@@ -8,6 +8,11 @@ import random
 import requests
 from io import BytesIO
 import textwrap
+from scipy.spatial import KDTree
+from webcolors import (
+    CSS3_HEX_TO_NAMES,
+    hex_to_rgb,
+)
 
 
 def icon(image_object, image_size):
@@ -46,6 +51,29 @@ class ImageFun(commands.Cog):
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+
+    @commands.hybrid_command(name="rgb_to_color", aliases=["rtc"])
+    async def rgb_to_color(self, ctx, red=0, green=0, blue=0):
+        """Convert any rgb value to a given color name"""
+
+        def convert_rgb_to_names(rgb_tuple):
+
+            # a dictionary of all the hex and their respective names in css3
+            css3_db = CSS3_HEX_TO_NAMES
+            names = []
+            rgb_values = []
+            for color_hex, color_name in css3_db.items():
+                names.append(color_name)
+                rgb_values.append(hex_to_rgb(color_hex))
+
+            kdt_db = KDTree(rgb_values)
+            distance, index = kdt_db.query(rgb_tuple)
+            return f'closest match: {names[index]}'
+        color = convert_rgb_to_names((red, green, blue))
+
+        im = Image.new('RGB', (500, 500), color=(red, green, blue))
+        file = send_image(im)
+        await ctx.reply(color, file=file)
 
     @commands.hybrid_command(name="iloveyou")
     async def ily_real(self, ctx):
@@ -284,11 +312,14 @@ class ImageFun(commands.Cog):
                 if i.id in roles_to_check:
                     return True
             return False
+
         items_to_pop = []
         for i in lb:
             try:
                 user = ctx.guild.get_member(i[0])
-                if check_role(user, self.bot.config['roles_list']['roles_not_in_lb']):
+                if check_role(
+                        user,
+                        self.bot.config['roles_list']['roles_not_in_lb']):
                     items_to_pop.append(i)
             except:
                 items_to_pop.append(i)
@@ -465,9 +496,9 @@ class ImageFun(commands.Cog):
         with BytesIO() as image_binary:
             base.save(image_binary, 'PNG')
             image_binary.seek(0)
-            await chnl.send(
-                f"{addText}",
-                file=discord.File(fp=image_binary, filename='lb_image.png'))
+            await chnl.send(f"{addText}",
+                            file=discord.File(fp=image_binary,
+                                              filename='lb_image.png'))
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
