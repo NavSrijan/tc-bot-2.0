@@ -288,7 +288,7 @@ class ImageFun(commands.Cog):
         for i in lb:
             try:
                 user = ctx.guild.get_member(i[0])
-                if check_role(user, [893950378431877131, 839010251868078101, 1052810623509082122, 1052810645080379423, 970902786638250034]):
+                if check_role(user, self.bot.config['roles_list']['roles_not_in_lb']):
                     items_to_pop.append(i)
             except:
                 items_to_pop.append(i)

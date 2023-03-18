@@ -425,7 +425,7 @@ class Mod(commands.Cog):
         cmd = self.bot.config_obj.view_command_role(command_name)
         text = ""
         for i in cmd:
-            text += f"<@&{i}>"
+            text += f"<@&{i}>\n"
         await ctx.reply(text)
 
     @commands.has_permissions(kick_members=True)
@@ -435,7 +435,7 @@ class Mod(commands.Cog):
         cmd = self.bot.config_obj.view_all_commands_with_roles()
         text = ""
         for i in cmd:
-            text += (i)
+            text += (i) + "\n"
         await ctx.reply(text)
 
     @commands.has_permissions(kick_members=True)
