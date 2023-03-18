@@ -466,7 +466,7 @@ class ImageFun(commands.Cog):
             base.save(image_binary, 'PNG')
             image_binary.seek(0)
             await chnl.send(
-                f"<@&{self.bot.config['commands']['misc']['tc_family_role']}>\n{addText}",
+                f"{addText}",
                 file=discord.File(fp=image_binary, filename='lb_image.png'))
 
     @commands.Cog.listener()
