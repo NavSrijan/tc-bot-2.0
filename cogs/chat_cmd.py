@@ -2,7 +2,6 @@ import asyncio
 import datetime
 import random
 from typing import Literal
-import ipdb
 
 import discord
 from discord import AllowedMentions, app_commands
@@ -157,10 +156,10 @@ class Chat_commands(commands.Cog):
         # plt.show()
         file = discord.File(fp='wc.png', filename='wc.png')
         await ctx.reply(file=file)
-        
+
     @commands.hybrid_command(name="line_equation")
-    async def line_equation(self, ctx, x1:int, y1:int, x2:int, y2:int):
-        slope = (y2-y1)/(x2-x1)
+    async def line_equation(self, ctx, x1: int, y1: int, x2: int, y2: int):
+        slope = (y2 - y1) / (x2 - x1)
         eq = f"**(y-{y1})={slope}*(x-{x1})**"
         await ctx.reply(f"The equation of the line is {eq}")
 
@@ -383,12 +382,15 @@ class Chat_commands(commands.Cog):
             allowed_mentions=allowed_mentions)
 
     @commands.hybrid_command(name="avatar", aliases=["av"])
-    async def avatar(self, ctx, user_av: discord.Member = None, pfp: Literal["server", "default"]="server"):
+    async def avatar(self,
+                     ctx,
+                     user_av: discord.Member = None,
+                     pfp: Literal["server", "default"] = "server"):
         """View the avatar of a person. $avatar [user] {server/default}"""
 
         def display_av(user):
             try:
-                if pfp=="server":
+                if pfp == "server":
                     av = user.display_avatar.url
                 else:
                     av = user.avatar.url
@@ -581,6 +583,20 @@ class Chat_commands(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send("Not a valid command")
 
+    @commands.hybrid_command(name="confession")
+    async def confession(self, ctx, confession_text):
+        """Anonymous confessions"""
+        channel = self.bot.get_channel(
+            self.bot.config['commands']['confession']['confession_channel'])
+        z = await ctx.reply("You confession has been submitted.", ephemeral=True)
+        try:
+            await z.delete()
+            await ctx.message.delete()
+        except:
+            pass
+        emb = discord.Embed(title="Anonymous Confession", color=discord.Color.from_str("#ed7315"), description=confession_text)
+        await channel.send(embed=emb)
+
     @birthday.command(name="add")
     async def add_birthday(self, ctx, date):
         """Stores bday in the db."""
@@ -589,15 +605,16 @@ class Chat_commands(commands.Cog):
         try:
             date_final = datetime.datetime.strptime(date, date_format)
         except:
-            await ctx.reply("Enter date in the format: DD/MM/YYYY", ephemeral=True)
+            await ctx.reply("Enter date in the format: DD/MM/YYYY",
+                            ephemeral=True)
             return
         bday = Birthday()
         bday.insert_command(ctx.message.author.id, date_final)
         bday.closeConnection()
         del bday
-        await ctx.reply(f"Your birthdate has been set as: ||{date_final.strftime('%d/%m/%Y')}||.")
-
-
+        await ctx.reply(
+            f"Your birthdate has been set as: ||{date_final.strftime('%d/%m/%Y')}||."
+        )
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):

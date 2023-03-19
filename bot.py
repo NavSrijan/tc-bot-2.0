@@ -204,7 +204,8 @@ async def on_message(message: discord.Message):
         895221352267677697, 983791675874877500, 895221241412198410,
         983787831476490291, 895014066853117983
     ]
-    roles_allowed_to_send_images = bot.config['roles_list']['roles_allowed_to_send_images']
+    roles_allowed_to_send_images = bot.config['roles_list'][
+        'roles_allowed_to_send_images']
     if message.channel.id not in channels_with_image_access:
         to_pass = True
         for k in message.author.roles:
@@ -297,7 +298,7 @@ async def on_message(message: discord.Message):
                 allowed_mentions=allowed_mentions)
 
     def process_messages(message):
-        to_not_count = ["owo", "pls"]
+        to_not_count = ["owo", "pls", f"{prefix}confession"]
         for i in to_not_count:
             if message.content.lower().startswith(i):
                 return False
@@ -339,6 +340,8 @@ async def on_interaction(interaction):
         arguments = json.dumps(interaction.data['options'][0])
     except:
         arguments = json.dumps({})
+    if interaction.data['name'] in ['confession']:
+        return
     db_command_logs.insert_command(interaction, interaction.id,
                                    interaction.data['name'], arguments,
                                    interaction.user)

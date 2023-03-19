@@ -73,7 +73,7 @@ class ImageFun(commands.Cog):
 
         im = Image.new('RGB', (500, 500), color=(red, green, blue))
         file = send_image(im)
-        await ctx.reply(color, file=file)
+        await ctx.reply(f"**{color}**", file=file)
 
     @commands.hybrid_command(name="iloveyou")
     async def ily_real(self, ctx):
