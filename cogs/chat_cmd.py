@@ -594,7 +594,7 @@ class Chat_commands(commands.Cog):
             await ctx.message.delete()
         except:
             pass
-        emb = discord.Embed(title="Anonymous Confession", color=discord.Color.from_str("#ed7315"), description=confession_text)
+        emb = discord.Embed(title="Anonymous Confession", color=discord.Color.from_str("#4a0c9c"), description=confession_text)
         await channel.send(embed=emb)
 
     @birthday.command(name="add")
