@@ -298,7 +298,7 @@ async def on_message(message: discord.Message):
                 allowed_mentions=allowed_mentions)
 
     def process_messages(message):
-        to_not_count = ["owo", "pls", f"{prefix}confession"]
+        to_not_count = ["owo", "pls"]
         for i in to_not_count:
             if message.content.lower().startswith(i):
                 return False
@@ -340,7 +340,7 @@ async def on_interaction(interaction):
         arguments = json.dumps(interaction.data['options'][0])
     except:
         arguments = json.dumps({})
-    if interaction.data['name'] in ['confession']:
+    if interaction.data['name'] in ['']:
         return
     db_command_logs.insert_command(interaction, interaction.id,
                                    interaction.data['name'], arguments,
