@@ -2,7 +2,7 @@ from discord.ext import commands
 import discord
 from database_2 import Message_Logs, Voice_Logs
 from helpers import *
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image, ImageFont, ImageDraw, ImageColor
 import os
 import random
 import requests
@@ -53,7 +53,7 @@ class ImageFun(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(name="rgb_to_color", aliases=["rtc"])
-    async def rgb_to_color(self, ctx, red=0, green=0, blue=0):
+    async def rgb_to_color(self, ctx, red=0, green=0, blue=0, hex_color=None):
         """Convert any rgb value to a given color name"""
 
         def convert_rgb_to_names(rgb_tuple):
@@ -69,9 +69,15 @@ class ImageFun(commands.Cog):
             kdt_db = KDTree(rgb_values)
             distance, index = kdt_db.query(rgb_tuple)
             return f'closest match: {names[index]}'
-        color = convert_rgb_to_names((red, green, blue))
+        
+        if hex_color is None:
+            color = convert_rgb_to_names((red, green, blue))
+            im = Image.new('RGB', (500, 500), color=(red, green, blue))
+        else:
+            rgb = ImageColor.getcolor(hex_color, "RGB")
+            color = convert_rgb_to_names(rgb)
+            im = Image.new('RGB', (500, 500), color=rgb)
 
-        im = Image.new('RGB', (500, 500), color=(red, green, blue))
         file = send_image(im)
         await ctx.reply(f"**{color}**", file=file)
 
