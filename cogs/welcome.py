@@ -1,4 +1,6 @@
 from discord.ext import commands
+import random
+import csv
 import os
 
 
@@ -7,6 +9,9 @@ class Welcome(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        with open("assets/random_data/welcome_messages.csv", "r") as f:
+            self.welcomeMessages = list(csv.reader(f))
+
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
@@ -21,10 +26,12 @@ class Welcome(commands.Cog):
 
         welcomeMessage = f"""
 ╭━─━─━─━─  ≪✠≫  ─━─━─━─━╮
-{arrow2} 𝙷𝙴𝚈 <@{member.id}>
-{arrow2} 𝚆𝙴𝙻𝙲𝙾𝙼𝙴 𝚃𝙾 𝚃𝙴𝙴𝙽𝙰𝙶𝙴 𝙲𝙾𝙼𝙼𝚄𝙽𝙸𝚃𝚈
-{arrow2} 𝙿𝙻𝙴𝙰𝚂𝙴 𝙶𝚁𝙰𝙱 𝚈𝙾𝚄𝚁 <#{self_roles_channel}>
+{arrow2} HEY <@{member.id}>
+{arrow2} WELCOME TO SOCIAL HIDEOUT
+{arrow2} PLEASE GRAB YOUR <#{self_roles_channel}>
 ╰━─━─━─━─  ≪✠≫  ─━─━─━─━╯
+
+**{random.choice(self.welcomeMessages)[0]}**
 """
         await channel.send(welcomeMessage)
 

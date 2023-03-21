@@ -346,7 +346,7 @@ class ImageFun(commands.Cog):
 
         title_text = ImageFont.truetype(font_to_use, 70)
         ImageDraw.Draw(base).text((280, 20),
-                                  ' TEENAGE\nCOMMUNITY',
+                                  ' SOCIAL\nHIDEOUT',
                                   'rgb(255,255,255)',
                                   font=title_text,
                                   spacing=10)

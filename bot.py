@@ -176,7 +176,7 @@ async def on_message(message: discord.Message):
 
     r_words = message.content.lower().split(" ")
     for i in r_words:
-        if i in ["tc", "teenage", "community", "teenage", "teenagecommunity"]:
+        if i in ["tc", "teenage", "community", "teenage", "teenagecommunity", "social", "hideout", "sh", "island"]:
             tc_emoji = "<a:tc_excited:995961225525608500>"
             await message.add_reaction(tc_emoji)
             break
