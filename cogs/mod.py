@@ -71,7 +71,7 @@ class Mod(commands.Cog):
         """
         if channel is None:
             channel = ctx.channel
-        await channel.set_permissions(ctx.message.guild.default_role,
+        await channel.set_permissions(ctx.message.guild.get_role(839005140891205684),
                                       read_messages=True,
                                       send_messages=False)
         await channel.send("The channel has been locked.")
@@ -82,7 +82,7 @@ class Mod(commands.Cog):
         """
         Unlocks the channel
         """
-        await ctx.channel.set_permissions(ctx.message.guild.default_role,
+        await ctx.channel.set_permissions(ctx.message.guild.get_role(839005140891205684),
                                           read_messages=True,
                                           send_messages=True)
         await ctx.channel.send("The channel has been unlocked.")
