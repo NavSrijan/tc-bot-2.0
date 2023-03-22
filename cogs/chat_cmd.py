@@ -625,6 +625,16 @@ class Chat_commands(commands.Cog):
             f"Your birthdate has been set as: ||{date_final.strftime('%d/%m/%Y')}||."
         )
 
+    @birthday.command(name="remove")
+    async def remove_birthday(self, ctx):
+        """Remove a user's birthday"""
+        bday = Birthday()
+        try:
+            bday.remove_command(ctx.author.id)
+            await ctx.reply("Successfully forgot your bday.")
+        except:
+            await ctx.reply("Couldn't remove your bday, maybe you didn't enter it in the first place?")
+
     @tasks.loop(time=datetime.time(hour=0,
                                    minute=1,
                                    tzinfo=ZoneInfo("Asia/Kolkata")))

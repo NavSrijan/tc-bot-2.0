@@ -477,6 +477,11 @@ class Birthday(Database):
             query, (user_id, birthdate, birthdate))
 
     @_is_connected
+    def remove_command(self, user_id):
+        query = f"""DELETE FROM {self.tableName} WHERE user_id={user_id};"""
+        self.cursor.execute(query, (user_id, ))
+
+    @_is_connected
     def get_todays_birthdays(self):
         query = f"SELECT * FROM {self.tableName} WHERE	DATE_PART('day', birthdate) = DATE_PART('day', CURRENT_DATE)AND DATE_PART('month', birthdate) = DATE_PART('month', CURRENT_DATE)"
         vals = self.view_query(query)

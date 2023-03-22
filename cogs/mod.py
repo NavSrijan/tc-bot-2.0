@@ -380,7 +380,7 @@ class Mod(commands.Cog):
                     if isinstance(config[section][sec_2], list):
                         desc += f"{sec_2}\n`"
                         for el in config[section][sec_2]:
-                            desc += el + "\n"
+                            desc += str(el) + "\n"
                         desc += "`"
                     else:
                         desc += f"`{sec_2}`: {config[section][sec_2]}\n"
