@@ -478,17 +478,28 @@ class Birthday(Database):
 
     @_is_connected
     def get_todays_birthdays(self):
-        query = f"SELECT * FROM {self.tableName} WHERE to_char(birthdate, 'DD-MM')=to_char(NOW(), 'DD-MM');"
+        query = f"SELECT * FROM {self.tableName} WHERE	DATE_PART('day', birthdate) = DATE_PART('day', CURRENT_DATE)AND DATE_PART('month', birthdate) = DATE_PART('month', CURRENT_DATE)"
         vals = self.view_query(query)
         return vals
 
     @_is_connected
     def get_upcoming_birthdays(self, n=10):
-        query = f""
+        """Returns upcoming birthdays for the next 3 months."""
+        query = f"""with next_3_months as (select (select to_char(x::date, 'MM-DD' )) md from generate_series(now(), now() + '3 months'::interval, '1 day'::interval) x)
+select
+   b.*
+FROM
+   next_3_months n5d
+   join {self.tableName} b on n5d.md = (select to_char( b.birthdate, 'MM-DD' ));"""
+        vals = self.view_query(query)
+        return vals
 
     @_is_connected
     def get_age(self, user_id):
-        query = f""
+        #query = f"select AGE(birthdate) from {self.tableName};"
+        query = f"SELECT birthdate from {self.tableName} where user_id=%s"
+        result = self.view_query(query, values=(user_id, ))
+        return result
 
 
 

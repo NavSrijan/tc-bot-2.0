@@ -23,7 +23,8 @@ db_message_logs = Message_Logs()
 db_command_logs = Command_Logs()
 db_voice_logs = Voice_Logs()
 db_afk = Afk()
-tc_id = 838857215305187328
+tc_id = 838857215305187328 # SH
+#tc_id = 864085584691593216 # TW
 MY_GUILD = discord.Object(id=tc_id)
 
 ##
@@ -55,6 +56,7 @@ bot.config_obj = config_obj
 bot.message_logs = Message_Logs()
 bot.config = config
 bot.prefix = prefix
+bot.tc_id = tc_id
 
 # Logging
 logger = logging.getLogger('discord')

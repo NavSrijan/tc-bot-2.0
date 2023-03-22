@@ -1,11 +1,15 @@
 import asyncio
 import datetime
+from dateutil.relativedelta import *
+from datetime import date
 import random
 from typing import Literal
+from zoneinfo import ZoneInfo
+import csv
 
 import discord
 from discord import AllowedMentions, app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 from jokeapi import Jokes
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
@@ -26,6 +30,8 @@ class Chat_commands(commands.Cog):
         self.topics = load("assets/random_data/topics.pkl")
         self.last_revive_used = None
         self.alreadyDone = []
+
+        self.wish_birthday.start()
 
     @commands.cooldown(1, 15, commands.BucketType.user)
     @commands.hybrid_command(name="synergy", aliases=['syn'])
@@ -588,13 +594,16 @@ class Chat_commands(commands.Cog):
         """Anonymous confessions"""
         channel = self.bot.get_channel(
             self.bot.config['commands']['confession']['confession_channel'])
-        z = await ctx.reply("You confession has been submitted.", ephemeral=True)
+        z = await ctx.reply("You confession has been submitted.",
+                            ephemeral=True)
         try:
             await z.delete()
             await ctx.message.delete()
         except:
             pass
-        emb = discord.Embed(title="Anonymous Confession", color=discord.Color.from_str("#4a0c9c"), description=confession_text)
+        emb = discord.Embed(title="Anonymous Confession",
+                            color=discord.Color.from_str("#4a0c9c"),
+                            description=confession_text)
         await channel.send(embed=emb)
 
     @birthday.command(name="add")
@@ -615,6 +624,49 @@ class Chat_commands(commands.Cog):
         await ctx.reply(
             f"Your birthdate has been set as: ||{date_final.strftime('%d/%m/%Y')}||."
         )
+
+    @tasks.loop(time=datetime.time(hour=0,
+                                   minute=1,
+                                   tzinfo=ZoneInfo("Asia/Kolkata")))
+    async def wish_birthday(self):
+        with open("assets/random_data/birthday_wishes.csv", "r") as f:
+            self.wishes = list(csv.reader(f))
+
+        bday = Birthday()
+        todays_birthdays = bday.get_todays_birthdays()
+        chnl = self.bot.get_channel(
+            self.bot.config['commands']['birthday']['birthday_channel'])
+        for i in todays_birthdays:
+            await chnl.send(f"{random.choice(self.wishes)[0]} <@{i[0]}>")
+
+    @birthday.command(name="upcoming_birthdays")
+    async def upcoming_birthdays(self, ctx):
+        """Get upcoming_birthdays in coming 3 months. Will only send at max 10 enteries."""
+        bday = Birthday()
+        vals = bday.get_upcoming_birthdays()
+        vals.reverse()
+        to_send = ""
+        template = "<@{}>: {}\n"
+        guild = self.bot.get_guild(self.bot.tc_id)
+        for i in vals:
+            if guild.get_member(i[0]) is not None:
+                to_send += template.format(i[0], i[1])
+        emb = discord.Embed(title="Upcoming Birthdays", description=to_send)
+
+        await ctx.reply(embed=emb)
+
+    @birthday.command(name="age")
+    async def age(self, ctx, user: discord.Member):
+        def calculate_age(born):
+            today = date.today()
+            return relativedelta(today, born)
+        try:
+            bday = Birthday()
+            ag = calculate_age(bday.get_age(user.id)[0][0])
+            to_reply = f"{ag.years} years {ag.months} months {ag.days} days"
+            await ctx.reply(to_reply)
+        except:
+            await ctx.reply("This user has not provided their birthday.")
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
