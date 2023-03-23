@@ -107,7 +107,7 @@ async def setup_hook():
 @commands.cooldown(1, 32, commands.BucketType.user)
 async def afk(ctx, *args):
     message = ctx.message
-    role_required = role_required = bot.bot.config['roles_list']['']
+    role_required = role_required = bot.config['roles_list']['roles_for_afk']
     for i in role_required:
         if ctx.guild.get_role(i) in ctx.author.roles:
             name = message.author.display_name
