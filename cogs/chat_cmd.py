@@ -296,9 +296,10 @@ class Chat_commands(commands.Cog):
                 total += i[0]
 
             avg_no_of_msg = total / number_of_users
-            if avg_no_of_msg >= 20:
+            if avg_no_of_msg >= 7:
                 await ctx.reply(
                     "The chat is currently active or was in the last 20 mins.")
+                self.chat.reset_cooldown(ctx)
                 print(avg_no_of_msg)
                 return
 
