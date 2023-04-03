@@ -194,7 +194,7 @@ async def on_message(message: discord.Message):
                 emb.set_author(name=message.author.display_name,
                                icon_url=message.author.avatar.url)
                 emb.color = discord.Color.blurple()
-                await p1.send(embed=emb)
+                await message.guild.get_member(p1).send(embed=emb)
 
     channels_with_image_access = [
         895221352267677697, 983791675874877500, 895221241412198410,

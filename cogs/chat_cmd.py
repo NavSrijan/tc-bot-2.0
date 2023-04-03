@@ -19,6 +19,7 @@ from database_2 import Message_Logs, Synergy, Birthday
 from functions import load, save, utc_to_ist, MorseCode
 from helpers import basic_embed, get_percentage_image
 import aiohttp
+import ipdb
 
 
 class Chat_commands(commands.Cog):
@@ -28,7 +29,6 @@ class Chat_commands(commands.Cog):
         self.bot = bot
         self.last_used = None
         self.topics = load("assets/random_data/topics.pkl")
-        self.last_revive_used = None
         self.alreadyDone = []
 
         self.wish_birthday.start()
@@ -277,18 +277,31 @@ class Chat_commands(commands.Cog):
         mor = MorseCode()
         await ctx.reply(mor.decrypt(text))
 
-    @commands.hybrid_group(name="revive", enabled=False)
+    @commands.hybrid_group(name="revive")
     async def revive(self, ctx):
         """Commands regarding revive chat"""
         if ctx.invoked_subcommand is None:
             await ctx.send("Not a valid command")
 
-    @revive.command(name="chat", aliases=['c', 'ch'], enabled=False)
+    @revive.command(name="chat", aliases=['c', 'ch'])
+    @commands.cooldown(1, 7200, commands.BucketType.guild)
     async def chat(self, ctx):
         """Revive the chat!"""
         if ctx.channel.id == self.bot.config['commands']['revive'][
                 'revive_channel']:
-            msg_time = ctx.message.created_at
+            res = self.bot.message_logs.check_for_revive()
+            total = 0
+            number_of_users = len(res)
+            for i in res:
+                total += i[0]
+
+            avg_no_of_msg = total / number_of_users
+            if avg_no_of_msg >= 20:
+                await ctx.reply(
+                    "The chat is currently active or was in the last 20 mins.")
+                print(avg_no_of_msg)
+                return
+
             if len(self.topics) != 0:
                 topic = random.choice(self.topics)
                 self.alreadyDone.append(
@@ -300,30 +313,27 @@ class Chat_commands(commands.Cog):
                 self.alreadyDone.append(
                     self.topics.pop(self.topics.index(topic)))
 
-            if self.last_used is None or (
-                    msg_time - self.last_used).seconds > self.revive_delay:
-                await ctx.reply(
-                    f"<@&{self.bot.config['commands']['revive']['revive_role']}> Trying to revive the chat. ||By <@{ctx.author.id}>||\n`{topic}`"
-                )
-            else:
-                last = (msg_time - self.last_used).seconds
-                timeLeft = self.revive_delay - last
-                m, s = divmod(timeLeft, 60)
-                await ctx.reply(f"The chat can be revived again in {m}m, {s}s."
-                                )
+            emb = discord.Embed(
+                title="Reviving chat!",
+                description=f"**{topic}**\n\nRevived by:{ctx.author.mention}")
+
+            await ctx.reply(
+                f"<@&{self.bot.config['commands']['revive']['revive_role']}>",
+                embed=emb)
+
         else:
             await ctx.reply(
                 f"Head over to <#{self.bot.config['commands']['revive']['revive_channel']}> to revive the chat."
             )
 
-    @commands.hybrid_command(name="rc",
-                             aliases=["revivechat", "revive_chat", "rev_chat"],
-                             hidden=True,
-                             enabled=False)
-    async def rc(self, ctx):
-        """Alias for revive_chat"""
-        chat_command = self.bot.get_command('revive').all_commands['chat']
-        await ctx.invoke(chat_command)
+    #@commands.hybrid_command(name="rc",
+    #                         aliases=["revivechat", "revive_chat", "rev_chat"],
+    #                         hidden=True,
+    #                         allowed=False)
+    #async def rc(self, ctx):
+    #    """Alias for revive_chat"""
+    #    chat_command = self.bot.get_command('revive').all_commands['chat']
+    #    await ctx.invoke(chat_command)
 
     @commands.has_permissions(kick_members=True)
     @revive.command(name="reset_time", aliases=["rt"])
@@ -633,7 +643,9 @@ class Chat_commands(commands.Cog):
             bday.remove_command(ctx.author.id)
             await ctx.reply("Successfully forgot your bday.")
         except:
-            await ctx.reply("Couldn't remove your bday, maybe you didn't enter it in the first place?")
+            await ctx.reply(
+                "Couldn't remove your bday, maybe you didn't enter it in the first place?"
+            )
 
     @tasks.loop(time=datetime.time(hour=0,
                                    minute=1,
@@ -667,9 +679,11 @@ class Chat_commands(commands.Cog):
 
     @birthday.command(name="age")
     async def age(self, ctx, user: discord.Member):
+
         def calculate_age(born):
             today = date.today()
             return relativedelta(today, born)
+
         try:
             bday = Birthday()
             ag = calculate_age(bday.get_age(user.id)[0][0])
@@ -688,8 +702,11 @@ class Chat_commands(commands.Cog):
                 desc=
                 "You don't have the permission to use this.\nIf you feel you should be using this, contact staff."
             ))
+        elif isinstance(error, commands.CommandOnCooldown):
+            await ctx.reply(
+                f"Retry again after {round(error.retry_after, 0)}s.")
         else:
-            print(error)
+            print(repr(error))
 
 
 async def setup(bot):

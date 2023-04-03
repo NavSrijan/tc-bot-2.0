@@ -270,6 +270,12 @@ class Message_Logs(Database):
         mentions = self.view_query(query, values=(string_to_search, ))
         return mentions
 
+    @_is_connected
+    def check_for_revive(self):
+        query = f"SELECT COUNT(message_id) AS mi, user_id FROM {self.tableName} WHERE time_of_message BETWEEN NOW() - INTERVAL '20 mins' AND NOW() GROUP BY user_id ORDER BY mi DESC;"
+        res = self.view_query(query)
+        return res
+
 
 class Afk(Database):
     """
