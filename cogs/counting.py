@@ -1,7 +1,6 @@
 from discord.ext import commands
 import discord
 from discord import AllowedMentions, Embed
-from database import Database_message_bank, DATABASE_URL
 from database_2 import Message_Logs
 import os
 from helpers import send_image

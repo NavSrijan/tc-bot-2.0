@@ -2,7 +2,6 @@ from discord.ext import commands
 import discord
 import os
 from helpers import PersistentView, VoteView, VoteViewForEmoji
-from database import Database_suggestions, DATABASE_URL
 
 
 class Suggestion(commands.Cog):

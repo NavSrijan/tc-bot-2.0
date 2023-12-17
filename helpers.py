@@ -1,6 +1,6 @@
 import discord
 import pickle as pkl
-from database import Database_suggestions, DATABASE_URL
+#from database import Database_suggestions, DATABASE_URL
 from PIL import Image, ImageFont, ImageDraw
 import requests
 from functions import download_and_return_image

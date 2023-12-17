@@ -14,7 +14,6 @@ from jokeapi import Jokes
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
-from database import DATABASE_URL, Database_members
 from database_2 import Message_Logs, Synergy, Birthday
 from functions import load, save, utc_to_ist, MorseCode
 from helpers import basic_embed, get_percentage_image
@@ -336,17 +335,17 @@ class Chat_commands(commands.Cog):
     #    chat_command = self.bot.get_command('revive').all_commands['chat']
     #    await ctx.invoke(chat_command)
 
-    @commands.has_permissions(kick_members=True)
+    """@commands.has_permissions(kick_members=True)
     @revive.command(name="reset_time", aliases=["rt"])
     async def reset_revive_time(self, ctx):
-        """Resets the revive cooldown, so It can be used again."""
+        #Resets the revive cooldown, so It can be used again.
         self.one_time_revive_pass = True
         await ctx.reply("The revive time has been reset", ephemeral=True)
 
     @commands.has_permissions(kick_members=True)
     @revive.command(name="reset")
     async def reset_revives(self, ctx, user: discord.Member = None):
-        """Reset the revives for a user"""
+        #Reset the revives for a user
         if user != None:
             ll = [user]
         else:
@@ -359,7 +358,7 @@ class Chat_commands(commands.Cog):
     @commands.has_permissions(kick_members=True)
     @revive.command(name="count")
     async def count_revives(self, ctx, user: discord.Member = None):
-        """Shows the revives left for a user"""
+        #Shows the revives left for a user
         if user != None:
             ll = user
         else:
@@ -370,7 +369,7 @@ class Chat_commands(commands.Cog):
             p1 = Person(member)
             p1 = db.fetchUser(p1)
             toSend += f"{member.mention}: {p1.revives_available}" + "\n"
-        await ctx.reply(toSend)
+        await ctx.reply(toSend)"""
 
     @commands.hybrid_command(name="topic", aliases=["t"])
     async def topic(self, ctx):

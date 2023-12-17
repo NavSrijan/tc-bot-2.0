@@ -8,7 +8,9 @@ import psycopg2.extras
 
 from functions import load, utc_to_ist
 
-creds = {'username': 'thewhistler', 'password': 'NavSrijan'}
+#creds = {'username': 'thewhistler', 'password': 'NavSrijan'}
+creds = {'username': os.environ['database_username'], 'password': os.environ['database_password'], 'host': os.environ['db_host']}
+
 
 
 def _is_connected(func):
@@ -28,7 +30,7 @@ def _is_connected(func):
 
 
 class Database():
-    database_name = "tc"
+    database_name = "remindmebot_db"
 
     def __init__(self, tableName):
         self.username = creds['username']
@@ -37,7 +39,7 @@ class Database():
         self.connect()
 
     def connect(self):
-        self.conn = psycopg2.connect(host="192.168.29.3",
+        self.conn = psycopg2.connect(host=creds['host'],
                                      database=self.database_name,
                                      user=self.username,
                                      password=self.password)
@@ -79,6 +81,7 @@ class Message_Logs(Database):
         "content" TEXT NOT NULL,
         "mentions" BIGINT ARRAY NOT NULL,
         "word_count" INT NOT NULL,
+        "emojis" text[],
         PRIMARY KEY ("message_id")
     );"""
 
@@ -393,6 +396,7 @@ class Command_Logs(Database):
     """
     CREATE TABLE "command_logs" (
 	"id" serial primary key,
+    "message_id" BIGINT,
 	"user_id" BIGINT,
 	"command" TEXT,
 	"arguments" JSON,
