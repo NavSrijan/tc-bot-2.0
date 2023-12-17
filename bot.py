@@ -9,7 +9,6 @@ import re
 import discord
 from discord.ext import commands
 import emoji
-import ipdb
 
 from config import Config
 from database_2 import Message_Logs, Afk, Database_suggestions, Command_Logs, Voice_Logs

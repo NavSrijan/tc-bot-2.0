@@ -18,7 +18,6 @@ from database_2 import Message_Logs, Synergy, Birthday
 from functions import load, save, utc_to_ist, MorseCode
 from helpers import basic_embed, get_percentage_image
 import aiohttp
-import ipdb
 
 
 class Chat_commands(commands.Cog):

@@ -14,7 +14,6 @@ executing==2.0.1
 fonttools==4.46.0
 frozenlist==1.4.1
 idna==3.6
-ipdb==0.13.13
 ipython==8.18.1
 jedi==0.19.1
 jokeapi==1.0.5

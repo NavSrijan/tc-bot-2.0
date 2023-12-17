@@ -6,7 +6,6 @@ import time
 from helpers import basic_embed
 import random
 import asyncio
-import ipdb
 
 
 class Mod(commands.Cog):
