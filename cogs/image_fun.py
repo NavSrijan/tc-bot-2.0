@@ -8,7 +8,7 @@ import random
 import requests
 from io import BytesIO
 import textwrap
-from scipy.spatial import KDTree
+#from scipy.spatial import KDTree
 from webcolors import (
     CSS3_HEX_TO_NAMES,
     hex_to_rgb,
@@ -56,7 +56,7 @@ class ImageFun(commands.Cog):
     async def rgb_to_color(self, ctx, red=0, green=0, blue=0, hex_color=None):
         """Convert any rgb value to a given color name"""
 
-        def convert_rgb_to_names(rgb_tuple):
+        """def convert_rgb_to_names(rgb_tuple):
 
             # a dictionary of all the hex and their respective names in css3
             css3_db = CSS3_HEX_TO_NAMES
@@ -68,14 +68,16 @@ class ImageFun(commands.Cog):
 
             kdt_db = KDTree(rgb_values)
             distance, index = kdt_db.query(rgb_tuple)
-            return f'closest match: {names[index]}'
+            return f'closest match: {names[index]}'"""
         
         if hex_color is None:
-            color = convert_rgb_to_names((red, green, blue))
+            #color = convert_rgb_to_names((red, green, blue))
+            color = "Color"
             im = Image.new('RGB', (500, 500), color=(red, green, blue))
         else:
             rgb = ImageColor.getcolor(hex_color, "RGB")
-            color = convert_rgb_to_names(rgb)
+            #color = convert_rgb_to_names(rgb)
+            color = "Color"
             im = Image.new('RGB', (500, 500), color=rgb)
 
         file = send_image(im)

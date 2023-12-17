@@ -2,7 +2,7 @@ from discord.ext import commands
 import discord
 import os
 import requests
-from newsapi import NewsApiClient
+#from newsapi import NewsApiClient
 import requests
 import ast
 import time
